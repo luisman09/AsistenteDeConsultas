@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Queries
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block contenido %}
+
+    <div id="box">
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+        <form action="{% url 'asistente_de_consultas:queries' %}" method="post">
+        {% csrf_token %}
+            Query: <textarea rows="10" cols="60" name="query"></textarea><br>
+        <input type="submit" value="Probar Consulta" />
+        </form>
+    </div>
+
+{% endblock %}

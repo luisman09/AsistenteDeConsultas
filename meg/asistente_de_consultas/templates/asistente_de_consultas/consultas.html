@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Consultas
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block contenido %}
+
+    <div id="box">
+        <p>Los resultados de su consulta son: </p>
+        <table id="t01">
+            <tr>
+                {% for a in atributos %}
+                    <th>{{ a }}</th>
+                {% endfor %}
+            </tr>
+            {% for r in results %}
+                <tr>
+                    {% for s in r %}
+                        <td>{{ s }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}
+
+
+

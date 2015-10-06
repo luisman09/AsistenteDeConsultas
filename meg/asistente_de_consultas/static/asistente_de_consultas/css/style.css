@@ -1,0 +1,107 @@
+body {
+    background-color: #EEEEEE;
+}
+
+p strong {
+    color: red;
+}
+
+#box {
+    font-family: Arial,Helvetica,sans-serif;
+    margin: 0 auto;
+    position: relative;
+    top: 10px;
+    font-size: 14px;
+    padding: 20px;
+    color: #888;
+    background: #fff;
+    left: 0;
+    display: block;
+    width: 1000px;
+    height: 400px;
+    overflow: scroll;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+}
+
+fieldset.group  { 
+  margin: 0; 
+  padding: 0; 
+  margin-bottom: 1.25em; 
+  padding: .125em; 
+} 
+
+fieldset.group legend { 
+  margin: 0; 
+  padding: 0; 
+  font-weight: bold; 
+  margin-left: 20px; 
+  font-size: 100%; 
+  color: black; 
+} 
+
+ul.checkbox  { 
+  margin: 0; 
+  padding: 0; 
+  margin-left: 20px; 
+  list-style: none; 
+} 
+
+ul.checkbox li input { 
+  margin-right: .25em; 
+} 
+
+ul.checkbox li { 
+  border: 1px transparent solid; 
+  display:inline-block;
+  width:12em;
+} 
+
+ul.checkbox li label { 
+  margin-left: ; 
+} 
+
+ul.checkbox li:hover,
+ 
+ul.checkbox li.focus  { 
+  background-color: lightyellow; 
+  border: 1px gray solid; 
+  width: 12em; 
+} 
+
+/* Consultas.html */
+table {
+    width:100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 3px;
+    text-align: left;
+}
+
+table#t01 tr:nth-child(even) {
+    background-color: #eee;
+    color: black;
+}
+
+table#t01 tr:nth-child(odd) {
+    background-color:#fff;
+    color: black;
+}
+
+table#t01 th	{
+    padding: 5px;
+    background-color: black;
+    color: white;
+}
+
+
+
+
+

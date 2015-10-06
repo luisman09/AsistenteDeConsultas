@@ -1,0 +1,18 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/style.css' %}" />
+
+{% include "base.html" %}
+
+<h2>Parroquias: </h2>
+
+{% if parroquia_list %}
+    <ul>
+    {% for parroquia in parroquia_list %}
+        <li><a href="{% url 'asistente_de_consultas:detail' parroquia.id %}">{{ parroquia.nombre }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No parroquias are available.</p>
+{% endif %}
+
+

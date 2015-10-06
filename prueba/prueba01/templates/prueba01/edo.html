@@ -1,0 +1,10 @@
+
+{% if estado_list %}
+    <ul>
+    {% for estado in estado_list %}
+        <li><a href="{% url 'mun' estado.id %}">{{ estado.nombre }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No hay estados.</p>
+{% endif %}

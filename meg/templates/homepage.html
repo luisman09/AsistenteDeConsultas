@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Inicio
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block contenido %}
+
+    {% if user.is_authenticated  %}
+        <div align=center>
+            <p> Bienvenido <b> {{ user.username }} </p></b>
+            <p> Para realizar una consulta a traves del asistente. <a href="{% url "asistente_de_consultas:atributos" %}"> Presione Aquí </a> </p></b>
+            <p> Para realizar una consulta directa. <a href="{% url "asistente_de_consultas:queries" %}"> Presione Aquí </a> </p></b>
+        </div>
+    {% else %}
+        <!-- Si el usuario no esta logeado, se redirige automaticamente a la pagina de login -->
+        <META http-equiv="refresh" content="0;{% url "login" %}">
+    {% endif %}
+
+{% endblock %}
+
+
