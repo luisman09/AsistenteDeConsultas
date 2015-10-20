@@ -8,590 +8,706 @@
 {% endblock %}
 
 {% block encabezado %}
+    | <a class="limpiarGlobales" href="{% url "homepage" %}"> Volver Al Inicio </a>
 {% endblock %}
 
 {% block contenido %}
 
-    <div id="box">
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
-        {% if atributos_tupla %}
-            <form action="{% url 'asistente_de_consultas:consultas' %}" method="post">
-                {% csrf_token %}
-
-                <div id="parte_1">
-                    <h3 align="center">*-----* Selecciona los atributos a mostrar *-----*</h3>
-                    <fieldset class="group"> 
+    <div class="box" id="box">
+        <!--Todo el formulario que se hara efectivo al pulsar el boton "hacer consulta".-->
+        <form action="{% url 'asistente_de_consultas:consultas' %}" method="post">
+            {% csrf_token %}
+            <!--Este primer div permite escoger si se quiere hacer una consulta simple o una consulta con agrupados.-->
+            <div class="partes" id="inicio" align="center">
+                <input id="consulta-simple" name="consulta-simple" type="button" value="Realizar Consulta Simple"/>
+                <input id="consulta-agrupados" name="consulta-agrupados" type="button" value="Realizar Consulta Con Agrupados"/>
+            </div> 
+            <!--A continuacion vendran varios div que realizan funciones especificas cada uno.
+                Para realizar una consulta con el asistente, sea simple o con agrupados, se debe
+                -parte-1: Seleccionar los atributos a mostrar, es decir, los que iran en la clausula del SELECT.
+                    Si la consulta es con agrupados esta parte manejara la clausula GROUP BY.
+                -parte-2: Agregar las condiciones que limitaran la consulta, los que iran en la clausula del WHERE.
+                    A traves de las partes 1 y 2, se maneja la clausula FROM y el manejo de los JOIN.
+                -parte-3: Dar un orden si se desea a los resultados esperados, con el manejo de la clausula ORDER BY. [AUN NO ESTA IMPLEMENTADO]
+                -parte-4: Permitir ingresar un limite, con el manejo de la clausula LIMIT. [AUN NO ESTA IMPLEMENTADO]
+                Las partes 2, 3 y 4 son las mismas, la unica que varia es la parte 1.
+            -->
+            <!--Partes 1.-->
+            <div class="partes" id="parte_1-simple" hidden="true">
+                <h3 align="center">*-----* Selecciona los atributos a mostrar *-----*</h3>
+                <!--Caja de checkbox con todos los posibles atributos seleccionables para mostrar.-->
+                <fieldset class="group-checkbox"> 
+                    <ul class="checkbox"> 
+                    {% for elem in attos_select %}
+                        <li>
+                            <input class="seleccionados" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
+                            <label for="attos{{ forloop.counter }}">{{ elem.0 }}</label>
+                        </li>
+                    {% endfor %}
+                    </ul> 
+                </fieldset>
+                </br> 
+                <!--Las partes 2, 3 y 4 apareceran unicamente si hay al menos un elemento seleccionado.-->
+                <div align="center">
+                    <input id="continuar-simple" name="continuar-simple" type="button" value="continuar"/>
+                </div>
+            </div>
+            <div class="partes" id="parte_1-agrupados" hidden="true">
+                <h3 align="center">*-----* Selecciona los agregados a mostrar *-----*</h3>
+                <!--Lista desplegable que permite seleccionar un agrupado, 
+                    seguida de una caja de checkbox que te permite escoger los atributos para agrupar.
+                -->
+                <div id="consulta-agrupados">
+                    <div align="center">
+                        <select name="agrupados" id="agrupados" class="simple">
+                            <option value="">Selecciona un agrupado:</option>
+                            {% for elem in agrupados %}
+                                <option id="agrupados{{ forloop.counter }}" value="{{ elem.0 }}">{{ elem.0 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    </br>
+                    <fieldset id="ag" class="group-checkbox"> 
                         <ul class="checkbox"> 
-                        {% for tupla in atributos_tupla %}
+                        {% for elem in ag_nivel_5 %}
                             <li>
-                                <input class="seleccionados" type="checkbox" name="attos" id="tupla.0{{ forloop.counter }}" value="{{ tupla.0 }}" />
-                                <label for="tupla.0{{ forloop.counter }}">{{ tupla.0 }}</label>
+                                <input class="seleccionados" id="ag_attos{{ forloop.counter }}" name="ag_attos" type="checkbox" value="{{ elem.0 }}" />
+                                <label for="ag_attos{{ forloop.counter }}">{{ elem.0 }}</label>
                             </li>
                         {% endfor %}
                         </ul> 
-                    </fieldset> 
-                    <div align="center">
-                        <input id="continuar" name="continuar" type="button" value="continuar"/>
-                    </div>
+                    </fieldset>
+                </div>
+                </br> 
+                <!--Las partes 2, 3 y 4 apareceran unicamente si hay un agrupado seleccionado.-->
+                <div align="center">
+                    <input id="continuar-agrupados" name="continuar-agrupados" type="button" value="continuar"/>
+                </div>
+            </div>
+            </br>
+            <!--Parte 2.-->
+            <!--Cada div de esta parte tiene un boton eliminar "-" para que la opcion seleccionada no sea
+                tomada en cuenta. Algunas tienen un boton "+" para agregar elementos dinamicos extra del mismo tipo,
+                y a su vez cada elemento extra tendra un boton "x" para eliminar unicamente a ese elemento.
+            -->
+            <div class="partes" id="parte_2" hidden="true">
+                <h3 align="center">*-----* Selecciona las condiciones o limitantes *-----*</h3>
+                <!--Lista desplegable que te permite escoger condiciones para limitar la consulta.
+                    Funciona como una lista simple, pero puede usarse varias veces, ya que trabaja
+                    con habilitar y deshabilitar elementos.
+                -->
+                <div align="center">
+                    <select class="simpleX" id="conds" name="conds">
+                        <option>Selecciona un campo a condicionar:</option>
+                        {% for elem in attos_where %}
+                            <option id="{{ elem.0 }}" value="{{ elem.0 }}">{{ elem.3 }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 </br>
-
-                <div id="parte_2" hidden="true">
-                    <h3 align="center">*-----* Selecciona las condiciones o limitantes *-----*</h3>
-                    <div align="center">
-                        <select name="conds" id="conds">
-                            <option>Selecciona un campo a condicionar:</option>
-                            {% for tupla in attos_where %}
-                                <option value="{{ tupla.0 }}" id="{{ tupla.0 }}">{{ tupla.3 }}</option>
+                </br>
+                <!--Select dependiente de 4 niveles para hallar ubicaciones (Edo-Mun-Parr-Centros).
+                    Al llegar a nivel de centros, se puede escoger mas de un elemento.
+                    Se pueden agregar hasta 10 ubicaciones diferentes, la primera es estatica y 
+                    de alli en adelante son dinamicas (aparecen si se desea especificar otra ubicacion).
+                -->
+                <div id="ubicacion" name="ubicacion" hidden="true">     
+                    <div id="dinamico-ubicacion">
+                        <select class="simpleX" id="edos" name="edos">
+                            <option value="" selected>Selecciona un Estado:</option>
+                            {% for estado in estados %}
+                                <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
                             {% endfor %}
                         </select>
-                    </div>
-                    </br>
-                    </br>
+                        <select class="simpleX" id="muns" name="muns" disabled="true">
+                            <option value="">Selecciona un Municipio:</option>
+                        </select>
+                        <select class="simpleX" id="parrs" name="parrs" disabled="true">
+                            <option value="">Selecciona una Parroquia:</option>
+                        </select>
+                        <select class="multiX" id="ctros" name="ctros" disabled="true" multiple>
+                            <option value="">Selecciona los Centros:</option>
+                        </select>
+                        <input id="agregar-otra-ubicacion" type="button" value="+"/>
+                        <input id="eliminar-ubicacion" name="eliminar-ubicacion" type="button" value="-"/>
 
-                    <div name="ubicacion" id="ubicacion" hidden="true">     
-
-                        <div id="dinamico-ubicacion">
-                            <select name="edos" id="edos">
-                                <option value="" selected>Selecciona un Estado:</option>
-                                {% for estado in estados %}
-                                    <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
-                                {% endfor %}
-                            </select>
-                            <select name="muns" id="muns" disabled="true">
-                                <option value="">Selecciona un Municipio:</option>
-                            </select>
-                            <select name="parrs" id="parrs" disabled="true">
-                                <option value="">Selecciona una Parroquia:</option>
-                            </select>
-                            <select name="ctros" id="ctros" disabled="true" multiple>
-                                <option value="">Selecciona los Centros:</option>
-                            </select>
-                            <!--<input id="agregar-otra-ubicacion" type="button" value="+"/>-->
-                            <input id="eliminar-ubicacion" name="eliminar-ubicacion" type="button" value="-"/>
-
-                            <!--<div id="ubicacion-adicional">
-                                <div class="agregar-eliminar-ubicacion" style="display: none;">
-                                    <select class="otros-edos" name="edos" id="otros-edos">
-                                        <option value="" selected>Selecciona un Estado:</option>
-                                        {% for estado in estados %}
-                                            <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <select class="otros-muns" name="muns" id="otros-muns" disabled="true">
-                                        <option value="">Selecciona un Municipio:</option>
-                                    </select>
-                                    <select class="otras-parrs" name="parrs" id="otras-parrs" disabled="true">
-                                        <option value="">Selecciona una Parroquia:</option>
-                                    </select>
-                                    <select class="otros-ctros" name="ctros" id="otros-ctros" disabled="true" multiple>
-                                        <option value="">Selecciona los Centros:</option>
-                                    </select>
-                                    <input class="eliminar-ubicacion" type="button" value="x">
-                                </div>
-                            </div>-->
-                        </div>
-                        </br> 
-                    </div> 
- 
-                    <div name="centro-esp" id="centro-esp" hidden="true"> 
-                            
-                        <div id="dinamico-centro-esp">
-                            <label>Introduce un Código de Centro:  </label>
-                            <input id="centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
-                            <input id="validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
-                            <input id="agregar-otro-centro-esp" type="button" value="+">
-                            <input id="eliminar-centro-esp" name="eliminar-centro-esp" type="button" value="-"/>
-                            <div id="centro-esp-adicional">
-                                <div class="agregar-eliminar-centro-esp" style="display: none;">
-                                    <label>Introduce un Código de Centro:</label>
-                                    <input class="otro-centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
-                                    <input class="otro-validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
-                                    <input class="eliminar-centro-esp" type="button" value="x">
-                                </div>
+                        <div id="ubicacion-adicional">
+                            <div class="agregar-eliminar-ubicacion" style="display: none;">
+                                <select class="otros-edos" class="simple" id="otros-edos" name="edos">
+                                    <option value="" selected>Selecciona un Estado:</option>
+                                    {% for estado in estados %}
+                                        <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select class="otros-muns" class="simple" id="otros-muns" name="muns" disabled="true" >
+                                    <option value="">Selecciona un Municipio:</option>
+                                </select>
+                                <select class="otras-parrs" class="simple" id="otras-parrs" name="parrs" disabled="true">
+                                    <option value="">Selecciona una Parroquia:</option>
+                                </select>
+                                <select class="otros-ctros" class="multi" id="otros-ctros" name="ctros" disabled="true" multiple>
+                                    <option value="">Selecciona los Centros:</option>
+                                </select>
+                                <input class="eliminar-ubicacion" type="button" value="x">
                             </div>
                         </div>
-                        </br> 
                     </div>
-
-                    <div name="circuitos-15" id="circuitos-15" hidden="true"> 
-                        <select name="circuitos" id="circuitos" multiple>
-                            <option value="" selected>Selecciona los Circuitos:</option>
-                            {% for circuito in circuitos_15 %}
-                                <option value="{{ circuito }}"> {{ circuito }}</option>
-                            {% endfor %}
-                        </select>
-                        <input id="eliminar-circuitos-15" name="eliminar-circuitos-15" type="button" value="-"/>
-                        </br></br>  
+                    </br> 
+                </div> 
+                <!--Input simple para buscar centros especificos por su codigo.
+                    Se pueden agregar hasta 10 centros diferentes, el primero es estatico y 
+                    de alli en adelante son dinamicos (aparecen si se desea especificar otro centro).
+                    El boton validar te dara un mensaje para comprobar que el centro existe y es valido.
+                -->
+                <div id="centro-esp" name="centro-esp" hidden="true"> 
+                    <div id="dinamico-centro-esp">
+                        <label>Introduce un Código de Centro:  </label>
+                        <input id="centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
+                        <input id="validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
+                        <input id="agregar-otro-centro-esp" type="button" value="+">
+                        <input id="eliminar-centro-esp" name="eliminar-centro-esp" type="button" value="-"/>
+                        <div id="centro-esp-adicional">
+                            <div class="agregar-eliminar-centro-esp" style="display: none;">
+                                <label>Introduce un Código de Centro:</label>
+                                <input class="otro-centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                <input class="otro-validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
+                                <input class="eliminar-centro-esp" type="button" value="x">
+                            </div>
+                        </div>
                     </div>
-                    <div name="cant-mesas" id="cant-mesas" hidden="true"> 
-                        <label>Entre </label>
-                        <input type="text" id="min-mesas" name="min-mesas" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> y </label>
-                        <input type="text" id="max-mesas" name="max-mesas" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> Mesas Electorales. </label>
-                        <input id="eliminar-cant-mesas" name="eliminar-cant-mesas" type="button" value="-"/>
-                        </br></br>  
-                    </div>
-                    <div name="cant-elects" id="cant-elects" hidden="true"> 
-                        <label>Entre </label>
-                        <input type="text" id="min-elects" name="min-elects" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> y </label>
-                        <input type="text" id="max-elects" name="max-elects" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> Electores. </label>
-                        <input id="eliminar-cant-elects" name="eliminar-cant-elects" type="button" value="-"/>
-                        </br></br>  
-                    </div>
-                    <div name="cant-venez" id="cant-venez" hidden="true"> 
-                        <label>Entre </label>
-                        <input type="text" id="min-venez" name="min-venez" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> y </label>
-                        <input type="text" id="max-venez" name="max-venez" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> Electores Venezolanos. </label>
-                        <input id="eliminar-cant-venez" name="eliminar-cant-venez" type="button" value="-"/>
-                        </br></br>  
-                    </div>  
-                    <div name="cant-extr" id="cant-extr" hidden="true"> 
-                        <label>Entre </label>
-                        <input type="text" id="min-extr" name="min-extr" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> y </label>
-                        <input type="text" id="max-extr" name="max-extr" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> Electores Extranjeros. </label>
-                        <input id="eliminar-cant-extr" name="eliminar-cant-extr" type="button" value="-"/>
-                        </br></br>  
-                    </div>   
-                    <div name="cedula-esp" id="cedula-esp" hidden="true">  
-                        <select name="nac" id="nac">
-                            <option value="" selected>Elige la Nacionalidad:</option>
-                            {% for nac in nacionalidades %}
-                                <option value="'{{ nac }}'"> {{ nac }}</option>
-                            {% endfor %}
-                        </select>
-                        <input type="text" id="ci" name="ci" placeholder="Introduce el numero de cédula" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <input id="eliminar-cedula-esp" name="eliminar-cedula-esp" type="button" value="-"/>
-                        </br></br>  
-                    </div>     
-                    <div name="nombre-completo" id="nombre-completo" hidden="true">  
-                        <input type="text" id="primer-nombre" name="primer-nombre" placeholder="Primer Nombre" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
-                        <input type="text" id="segundo-nombre" name="segundo-nombre" placeholder="Segundo Nombre" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>  
-                        <input type="text" id="primer-apellido" name="primer-apellido" placeholder="Primer Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
-                        <input type="text" id="segundo-apellido" name="segundo-apellido" placeholder="Segundo Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
-                        <input id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="button" value="-"/>
-                        </br></br>  
-                    </div>  
-                    <div name="edad" id="edad" hidden="true"> 
-                        <label>Entre </label>
-                        <input type="text" id="min-edad" name="min-edad" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> y </label>
-                        <input type="text" id="max-edad" name="max-edad" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <label> Años de Edad. </label>
-                        <input id="eliminar-edad" name="eliminar-edad" type="button" value="-"/>
-                        </br></br>  
-                    </div> 
-                    <div name="genero" id="genero" hidden="true">  
-                        <select name="sexo" id="sexo">
-                            <option value="" selected>Elige un Sexo:</option>
-                            {% for gen in sexo %}
-                                <option value="'{{ gen }}'"> {{ gen }}</option>
-                            {% endfor %}
-                        </select>
-                        <input id="eliminar-genero" name="eliminar-genero" type="button" value="-"/>
-                        </br></br>  
-                    </div>  
-                    <div name="estrato-soc" id="estrato-soc" hidden="true"> 
-                        <select name="estratos" id="estratos" multiple>
-                            <option value="" selected>Selecciona los Estratos:</option>
-                            {% for estrato in estratos %}
-                                <option value="'{{ estrato }}'"> {{ estrato }}</option>
-                            {% endfor %}
-                        </select>
-                        <input id="eliminar-estrato-soc" name="eliminar-estrato-soc" type="button" value="-"/>
-                        </br></br>  
-                    </div>
-                    <div name="estado-civil" id="estado-civil" hidden="true"> 
-                        <select name="estados-civiles" id="estados-civiles" multiple>
-                            <option value="" selected>Selecciona los Estados Civiles:</option>
-                            {% for ecivil in edos_civiles %}
-                                <option value="{{ ecivil}}"> {{ ecivil }}</option>
-                            {% endfor %}
-                        </select>
-                        <input id="eliminar-estado-civil" name="eliminar-estado-civil" type="button" value="-"/>
-                        </br></br>  
-                    </div>
-                    <div name="ipp" id="ipp" hidden="true"> 
-                        <select name="ipps" id="ipps" multiple>
-                            <option value="" selected>Selecciona los IPP:</option>
-                            {% for ipp in ipps %}
-                                <option value="{{ ipp }}"> {{ ipp }}</option>
-                            {% endfor %}
-                        </select>
-                        <input id="eliminar-ipp" name="eliminar-ipp" type="button" value="-"/>
-                        </br></br>  
-                    </div>
-                    <div name="isei" id="isei" hidden="true"> 
-                        <label>Entre </label>
-                        <input type="text" id="min-isei" name="min-isei" onKeyPress="return numeroRealPositivo(event)"/>
-                        <label> y </label>
-                        <input type="text" id="max-isei" name="max-isei" onKeyPress="return numeroRealPositivo(event)"/>
-                        <label> del Índice Socioeconómico Inferido (ISEI). </label>
-                        <input id="eliminar-isei" name="eliminar-isei" type="button" value="-"/>
-                        </br></br>  
-                    </div> 
+                    </br> 
                 </div>
-                <div id="parte_3" hidden="true">
-                    <h3 align="center">*-----* Selecciona los agrupados que deseas *-----*</h3>
-
-                    <!-- Aqui viene la lista de posibles agrupados con todo oculto dentro -->
-
+                <!--Select multiple para escoger los circuitos de 2015.-->
+                <div id="circuitos-15" name="circuitos-15" hidden="true"> 
+                    <select class="multi" id="circuitos" name="circuitos" multiple>
+                        <option value="" selected>Selecciona los Circuitos:</option>
+                        {% for circuito in circuitos_15 %}
+                            <option value="{{ circuito }}"> {{ circuito }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="eliminar-circuitos-15" name="eliminar-circuitos-15" type="button" value="-"/>
+                    </br></br>  
                 </div>
-                <div id="parte_4" hidden="true">
-                    <h3 align="center">*-----* Ordena las selecciones realizadas *-----*</h3>
-
-                    <!-- Aqui viene la lista de los atributos seleccionado con su posible orden -->
-
+                <!--Dos campos input para escoger la cantidad de mesas.-->
+                <div id="cant-mesas" name="cant-mesas" hidden="true"> 
+                    <label>Entre </label>
+                    <input id="min-mesas" name="min-mesas" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> y </label>
+                    <input id="max-mesas" name="max-mesas" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> Mesas Electorales. </label>
+                    <input id="eliminar-cant-mesas" name="eliminar-cant-mesas" type="button" value="-"/>
+                    </br></br>  
                 </div>
-                <div id="parte_5" hidden="true">
-                    <h3 align="center">*-----* Limita los resultados *-----*</h3>
-
-                    <!-- Aqui viene las opciones para limitar resultados -->
-
+                <!--Dos campos input para escoger la cantidad de electores.-->
+                <div id="cant-elects" name="cant-elects" hidden="true"> 
+                    <label>Entre </label>
+                    <input id="min-elects" name="min-elects" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> y </label>
+                    <input id="max-elects" name="max-elects" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> Electores. </label>
+                    <input id="eliminar-cant-elects" name="eliminar-cant-elects" type="button" value="-"/>
+                    </br></br>  
                 </div>
-                </br>
-                <div align="center" id="final" hidden="true">
-                    <input id="boton-final" type="submit" value="Hacer Consulta" />
+                <!--Dos campos input para escoger la cantidad de electores venezolanos.-->
+                <div id="cant-venez" name="cant-venez" hidden="true"> 
+                    <label>Entre </label>
+                    <input id="min-venez" name="min-venez" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> y </label>
+                    <input id="max-venez" name="max-venez" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> Electores Venezolanos. </label>
+                    <input id="eliminar-cant-venez" name="eliminar-cant-venez" type="button" value="-"/>
+                    </br></br>  
+                </div>  
+                <!--Dos campos input para escoger la cantidad de electores extranjeros.-->
+                <div id="cant-extr" name="cant-extr" hidden="true"> 
+                    <label>Entre </label>
+                    <input id="min-extr" name="min-extr" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> y </label>
+                    <input id="max-extr" name="max-extr" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> Electores Extranjeros. </label>
+                    <input id="eliminar-cant-extr" name="eliminar-cant-extr" type="button" value="-"/>
+                    </br></br>  
+                </div>   
+                <!--Un campo select simple para escoger la nacionalidad y un campo input para introducir la CI.
+                    Si no se introduce CI, se puede utilizar para buscar a las personas por nacionalidad.
+                -->
+                <div id="cedula-esp" name="cedula-esp" hidden="true">  
+                    <select class="simple" id="nac" name="nac">
+                        <option value="" selected>Elige la Nacionalidad:</option>
+                        {% for nac in nacionalidades %}
+                            <option value="'{{ nac }}'"> {{ nac }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="ci" name="ci" type="text" placeholder="Introduce el numero de cédula" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <input id="eliminar-cedula-esp" name="eliminar-cedula-esp" type="button" value="-"/>
+                    </br></br>  
                 </div>
-                <script>
+                <!--Cuatro inputs seguidos para indicar los nombres y apellidos.
+                    La busqueda es exacta, no por LIKE.
+                -->
+                <div id="nombre-completo" name="nombre-completo" hidden="true">  
+                    <input id="primer-nombre" name="primer-nombre" type="text" placeholder="Primer Nombre" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
+                    <input id="segundo-nombre" name="segundo-nombre" type="text" placeholder="Segundo Nombre" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>  
+                    <input id="primer-apellido" name="primer-apellido" type="text" placeholder="Primer Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
+                    <input id="segundo-apellido" name="segundo-apellido" type="text" placeholder="Segundo Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
+                    <input id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="button" value="-"/>
+                    </br></br>  
+                </div>  
+                <!--Dos campos input para escoger los rangos de edad.-->
+                <div id="edad" name="edad" hidden="true"> 
+                    <label>Entre </label>
+                    <input id="min-edad" name="min-edad" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> y </label>
+                    <input id="max-edad" name="max-edad" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    <label> Años de Edad. </label>
+                    <input id="eliminar-edad" name="eliminar-edad" type="button" value="-"/>
+                    </br></br>  
+                </div> 
+                <!--Select simple para escoger el sexo.-->
+                <div id="genero" name="genero" hidden="true">  
+                    <select class="simple" id="sexo" name="sexo">
+                        <option value="" selected>Elige un Sexo:</option>
+                        {% for gen in sexo %}
+                            <option value="'{{ gen }}'"> {{ gen }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="eliminar-genero" name="eliminar-genero" type="button" value="-"/>
+                    </br></br>  
+                </div>  
+                <!--Select multiple para escoger los estratos socioeconomicos.-->
+                <div id="estrato-soc" name="estrato-soc" hidden="true"> 
+                    <select class="multi" id="estratos" name="estratos" multiple>
+                        <option value="" selected>Selecciona los Estratos:</option>
+                        {% for estrato in estratos %}
+                            <option value="'{{ estrato }}'"> {{ estrato }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="eliminar-estrato-soc" name="eliminar-estrato-soc" type="button" value="-"/>
+                    </br></br>  
+                </div>
+                <!--Select multiple para escoger los estados civiles.-->
+                <div id="estado-civil" name="estado-civil" hidden="true"> 
+                    <select class="multi" id="estados-civiles" name="estados-civiles" multiple>
+                        <option value="" selected>Selecciona los Estados Civiles:</option>
+                        {% for ecivil in edos_civiles %}
+                            <option value="{{ ecivil}}"> {{ ecivil }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="eliminar-estado-civil" name="eliminar-estado-civil" type="button" value="-"/>
+                    </br></br>  
+                </div>
+                <!--Select multiple para escoger los indices de preferencia politica.-->
+                <div id="ipp" name="ipp" hidden="true"> 
+                    <select id="ipps" name="ipps" class="multi" multiple>
+                        <option value="" selected>Selecciona los IPP:</option>
+                        {% for ipp in ipps %}
+                            <option value="{{ ipp }}"> {{ ipp }}</option>
+                        {% endfor %}
+                    </select>
+                    <input id="eliminar-ipp" name="eliminar-ipp" type="button" value="-"/>
+                    </br></br>  
+                </div>
+                <!--Dos campos input para escoger el rango deL Indice SocioEconomico Inferido.-->
+                <div id="isei" name="isei" hidden="true"> 
+                    <label>Entre </label>
+                    <input id="min-isei" name="min-isei" type="text" onKeyPress="return numeroRealPositivo(event)"/>
+                    <label> y </label>
+                    <input id="max-isei" name="max-isei" type="text" onKeyPress="return numeroRealPositivo(event)"/>
+                    <label> del Índice Socioeconómico Inferido (ISEI). </label>
+                    <input id="eliminar-isei" name="eliminar-isei" type="button" value="-"/>
+                    </br></br>  
+                </div> 
+            </div>
+            <!--Parte 3.-->
+            <!--<div class="partes" hidden="true">
+                <h3 align="center">*-----* Ordena las selecciones realizadas *-----*</h3>
+            </div>-->
+            <!--Parte 4.-->
+            <div class="partes" id="parte_4" hidden="true">
+                <h3 align="center">*-----* Limita los resultados *-----*</h3>
 
-                    // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de las Ubicaciones.
-                    /*$(function() {
-                        var MAX = 10;
-                        var $agregar_ubi = $('#agregar-otra-ubicacion');
-                            $contenedor_ubi = $('#ubicacion-adicional');
-                            $template_ubi = $contenedor_ubi.children(':first').remove();
+                <div id="nombre-completo" name="nombre-completo" align="center">  
+                    <label> Introduce el límite de la consulta. </label>
+                    <input id="limite" name="limite" type="text" onKeyPress="return numeroEnteroPositivo(event)" />
+                    </br></br>  
+                </div>  
 
-                        //console.log("contenedor:");
-                        //console.log($contenedor.html());
-                        console.log("template:");
-                        console.log($template_ubi.html());
+            </div>
+            </br>
+            <!--Boton final para proceder a realizar la consulta.-->
+            <div class="partes" id="final" align="center" hidden="true">
+                <input id="boton-final" type="submit" value="Hacer Consulta" />
+            </div>
 
-                        function update() {
-                            var $hijosContenedor_ubi = $contenedor_ubi.children();
-                            // Desabilita el boton de agregar al llegar a 10.
-                            $agregar_ubi.prop('disabled', $hijosContenedor_ubi.length >= MAX);
-                            // Cambiar los id de los elementos.
-                            $hijosContenedor_ubi.find('.otros-edos').attr('id', function(i) {
-                                return 'otros-edos[' + i + ']';
-                            });
-                            $hijosContenedor_ubi.find('.otros-muns').attr('id', function(i) {
-                                return 'otros-muns[' + i + ']';
-                            });
-                            $hijosContenedor_ubi.find('.otras-parrs').attr('id', function(i) {
-                                return 'otras-parrs[' + i + ']';
-                            });
-                            $hijosContenedor_ubi.find('.otros-ctros').attr('id', function(i) {
-                                return 'otros-ctros[' + i + ']';
-                            });
+            <script>
 
-                            $hijosContenedor_ubi.on('change', '.otros-edos', function() {
-                                console.log("EDO-MUNS entre");
-                                var edo = $(this).val();
-                                var id_muns = $(this).parent().find('.otros-muns').attr("id");
-                                var id_parrs = $(this).parent().find('.otras-parrs').attr("id");
-                                var id_ctros = $(this).parent().find('.otros-ctros').attr("id");
-                                obtenerMunicipios(edo,id_muns,id_parrs,id_ctros);
-                            }); 
+                // Se ejecuta si se escoge una consulta simple.
+                $('#consulta-simple').on('click', function() {
+                    $('#consulta-simple').attr('hidden', true);
+                    $('#consulta-agrupados').attr('hidden', true);
+                    $('div#parte_1-simple').attr('hidden', false);
+                });
 
-                            $hijosContenedor_ubi.on('change', '.otros-muns', function() {
-                                console.log("MUN-PARRS entre");
-                                var mun = $(this).val();
-                                var id_parrs = $(this).parent().find('.otras-parrs').attr("id");
-                                var id_ctros = $(this).parent().find('.otros-ctros').attr("id");
-                                obtenerParroquias(mun,id_parrs,id_ctros);
-                            }); 
+                // Se ejecuta si se escoge una consulta con agrupados.
+                $('#consulta-agrupados').on('click', function() {
+                    $('#consulta-agrupados').attr('hidden', true);
+                    $('#consulta-simple').attr('hidden', true);
+                    $('div#parte_1-agrupados').attr('hidden', false);
+                });
 
-                            $hijosContenedor_ubi.on('change', '.otras-parrs', function() {
-                                console.log("PARR-CTROS entre");
-                                var parr = $(this).val();
-                                var id_ctros = $(this).parent().find('.otros-ctros').attr("id");
-                                obtenerCentros(parr,id_ctros);
-                            }); 
+                // Se ejecututa al clickear el boton continuar de una consulta simple.
+                $('#continuar-simple').on('click', validarSeleccionSimple);
 
-                            $hijosContenedor_ubi.find('.eliminar-ubicacion').attr('id', function(i) {
-                                return 'eliminar-ubicacion[' + i + ']';
-                            });
-                            console.log("asi queda el Container:");
-                            console.log($contenedor_ubi.html());
-                        }
+                // Se ejecututa al clickear el boton continuar de una consulta con agrupados.
+                $('#continuar-agrupados').on('click', validarSeleccionAgrupados);
 
-                        // Ocurre cuando se añade una nueva ubicacion.
-                        $agregar_ubi.on('click', function() {
-                            $template_ubi.clone().appendTo($contenedor_ubi).show();
-                            update();
+                // Muestra las otras opciones (condiciones, orden y limites,) para continuar la consulta
+                // cuando se escogio una consulta simple.
+                function validarSeleccionSimple(){
+                    if ($('input[name="attos"]').is(':checked')) {
+                        activarPartes();
+                    } else {
+                        alert('Se debe seleccionar por lo menos un atributo a mostrar.');
+                    }
+                }
+
+                // Muestra las otras opciones (condiciones, orden y limites,) para continuar la consulta
+                // cuando se escogio una consulta con agrupados.
+                function validarSeleccionAgrupados(){
+                    var op = $('select#agrupados').val();
+                    if (op != "") {
+                        activarPartes();
+                    } else {
+                        alert('Se debe seleccionar al menos un agrupado.');
+                    }
+                }
+
+                // Muestra las otras opciones (condiciones, orden y limites,) para continuar cualquier consulta.
+                function activarPartes() {
+                    $('div#parte_2').attr('hidden', false);
+                    $('div#parte_3').attr('hidden', false);
+                    $('div#parte_4').attr('hidden', false);
+                    $('div#parte_5').attr('hidden', false);
+                    $('div#final').attr('hidden', false);
+                }
+
+                // Se ejecuta cada vez que se elige una opcion para condicionar la consulta.
+                $('select#conds').on('change', deshabilitarOpcion);
+
+                // Desabilita las opcion seleccionada y muestra los elementos para agregar las condiciones.
+                function deshabilitarOpcion(){
+                    var op = $('#conds').val();
+                    $('div#'+op).attr('hidden', false);
+                    $('select#conds option:selected').attr('disabled', true);
+                    $('select#conds option:first').attr('selected', 'selected');
+                    if (op == 'ubicacion') {
+                        $('select#edos').on('change', obtenerPrimerosMunicipios);
+                        $('select#muns').on('change',obtenerPrimerasParroquias);
+                        $('select#parrs').on('change',obtenerPrimerosCentros);
+                    }
+                    if (op == 'centro-esp') {
+                        $('#validar-centro-id').on('click', {id_elem: "centro-id"}, validarPrimerCentro);
+                    }
+                    $('#eliminar-'+op).click(eliminarOpcion);
+                    opcionesDeshabilitadas();
+                }
+
+                // Habilita nuevamente la opcion y oculta (remueve) los elementos que agregan condiciones.
+                function eliminarOpcion(){
+                    var div_container;
+                    if ($(this).attr("name") == 'eliminar-centro-esp' || $(this).attr("name") == 'eliminar-ubicacion' ) {
+                        var div_container = $(this).parent().parent().attr("id");
+                    } else { 
+                        var div_container = $(this).parent().attr("id");
+                    }
+                    $('div#'+div_container).attr('hidden', true);
+                    var y = $('select#conds').find('option[value="'+div_container+'"]').attr('disabled', false);
+                    opcionesDeshabilitadas();
+                }
+
+                // Todos los select pertenecen a esta clase
+                //$('.multi').multiselect();        # ESTE ESTA BIEN
+                //$('.simple').multiselect();       # ESTE ESTA BIEN
+                //$('.multiX').multiselect();
+                //$('.simpleX').multiselect();
+                //$('.multi').select2();
+                //$('.simple').select2();
+
+                // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de las Ubicaciones.
+                $(function() {
+                    var MAX = 10;
+                    var $agregar_ubi = $('#agregar-otra-ubicacion');
+                        $contenedor_ubi = $('#ubicacion-adicional');
+                        $template_ubi = $contenedor_ubi.children(':first').remove();
+
+                    function update() {
+                        var $hijosContenedor_ubi = $contenedor_ubi.children();
+                        // Desabilita el boton de agregar al llegar a 10.
+                        $agregar_ubi.prop('disabled', $hijosContenedor_ubi.length >= MAX);
+                        // Cambiar los id de los elementos.
+                        $hijosContenedor_ubi.find('.otros-edos').attr('id', function(i) {
+                            return 'otros-edos-' + i;
+                        });
+                        $hijosContenedor_ubi.find('.otros-muns').attr('id', function(i) {
+                            return 'otros-muns-' + i;
+                        });
+                        $hijosContenedor_ubi.find('.otras-parrs').attr('id', function(i) {
+                            return 'otras-parrs-' + i;
+                        });
+                        $hijosContenedor_ubi.find('.otros-ctros').attr('id', function(i) {
+                            return 'otros-ctros-' + i;
                         });
 
-                        // Ocurre cuando se elimina alguna de las ubicaciones agregadas..
-                        $('#dinamico-ubicacion').on('click', '.eliminar-ubicacion', function() {
-                            $(this).closest('.agregar-eliminar-ubicacion').remove();
-                            update();
+                        $hijosContenedor_ubi.on('change', '.otros-edos', function() {
+                            console.log("EDO-MUNS entre");
+                            var edo = $(this).val();
+                            var id_muns = $(this).parent().find('.otros-muns').attr("id");
+                            var id_parrs = $(this).parent().find('.otras-parrs').attr("id");
+                            var id_ctros = $(this).parent().find('.otros-ctros').attr("id");
+                            obtenerMunicipios(edo,id_muns,id_parrs,id_ctros);
+                        }); 
+
+                        $hijosContenedor_ubi.on('change', '.otros-muns', function() {
+                            console.log("MUN-PARRS entre");
+                            var mun = $(this).val();
+                            var id_parrs = $(this).parent().find('.otras-parrs').attr("id");
+                            var id_ctros = $(this).parent().find('.otros-ctros').attr("id");
+                            obtenerParroquias(mun,id_parrs,id_ctros);
+                        }); 
+
+                        $hijosContenedor_ubi.on('change', '.otras-parrs', function() {
+                            console.log("PARR-CTROS entre");
+                            var parr = $(this).val();
+                            var id_ctros = $(this).parent().find('.otros-ctros').attr("id");
+                            obtenerCentros(parr,id_ctros);
+                        }); 
+
+                        $hijosContenedor_ubi.find('.eliminar-ubicacion').attr('id', function(i) {
+                            return 'eliminar-ubicacion[' + i + ']';
                         });
-                    });*/
+                        //console.log("asi queda el Container:");
+                        //console.log($contenedor_ubi.html());
+                    }
 
-                    // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de los Centros Especificos.
-                    $(function() {
-                        var MAX = 10;
-                        var $agregar = $('#agregar-otro-centro-esp');
-                            $contenedor = $('#centro-esp-adicional');
-                            $template = $contenedor.children(':first').remove();
-
-                        //console.log("contenedor:");
-                        //console.log($contenedor.html());
-                        //console.log("template:");
-                        //console.log($template.html());
-
-                        function update() {
-                            var $hijosContenedor = $contenedor.children();
-                            // Desabilita el boton de agregar al llegar a 10.
-                            $agregar.prop('disabled', $hijosContenedor.length >= MAX);
-                            // Cambiar los id de los elementos.
-                            $hijosContenedor.find('.otro-centro-id').attr('id', function(i) {
-                                return 'otro-centro-id[' + i + ']';
-                            });
-                            $hijosContenedor.find('.otro-validar-centro-id').attr('id', function(i) {
-                                return 'otro-validar-centro-id[' + i + ']';
-                            });
-                            $hijosContenedor.find('.eliminar-centro-esp').attr('id', function(i) {
-                                return 'eliminar-centro-id[' + i + ']';
-                            });
-                            // Validar el centro.
-                            $hijosContenedor.on('click', '.otro-validar-centro-id', function() {
-                                console.log("ACAAAA entre");
-                                var id_val = $(this).attr("id");
-                                var id_elem = $(this).parent().find('.otro-centro-id').attr("id");
-                                var centroId = $(this).parent().find('.otro-centro-id').val();
-                                validarCentro(centroId);
-                            }); 
-                            //console.log("asi queda el Container:");
-                            //console.log($contenedor.html());
-                        }
-
-                        // Ocurre cuando se añade un nuevo Centro.
-                        $agregar.on('click', function() {
-                            $template.clone().appendTo($contenedor).show();
-                            update();
-                        });
-
-                        // Ocurre cuando se elimina alguno de los Centros agregados.
-                        $('#dinamico-centro-esp').on('click', '.eliminar-centro-esp', function() {
-                            $(this).closest('.agregar-eliminar-centro-esp').remove();
-                            update();
-                        });
+                    // Ocurre cuando se añade una nueva ubicacion.
+                    $agregar_ubi.on('click', function() {
+                        $template_ubi.clone().appendTo($contenedor_ubi).show();
+                        update();
                     });
 
-                    // Se ejecututa al clickear el boton continuar.
-                    $('#continuar').on('click', validarSeleccion);
-                    
-                    // Muestra las otras opciones (condiciones, agrupaciones, orden y limites,) para continuar la consulta.
-                    function validarSeleccion(){
-                        if ($('input[name="attos"]').is(':checked')) {
-                            $('div#parte_2').attr('hidden', false);
-                            $('div#parte_3').attr('hidden', false);
-                            $('div#parte_4').attr('hidden', false);
-                            $('div#parte_5').attr('hidden', false);
-                            $('div#final').attr('hidden', false);
-                        }
-                        else {
-                            alert('Se debe seleccionar por lo menos un atributo a mostrar.');
-                        }
+                    // Ocurre cuando se elimina alguna de las ubicaciones agregadas..
+                    $('#dinamico-ubicacion').on('click', '.eliminar-ubicacion', function() {
+                        $(this).closest('.agregar-eliminar-ubicacion').remove();
+                        update();
+                    });
+                });
+
+                // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de los Centros Especificos.
+                $(function() {
+                    var MAX = 10;
+                    var $agregar = $('#agregar-otro-centro-esp');
+                        $contenedor = $('#centro-esp-adicional');
+                        $template = $contenedor.children(':first').remove();
+
+                    //console.log("contenedor:");
+                    //console.log($contenedor.html());
+                    //console.log("template:");
+                    //console.log($template.html());
+
+                    function update() {
+                        var $hijosContenedor = $contenedor.children();
+                        // Desabilita el boton de agregar al llegar a 10.
+                        $agregar.prop('disabled', $hijosContenedor.length >= MAX);
+                        // Cambiar los id de los elementos.
+                        $hijosContenedor.find('.otro-centro-id').attr('id', function(i) {
+                            return 'otro-centro-id[' + i + ']';
+                        });
+                        $hijosContenedor.find('.otro-validar-centro-id').attr('id', function(i) {
+                            return 'otro-validar-centro-id[' + i + ']';
+                        });
+                        $hijosContenedor.find('.eliminar-centro-esp').attr('id', function(i) {
+                            return 'eliminar-centro-id[' + i + ']';
+                        });
+                        // Validar el centro.
+                        $hijosContenedor.on('click', '.otro-validar-centro-id', function() {
+                            console.log("ACAAAA entre");
+                            var id_val = $(this).attr("id");
+                            var id_elem = $(this).parent().find('.otro-centro-id').attr("id");
+                            var centroId = $(this).parent().find('.otro-centro-id').val();
+                            validarCentro(centroId);
+                        }); 
+                        //console.log("asi queda el Container:");
+                        //console.log($contenedor.html());
                     }
 
-                    // Se ejecuta cada vez que se elige una opcion para condicionar la consulta.
-                    $('select#conds').on('change', deshabilitarOpcion);
+                    // Ocurre cuando se añade un nuevo Centro.
+                    $agregar.on('click', function() {
+                        $template.clone().appendTo($contenedor).show();
+                        update();
+                    });
 
-                    // Desabilita las opcion seleccionada y muestra los elementos para permitir agregar las condiciones.
-                    function deshabilitarOpcion(){
-                        var op = $('#conds').val();
-                        $('div#'+op).attr('hidden', false);
-                        $('select#conds option:selected').attr('disabled', true);
-                        $('select#conds option:first').attr('selected', 'selected');
-                        if (op == 'ubicacion') {
-                            $('select#edos').on('change', obtenerPrimerosMunicipios);
-                            $('select#muns').on('change',obtenerPrimerasParroquias);
-                            $('select#parrs').on('change',obtenerPrimerosCentros);
-                        }
-                        if (op == 'centro-esp') {
-                            $('#validar-centro-id').on('click', {id_elem: "centro-id"}, validarPrimerCentro);
-                        }
-                        $('#eliminar-'+op).click(eliminarOpcion);
-                        opcionesDeshabilitadas();
-                    }
+                    // Ocurre cuando se elimina alguno de los Centros agregados.
+                    $('#dinamico-centro-esp').on('click', '.eliminar-centro-esp', function() {
+                        $(this).closest('.agregar-eliminar-centro-esp').remove();
+                        update();
+                    });
+                });
 
-                    // Habilita nuevamente la opcion y oculta (remueve) los elementos que agregan condiciones.
-                    function eliminarOpcion(){
-                        var div_container;
-                        if ($(this).attr("name") == 'eliminar-centro-esp' || $(this).attr("name") == 'eliminar-ubicacion' ) {
-                            var div_container = $(this).parent().parent().attr("id");
-                        } else { 
-                            var div_container = $(this).parent().attr("id");
-                        }
-                        $('div#'+div_container).attr('hidden', true);
-                        var y = $('select#conds').find('option[value="'+div_container+'"]').attr('disabled', false);
-                        opcionesDeshabilitadas();
-                    }
+                // Muestra una lista de todas las opciones deshabilitadas, con el fin de saber que esas
+                // opciones fueron las seleccionadas para condicionar (restringir) la consulta.
+                function opcionesDeshabilitadas(){
+                    var deshabilitadas = $('select#conds option:disabled').map(function(){return this.value}).get();
+                    console.log(deshabilitadas);
+                    $.ajaxSetup({
+                      data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+                    });
+                    $.ajax({
+                        data: {'deshabilitadas': deshabilitadas},
+                        url: "{% url 'asistente_de_consultas:consultas' %}",
+                        type: 'post',                   
+                    });                     // AQUI DA UN ERROR DEL SERVIDOR Y EL POST.
 
-                    // Muestra una lista de todas las opciones deshabilitadas, con el fin de saber que esas
-                    // opciones fueron las seleccionadas para condicionar (restringir) la consulta.
-                    function opcionesDeshabilitadas(){
-                        var deshabilitadas = $('select#conds option:disabled').map(function(){return this.value}).get();
-                        console.log(deshabilitadas);
-                        //$.ajax({
-                          //  data: {'deshabilitadas[]': deshabilitadas},
-                          //  url: "{% url 'asistente_de_consultas:consultas' %}",
-                          //  type: 'post',                   // ESTO ES LO QUE QUIERO PERO EL POST ME DA ERROR 403
-                        //});
-                    }
+                }
 
-                    // Solo permite ingresar numeros y backspace en el input.
-                    function numeroEnteroPositivo(e){
-	                    var key = window.Event ? e.which : e.keyCode
-	                    return (key >= 48 && key <= 57) || (key == 8)
-                    }
+                // Solo permite ingresar numeros y backspace en el input.
+                function numeroEnteroPositivo(e){
+                    var key = window.Event ? e.which : e.keyCode
+                    return (key >= 48 && key <= 57) || (key == 8)
+                }
 
-                    // Solo permite ingresar numeros, punto (.) y backspace en el input.
-                    function numeroEnteroPositivo(e){
-	                    var key = window.Event ? e.which : e.keyCode
-	                    return (key >= 48 && key <= 57) || (key == 46) || (key == 8)
-                    }
+                // Solo permite ingresar numeros, punto (.) y backspace en el input.
+                function numeroRealPositivo(e){
+                    var key = window.Event ? e.which : e.keyCode
+                    return (key >= 48 && key <= 57) || (key == 46) || (key == 8)
+                }
 
-                    // Solo permite ingresar letras  y backspace en el input.
-                    function soloLetras(e){
-	                    var key = window.Event ? e.which : e.keyCode
-	                    return (key >= 65 && key <= 90) || (key >= 97 && key <= 122) || (key == 8)
-                    }
+                // Solo permite ingresar letras  y backspace en el input.
+                function soloLetras(e){
+                    var key = window.Event ? e.which : e.keyCode
+                    return (key >= 65 && key <= 90) || (key >= 97 && key <= 122) || (key == 8)
+                }
 
-                    // Transforma a mayusculas las letas minusculas.
-                    function aMayusculas(obj,id){
-                        obj = obj.toUpperCase();
-                        document.getElementById(id).value = obj;
-                    }
+                // Transforma a mayusculas las letas minusculas.
+                function aMayusculas(obj,id){
+                    obj = obj.toUpperCase();
+                    document.getElementById(id).value = obj;
+                }
 
-                    // Verifica que el primer centro especifico sea correcto, si el usuario lo desea.
-                    function validarPrimerCentro(event) {
-                        var centroId = $('input:text[id='+event.data.id_elem+']').val();
-                        validarCentro(centroId)
-                    }
+                // Verifica que el primer centro especifico sea correcto, si el usuario lo desea.
+                function validarPrimerCentro(event) {
+                    var centroId = $('input:text[id='+event.data.id_elem+']').val();
+                    validarCentro(centroId)
+                }
 
-                    // Verifica que los centros especificos sean correctos, si el usuario lo desea.
-                    function validarCentro(centroId){
-                        console.log(centroId);
-                        if(centroId.length < 8 || centroId.length > 9) {  
-                            alert("El codigo de centro debe contener 8 o 9 digitos numericos."); 
-                        } else {
-                            $.ajax({
-                                data: {'centroId': centroId},
-                                url: "{% url 'asistente_de_consultas:buscar_centro' %}",
-                                type: 'get',
-                                success: function(data){
-                                    alert("el centro " + data[0].pk + " es correcto y su nombre es: " + data[0].fields['nombre'] + ".");
-                                },
-                                error: function(xhr, status){
-                                    alert("el centro " + centroId + " NO EXISTE.");
-                                }
-                            });
-                        }
-                    }
-
-                    function obtenerPrimerosMunicipios() {
-                        var edo = $(this).val();
-                        obtenerMunicipios(edo,'muns','parrs','ctros');
-                    }
-
-                    function obtenerPrimerasParroquias() {
-                        var mun = $(this).val();
-                        obtenerParroquias(mun,'parrs','ctros');
-                    }
-
-                    function obtenerPrimerosCentros() {
-                        var parr = $(this).val();
-                        obtenerCentros(parr,'ctros');
-                    }
-
-                    // Obtiene todos los Municipios de un Estado especifico.
-                    function obtenerMunicipios(edo,id_muns,id_parrs,id_ctros){
-                        console.log(edo);
-                        console.log(id_muns);
-                        console.log(id_parrs);
-                        console.log(id_ctros);
+                // Verifica que los centros especificos sean correctos, si el usuario lo desea.
+                function validarCentro(centroId){
+                    console.log(centroId);
+                    if(centroId.length < 8 || centroId.length > 9) {  
+                        alert("El codigo de centro debe contener 8 o 9 digitos numericos."); 
+                    } else {
                         $.ajax({
-                            data: {'edo': edo},
-                            url: "{% url 'asistente_de_consultas:busqueda_ajax' %}",
+                            data: {'centroId': centroId},
+                            url: "{% url 'asistente_de_consultas:buscar_centro' %}",
                             type: 'get',
                             success: function(data){
-                                var options = '<option value="">Selecciona un Municipio:</option>'
-                                for (var i = 0; i < data.length; i++) {
-                                    options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
-                                }
-                                console.log(options);
-                                $('select#'+id_muns).html(options);
-                                $('select#'+id_muns+' option:first').attr('selected', 'selected');
-                                $('select#'+id_muns).attr('disabled', false);
-                                $('select#'+id_parrs+' option:first').attr('selected', 'selected');
-                                $('select#'+id_parrs).attr('disabled', true);
-                                $('select#'+id_ctros+' option:first').attr('selected', 'selected');
-                                $('select#'+id_ctros).attr('disabled', true);
+                                alert("el centro " + data[0].pk + " es correcto y su nombre es: " + data[0].fields['nombre'] + ".");
+                            },
+                            error: function(xhr, status){
+                                alert("el centro " + centroId + " NO EXISTE.");
                             }
                         });
                     }
+                }
 
-                    // Obtiene todas las Parroquias de un Municipio especifico.
-                    function obtenerParroquias(mun,id_parrs,id_ctros){
-                        console.log(mun);
-                        console.log(id_parrs);
-                        console.log(id_ctros);
-                        $.ajax({
-                            data: {'mun': mun},
-                            url: "{% url 'asistente_de_consultas:busqueda_ajax2' %}",
-                            type: 'get',
-                            success: function(data){
-                                var options = '<option value="">Selecciona una Parroquia:</option>'
-                                for (var i = 0; i < data.length; i++) {
-                                    options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
-                                }
-                                $('select#'+id_parrs).html(options);
-                                $('select#'+id_parrs+' option:first').attr('selected', 'selected');
-                                $('select#'+id_parrs).attr('disabled', false);
-                                $('select#'+id_ctros+' option:first').attr('selected', 'selected');
-                                $('select#'+id_ctros).attr('disabled', true);
+                function obtenerPrimerosMunicipios() {
+                    var edo = $(this).val();
+                    obtenerMunicipios(edo,'muns','parrs','ctros');
+                }
+
+                function obtenerPrimerasParroquias() {
+                    var mun = $(this).val();
+                    obtenerParroquias(mun,'parrs','ctros');
+                }
+
+                function obtenerPrimerosCentros() {
+                    var parr = $(this).val();
+                    obtenerCentros(parr,'ctros');
+                }
+
+                // Obtiene todos los Municipios de un Estado especifico.
+                function obtenerMunicipios(edo,id_muns,id_parrs,id_ctros){
+                    console.log(edo);
+                    console.log(id_muns);
+                    console.log(id_parrs);
+                    console.log(id_ctros);
+                    $.ajax({
+                        data: {'edo': edo},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="">Selecciona un Municipio:</option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
                             }
-                        });
-                    }
+                            console.log(options);
+                            console.log($('select#'+id_muns));
+                            $('select#'+id_muns).html(options);
+                            $('select#'+id_muns+' option:first').attr('selected', 'selected');
+                            $('select#'+id_muns).attr('disabled', false);
+                            $('select#'+id_parrs+' option:first').attr('selected', 'selected');
+                            $('select#'+id_parrs).attr('disabled', true);
+                            $('select#'+id_ctros+' option:first').attr('selected', 'selected');
+                            $('select#'+id_ctros).attr('disabled', true);
+                        }
+                    });
+                }
 
-                    // Obtiene todas los Centros de una Parroquia especifica.
-                    function obtenerCentros(parr,id_ctros){
-                        console.log(parr);
-                        console.log(id_ctros);
-                        $.ajax({
-                            data: {'parr': parr},
-                            url: "{% url 'asistente_de_consultas:busqueda_ajax3' %}",
-                            type: 'get',
-                            success: function(data){
-                                var options = '<option value="">Selecciona un Centro:</option>'
-                                for (var i = 0; i < data.length; i++) {
-                                    options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
-                                }
-                                $('select#'+id_ctros).html(options);
-                                $('select#'+id_ctros+' option:first').attr('selected', 'selected');
-                                $('select#'+id_ctros).attr('disabled', false);
+                // Obtiene todas las Parroquias de un Municipio especifico.
+                function obtenerParroquias(mun,id_parrs,id_ctros){
+                    console.log(mun);
+                    console.log(id_parrs);
+                    console.log(id_ctros);
+                    $.ajax({
+                        data: {'mun': mun},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax2' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="">Selecciona una Parroquia:</option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
                             }
-                        });
-                    }
+                            $('select#'+id_parrs).html(options);
+                            $('select#'+id_parrs+' option:first').attr('selected', 'selected');
+                            $('select#'+id_parrs).attr('disabled', false);
+                            $('select#'+id_ctros+' option:first').attr('selected', 'selected');
+                            $('select#'+id_ctros).attr('disabled', true);
+                        }
+                    });
+                }
 
-                </script>
+                // Obtiene todas los Centros de una Parroquia especifica.
+                function obtenerCentros(parr,id_ctros){
+                    console.log(parr);
+                    console.log(id_ctros);
+                    $.ajax({
+                        data: {'parr': parr},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax3' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="">Selecciona un Centro:</option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
+                            }
+                            $('select#'+id_ctros).html(options);
+                            $('select#'+id_ctros+' option:first').attr('selected', 'selected');
+                            $('select#'+id_ctros).attr('disabled', false);
+                        }
+                    });
+                }
 
-            </form>
-        {% else %}
-            <p>No hay atributos.</p>
-        {% endif %}
+            </script>
+
+        </form>
     </div>
 
 {% endblock %}

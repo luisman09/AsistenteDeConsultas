@@ -1,12 +1,10 @@
-body {
-    background-color: #EEEEEE;
+/* cuerpo de la app */
+.body {
+    background-color: #eee;
 }
 
-p strong {
-    color: red;
-}
-
-#box {
+/* caja principal que guarda todo */
+.box {
     font-family: Arial,Helvetica,sans-serif;
     margin: 0 auto;
     position: relative;
@@ -25,52 +23,41 @@ p strong {
     border-width: 1px;
 }
 
-fieldset.group  { 
-  margin: 0; 
-  padding: 0; 
-  margin-bottom: 1.25em; 
-  padding: .125em; 
-} 
+/* partes de las consultas */
+.partes {
+    color: #333;
+}
 
-fieldset.group legend { 
-  margin: 0; 
-  padding: 0; 
-  font-weight: bold; 
-  margin-left: 20px; 
-  font-size: 100%; 
-  color: black; 
-} 
+/* titulos de las partes */
+.partes h3 {
+    font-size: 20px;
+}
+
+/* grupos de checkbox */
+.group-checkbox {
+    background-color: #eee;
+    padding: 15px;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 15px 15px 15px 15px;
+}
 
 ul.checkbox  { 
-  margin: 0; 
-  padding: 0; 
-  margin-left: 20px; 
-  list-style: none; 
-} 
-
-ul.checkbox li input { 
-  margin-right: .25em; 
+    margin: 0; 
+    padding: 0; 
+    margin-left: 20px; 
+    list-style: none; 
 } 
 
 ul.checkbox li { 
-  border: 1px transparent solid; 
-  display:inline-block;
-  width:12em;
-} 
-
-ul.checkbox li label { 
-  margin-left: ; 
-} 
-
-ul.checkbox li:hover,
- 
-ul.checkbox li.focus  { 
-  background-color: lightyellow; 
-  border: 1px gray solid; 
-  width: 12em; 
+    border: 1px transparent solid; 
+    display:inline-block;
+    width:12.3em;
 } 
 
 /* Consultas.html */
+/* tabla con los resultados */
 table {
     width:100%;
 }

@@ -8,26 +8,69 @@
 {% endblock %}
 
 {% block encabezado %}
+    | <a class="limpiarGlobales" href="{% url "homepage" %}"> Volver Al Inicio </a>
 {% endblock %}
 
 {% block contenido %}
 
-    <div id="box">
+    <div id="box" class="box">
+
+        <div align="right">
+            <a href="{% url "asistente_de_consultas:atributos" %}">
+                <input class="limpiarGlobales" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
+            </a>
+            <input id="descargar-resultados" name="descargar-resultados" type="button" value="Descargar en formato CSV"/>
+        </div>
+
         <p>Los resultados de su consulta son: </p>
         <table id="t01">
-            <tr>
-                {% for a in atributos %}
-                    <th>{{ a }}</th>
-                {% endfor %}
-            </tr>
-            {% for r in results %}
+            <thead>
                 <tr>
-                    {% for s in r %}
-                        <td>{{ s }}</td>
+                    {% for a in atributos %}
+                        <th>{{ a }}</th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
+            </thead>    
+            </tfoot>
+                {% for r in resultados_pag %}
+                    <tr>
+                        {% for s in r %}
+                            <td>{{ s }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tfoot>
         </table>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if resultados_pag.has_previous %}
+                    <a href="?page={{ resultados_pag.previous_page_number }}">Anterior</a>
+                {% endif %}
+
+                <span class="current">
+                    - Página {{ resultados_pag.number }} de {{ resultados_pag.paginator.num_pages }}. -
+                </span>
+
+                {% if resultados_pag.has_next %}
+                    <a href="?page={{ resultados_pag.next_page_number }}">Siguiente</a>
+                {% endif %}
+            </span>
+        </div>
+
+        <script>
+            $('#descargar-resultados').on('click',someView);
+
+            function someView(){
+                $.ajax({
+                    url: "{% url 'asistente_de_consultas:some_view' %}",
+                    type: 'get',                
+                });  
+
+            }
+
+        </script>
+
     </div>
 
 {% endblock %}

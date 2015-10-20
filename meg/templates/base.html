@@ -10,16 +10,32 @@
             {% endblock %}
         </title>
         {% load staticfiles %}
+        <link rel="shortcut icon" type="image/png" href="{{STATIC_URL}}/favicon.ico"/>
+
         <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/style.css' %}" />
-        <script type="text/javascript" src="{{ STATIC_URL }} /static/jquery-1.11.3.min.js"></script>
         <script type="text/javascript" src="{% static 'asistente_de_consultas/js/funciones.js' %}"></script>
+
+        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/jquery-1.11.3.min.js' %}"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/bootstrap.min.css' %}"/>
+        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/bootstrap.min.js' %}"></script>
+
+        <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/bootstrap-multiselect.css' %}"/>
+        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/bootstrap-multiselect.js' %}"></script>
+
+        <!--<link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/dataTables.bootstrap.min.css' %}"/>
+        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/jquery.dataTables.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/dataTables.bootstrap.min.js' %}"></script>-->
+
+        <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/select2.min.css' %}"/>
+        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/select2.full.min.js' %}"></script>
+
     </head>
-    <body>
+    <body class="body">
         <header>
-            {% block encabezado %} 
-            {% endblock %}
             <div align=right>
-                {% if user.is_authenticated  %} | <a href="{% url "logout" %}"> Cerrar Sesión </a> {% endif %}
+                {% block encabezado %} 
+                {% endblock %}
+                {% if user.is_authenticated  %} | <a class="limpiarGlobales" href="{% url "logout" %}"> Cerrar Sesión </a> {% endif %}
             </div>
             <div align=center>
                 <h2> Asistente de Consultas MEG </h2>
@@ -35,6 +51,19 @@
                 <small>Asistente de consultas MEG.</small>
             </div>
         </footer>
+
+        <script>
+            $('.limpiarGlobales').on('click',volverAlInicio);
+
+            function volverAlInicio(){
+                $.ajax({
+                    url: "{% url 'asistente_de_consultas:volver_al_inicio' %}",
+                    type: 'get',                
+                });  
+
+            }
+        </script>
+
     </body>
 </html>
 

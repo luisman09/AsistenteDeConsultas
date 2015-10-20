@@ -23,7 +23,7 @@ lista_demografica = [("Edo Id",["estado","id"]),("Estado",["estado","nombre"]),
 lista_personas = [("Nacionalidad",["persona","nac"]),("Cedula",["persona","ci"]),
                   ("Primer Nombre",["persona","nombre1"]),("Segundo Nombre",["persona","nombre2"]),
                   ("Primer Apellido",["persona","apellido1"]),("Segundo Apellido",["persona","apellido2"]),
-                  ("Fecha Nacimiento",["persona","fecha_nac"]),("Edad",["persona","date_part('year',age(fecha_nac))::integer","f"]),
+                  ("Fecha Nacimiento",["persona","fecha_nac"]),("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
                   ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
                   ("Estrato",["persona","estrato"]),("ISEI",["persona","isei"]),
                   ("IPP",["persona","ipp"])
@@ -36,6 +36,42 @@ lista_contactos = [("Celular 1",["celular as c1","c1.numero","c1","1"]),("Celula
                    ("Telefono Fijo 1",["fijo as f2","f2.numero","f2","2"]),("Telefono Fijo 2",["fijo as f4","f4.numero","f4","4"]),
                    ("Telefono Fijo 3",["fijo as f5","f5.numero","f5","5"])
                   ]
+
+
+# La funcion lista_attos retorna una lista que devuelve tuplas, en donde los primeros elementos
+# son los nombres visibles de los atributos que puede escoger el usuario y los segundos elementos 
+# son a su vez tuplas, que representan el nombre de la tabla y el nombre del 
+# atributo (o funcion) tal cual como aparecen (o se ejecutan) a nivel de base de datos.
+lista_attos = lista_demografica + lista_personas + lista_contactos
+
+lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
+                   ("Cantidad de Municipios",["municipio","count(municipio.id)","f"]),
+                   ("Cantidad de Parroquias",["parroquia","count(parroquia.id)","f"]),
+                   ("Cantidad de Centros",["centro","count(centro.id)","f"]),
+                   ("Cantidad de Electores", ["centro","sum(centro.electores)","f"]),
+                   ("Cantidad de Elecs Venezolanos",["centro","sum(centro.venezolanos)","f"]),
+                   ("Cantidad de Elecs Extranjeros",["centro","sum(centro.extranjeros)","f"]),
+                   ("Cantidad de Mesas Electorales",["centro","sum(centro.mesas)","f"]),
+                   ("Cantidad de Personas",["persona","count(persona.id)","f"]),
+                   ("Cantidad de Celulares Tipo 1",["celular as c1","count(c1.numero)","c1","1"]),
+                   ("Cantidad de Celulares Tipo 2",["celular as c2","count(c2.numero)","c2","2"]),
+                   ("Cantidad de Celulares Tipo 3",["celular as c3","count(c3.numero)","c3","3"]),
+                   ("Cantidad de Emails Tipo 1",["email as e1","count(e1.direccion)","e1","1"]),
+                   ("Cantidad de Emails Tipo 2",["email as e2","count(e2.direccion)","e2","2"]),
+                   ("Cantidad de Emails Tipo 3",["email as e3","count(e3.direccion)","e3","3"]),
+                   ("Cantidad de Telefonos Fijos",["fijo","count(distinct (fijo.numero))","f"])
+                  ]
+
+
+lista_agrupados_nivel_1 = [("Estado",["estado","id"])]
+lista_agrupados_nivel_2 = lista_agrupados_nivel_1 + [("Municipio",["municipio","id"])]
+lista_agrupados_nivel_3 = lista_agrupados_nivel_2 + [("Parroquia",["parroquia","id"])]
+lista_agrupados_nivel_4 = lista_agrupados_nivel_3 + [("Circuitos 15",["centro","circuitos_15"])]
+lista_agrupados_nivel_5 = lista_agrupados_nivel_4 + [("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
+                                                     ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
+                                                     ("Estrato",["persona","estrato"]),("IPP",["persona","ipp"]),
+                                                     ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
+                                                    ]
 
 
 # la lista cambios contiene los datos de la tabla hubo_cambios.
@@ -78,9 +114,16 @@ lista_sector_privado = [("Empresa Id",("empresa","id")),("Empresa",("empresa","n
 
 
 lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
+              ('persona', 'parroquia', 'persona.id_centro = centro.id AND centro.id_parr = parroquia.id'),
+              ('persona', 'municipio', 'persona.id_centro = centro.id AND centro.id_parr = parroquia.id AND parroquia.id_mun = municipio.id'),
               ('persona', 'estado', 
                 'persona.id_centro = centro.id AND centro.id_parr = parroquia.id AND parroquia.id_mun = municipio.id AND municipio.id_edo = estado.id'),
+              ('centro', 'parroquia', 'centro.id_parr = parroquia.id'),
+              ('centro', 'municipio', 'centro.id_parr = parroquia.id AND parroquia.id_mun = municipio.id'),
               ('centro', 'estado', 'centro.id_parr = parroquia.id AND parroquia.id_mun = municipio.id AND municipio.id_edo = estado.id'),
+              ('parroquia', 'municipio', 'parroquia.id_mun = municipio.id'),
+              ('parroquia', 'estado', 'parroquia.id_mun = municipio.id AND municipio.id_edo = estado.id'),
+              ('municipio', 'estado', 'municipio.id_edo = estado.id'),
               ('celular as c1', 'persona', 'c1.id_persona = persona.id'),
               ('celular as c2', 'persona', 'c2.id_persona = persona.id'),
               ('celular as c5', 'persona', 'c5.id_persona = persona.id'),
@@ -100,11 +143,11 @@ lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
 #                   simple: input simple, sea por texto o por seleccion.
 #                   doble: input doble, dos inputs simples juntos.
 #                   multiple: input multiple, seleccion multiple.
+#                   cuadruple: input cuadruple, cuatro inputs simples juntos.
 #                   rango: input doble en forma de rango (para usar between)
-lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns",("municipio","id")),("parrs",("parroquia","id")),("ctros",("centro","id"))], 
-                            "Ubicación (Edo-Mun-Parr-Centro)"),
+lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns",("municipio","id")),("parrs",("parroquia","id")),
+                                                 ("ctros",("centro","id"))], "Ubicación (Edo-Mun-Parr-Centro)"),
                      ("centro-esp","multiple",[("centro-id",("centro","id"))],"Centro Específico"),
-                     ("circuitos-15","multiple",[("circuitos",("centro","circuitos_15"))],"Circuitos 2015"),
                      ("cant-mesas","rango",[("min-mesas",("centro","mesas")),("max-mesas",("centro","mesas"))],"Cantidad de Mesas Electorales"),
                      ("cant-elects","rango",[("min-elects",("centro","electores")),("max-elects",("centro","electores"))],"Cantidad de Electores"),
                      ("cant-venez","rango",[("min-venez",("centro","venezolanos")),("max-venez",("centro","venezolanos"))],"Cantidad de Elects Venezolanos"),
@@ -120,7 +163,6 @@ lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ("ipp","multiple",[("ipps",("persona","ipp"))],"Índice de Preferencia Política (IPP)"),
                      ("isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))],"Índice Socioeconómico Inferido (ISEI)"),
                     ]
-
 
 lista_circuitos_15 = [1,2,3,4,5,6,7,8,9,10,11,12]
 

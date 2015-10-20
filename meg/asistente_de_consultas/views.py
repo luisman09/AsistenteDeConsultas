@@ -6,66 +6,46 @@ from django.views import generic
 from django.apps import apps
 from django.db import connection
 from django.core import serializers
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+import csv
 
 from .models import *
 from .listas import *
 
 
-    #class IndexView(generic.ListView):
-    #    template_name = 'asistente_de_consultas/index.html'
-    #    context_object_name = 'parroquia_list'
-    #
-    #    def get_queryset(self):
-    #        return Parroquia.objects.order_by('id')
+# Variable global que me guarda todos las opciones deshabilitadas para el WHERE.
+# OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO00000000 NECESITA SER GLOBAL PORQUE DE NO SERLO AL HACER LA CONSULTA LA LISTA PASA VACIA.
+conds_where = []
+consulta_final = ""
+resultados_consulta = []
+attos_select = []
 
 
-    #class DetailView(generic.DetailView):
-    #    model = Parroquia
-    #    template_name = 'asistente_de_consultas/detail.html'
+# la funcion buscarElementoIndice recibe una clave, una lista en forma de diccionario (clave, valor(es))
+# y un indice, y devuelve el valor del diccionario correspondiente al indice. 
+def buscarElementoIndice(a, lista, indice):
+    for elem in lista:
+        if a == elem[0]:
+            return elem[indice]
 
 
-    #def vote(request, parroquia_id):
-    #    p = get_object_or_404(Parroquia, pk=parroquia_id)
-    #    try:
-    #        c = p.centro_set.get(pk=request.POST['centro'])
-    #    except (KeyError, Centro.DoesNotExist):
-    #        return render(request, 'asistente_de_consultas/detail.html', {'parroquia': p, 'error_message': "NO SELECCIONASTE NINGUN CENTRO.",})
-    #    else:
-    #        return render(request, 'asistente_de_consultas/vote.html', {'parroquia': p, 'centro': c,})
-
-
-# La funcion lista_attos retorna una lista que devuelve tuplas, en donde los primeros elementos
-# son los nombres visibles de los atributos que puede escoger el usuario y los segundos elementos 
-# son a su vez tuplas, que representan el nombre de la tabla y el nombre del 
-# atributo (o funcion) tal cual como aparecen (o se ejecutan) a nivel de base de datos.
-def listaAttos():
-    lista = lista_demografica + lista_personas + lista_contactos
-    return lista
-
-
-# La funcion demografico devuelve una lista de un elemento que representa al origen
-# y al destino de de la hilera de joins: estado-persona
-# DE MOMENTO ESTA ES LA FUNCION QUE ESTA CABLEADAAAAAAA JUNTO A ENCONTRAROD. OJOOOOOOOOOOOOOO
-def demografico(t, x):
-    y = []
-    if 'estado' in t:
-        y.append((x,'estado'))
-    #elif 'municipio' in t and not y:
-    #    y.append((x,'municipio'))
-    #elif 'parroquia' in t and not y:
-    #    y.append((x,'parroquia'))
-    elif 'centro' in t and not y:
-        y.append((x,'centro'))
-    return y
+# la funcion buscarElementoCompleto recibe una clave y una lista en forma de diccionario (clave, valor(es)),
+# y devuelve el valor del diccionario completo del diccionario que contiene como clave a la clave dada. 
+def buscarElementoCompleto(a, lista):
+    for elem in lista:
+        if a == elem[0]:
+            return elem
 
 
 # La funcion encontrarOD devuelve una lista de origenes y destinos que seran tomados
 # para encontrar los joins de la consulta principal.
-# DE MOMENTO ESTA ES LA FUNCION QUE ESTA CABLEADAAAAAAA JUNTO A DEMOGRAFICO. OJOOOOOOOOOOOOOO
+# OJOOOOOOOOOOOOOOO DE MOMENTO ESTA ES LA FUNCION QUE ESTA CABLEADAAAAAAA.
 def encontrarOD(t):
     x = False
     contacto = []
     origen_destino = []
+    tablas = t
     if 'celular as c1' in t:
         contacto.append('celular as c1')
     if 'celular as c2' in t:
@@ -91,19 +71,41 @@ def encontrarOD(t):
         if 'estado' in t:
             x = True
             origen_destino.append(('persona','estado'))
-        elif 'centro' in t:
-            x = True
-            origen_destino.append(('persona','centro'))
+        else:
+            if 'municipio' in t:
+                x = True
+                origen_destino.append(('persona','municipio'))
+            else:
+                if 'parroquia' in t:
+                    x = True
+                    origen_destino.append(('persona','parroquia'))
+                else:
+                    if 'centro' in t:
+                        x = True
+                        origen_destino.append(('persona','centro'))
     if not x and 'centro' in t:
         if 'estado' in t:
+            x = True
             origen_destino.append(('centro','estado'))
-    #if not x and 'parroquia' in t:
-    #    x = demografico(t, 'parroquia')
-    #    origen_destino.append(x[0])
-    #if not x and 'municipio' in t:
-    #    x = demografico(t, 'municipio')
-    #    origen_destino.append(x[0]) 
-
+        else:
+            if 'municipio' in t:
+                x = True
+                origen_destino.append(('centro','municipio'))
+            else:
+                if 'parroquia' in t:
+                    x = True
+                    origen_destino.append(('centro','parroquia'))
+    if not x and 'parroquia' in t:
+        if 'estado' in t:
+            x = True
+            origen_destino.append(('parroquia','estado'))
+        else:
+            if 'municipio' in t:
+                x = True
+                origen_destino.append(('parroquia','municipio'))
+    if not x and 'municipio' in t:
+        if 'estado' in t:
+            origen_destino.append(('municipio','estado'))
     return origen_destino
     
 
@@ -170,30 +172,66 @@ def agregarCondiciones(attos_where):
     where_items = []
     where_items_2 = ""
 
-    #print attos_where
-
     for elem in attos_where:
+
         tipo = elem[0]
         if tipo == "dependiente":
-            listo = False
             i = 4
-            while not listo and i > 0:
-                #print elem[i]
+            parrs = []
+            muns = []
+            edos = []
+            disj_or = ""
+            while i > 0:
                 if len(elem[i]) >= 2: # Esto verifica que se tengan dos elementos (aunque el segundo sea vacio) o mas de dos en el caso de centro.
-                    if elem[i][1]: # Se especifico un centro o parr o mun o edo [4,3,2,1]
-                        if i == 4:
-                            disj_or = ""
-                            for e in elem[i][1:]:
+                    #if elem[i][1]: # Se especifico un centro o parr o mun o edo [4,3,2,1]
+                    if i == 4:
+                        for e in elem[i][1:]:   # e es el codigo del centro
+                            if e:
                                 if disj_or == "":
                                     disj_or = "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
                                 else:
                                     disj_or = disj_or + " OR " "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
-                            where_items.append("(" + disj_or + ")")
-                        else:
-                            #print elem[i][1]
-                            where_items.append("(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + elem[i][1] + ")")
-                        listo = True
+                                # Se guardan las parroquias correspondientes de estos centros
+                                # para que no se tomen en cuenta al revisar las parroquias.
+                                if e[:-3] not in parrs: 
+                                    parrs.append(e[:-3])
+                                if e[:-5] not in muns:
+                                    muns.append(e[:-5])
+                                if e[:-7] not in edos:
+                                    edos.append(e[:-7])
+                    elif i == 3:
+                        for e in elem[i][1:]:
+                            if e:
+                                if e not in parrs: 
+                                    if disj_or == "":
+                                        disj_or = "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
+                                    else:
+                                        disj_or = disj_or + " OR " "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
+                                    if e[:-2] not in muns:
+                                        muns.append(e[:-2])
+                                    if e[:-4] not in edos:
+                                        edos.append(e[:-4])
+                    elif i == 2:
+                        for e in elem[i][1:]:
+                            if e:
+                                if e not in muns: 
+                                    if disj_or == "":
+                                        disj_or = "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
+                                    else:
+                                        disj_or = disj_or + " OR " "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
+                                    if e[:-2] not in edos:
+                                        edos.append(e[:-2])
+                    elif i == 1:
+                        for e in elem[i][1:]:
+                            if e:
+                                if e not in edos: 
+                                    if disj_or == "":
+                                        disj_or = "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
+                                    else:
+                                        disj_or = disj_or + " OR " "(" + elem[i][0][0] + "." + elem[i][0][1] + " = " + e + ")"
                 i -= 1
+            if disj_or:
+                where_items.append("(" + disj_or + ")")
         elif tipo == "multiple":
             if elem[1][1]:
                 disj_or = ""
@@ -234,36 +272,31 @@ def agregarCondiciones(attos_where):
             where_items_2 = where_items_2 + " AND " + elem
     #print where_items_2
     return where_items_2
-    
-
-# la funcion buscarTupla devuelve la tupla de la base de datos dado un atributo visible al usuario
-# usando el diccionario listaAttos. 
-def buscarLista(a,lista,index):
-    for elem in lista:
-        if a == elem[0]:
-            return elem[index]
-    return "No existe el elemento"
-
 
 # La funcion crearConsulta crea la consulta que sera ejecutada a nivel de la base de datos
 # a partir de los elementos escogidos por el usuario a traves del formulario.
-def crearConsulta(attos_select, attos_where):
-    lista = listaAttos()
+# Recibe los atributos a mostrar 
+def crearConsulta(attos_select, attos_where, agrupado, limite):
+
+    lista = lista_attos
     select_items = ""
     from_items = ""
     where_items = ""
+    group_by_items = ""
     condiciones = ""
     condiciones_contacto = []
-    conds_cel = ""
-    conds_mail = ""
-    conds_fijo = ""
-    conds_contacto = []
+    limit = ""
     tablas = []
-    # Se crea la parte del SELECT de la consulta y se agregan 
-    # las tablas a una lista de tablas participantes en la consulta.
+    # Si hay agrupado, entonces la lista cambia de lista_attos a lista_agrupados y ademas
+    # agrega al agrupado a los atributos seleccionados
+    if agrupado[0]:
+        attos_select = agrupado + attos_select;
+        lista = lista_agrupados_nivel_5 + [buscarElementoCompleto(agrupado[0],lista_agrupados)]
+
     for elem in attos_select:
-        x = buscarLista(elem, lista, 1)
+        x = buscarElementoIndice(elem, lista, 1)
         if select_items == "":
+
             if len(x) >= 3:  
                 if x[2] == "f":             # Es una funcion, por ejem Edad.
                     select_items = x[1]
@@ -280,10 +313,24 @@ def crearConsulta(attos_select, attos_where):
                 else:                       # Es una prioridad de algun dato de contacto.
                     select_items = select_items + ", " + x[1]
                     condiciones_contacto.append(["(" + x[2] + ".prioridad = " + x[3] + ")",x[0]])
+                if agrupado[0]:
+                    if group_by_items == "":
+                        group_by_items = x[1]
+                    else:
+                        group_by_items = group_by_items + ", " + x[1]
             else:
                 select_items = select_items + ", " + x[0] + "." + x[1]
+                if agrupado[0]:
+                    if group_by_items == "":
+                        group_by_items = x[0] + "." + x[1]
+                    else:
+                        group_by_items = group_by_items + ", " + x[0] + "." + x[1]
             if x[0] not in tablas:
                 tablas.append(x[0])
+    if group_by_items:
+        group_by_items = " GROUP BY " + group_by_items + " ORDER BY " + group_by_items
+    else:
+        group_by_items = " ORDER BY " + select_items
     # Se busca las condiciones del WHERE (no joins) de la consulta y se continua 
     # agregando a la lista de tablas, mas tablas participantes en la consulta
     # (solo en caso de ser necesario).
@@ -299,10 +346,35 @@ def crearConsulta(attos_select, attos_where):
     for elem in attos_where:
         for tabla_atto in elem[1:]:
             tabla = tabla_atto[0][0]
-            if tabla not in tablas:
-                tablas.append(tabla)                # Agrego las tablas que no se agregaron por los campos seleccionados.
-    #print "tablas por where"
-    #print tablas                                   # Ahorita por el problema del post la consulta agrega todas las tablas. 
+            for e in tabla_atto[1:]:
+                if e:
+                    if tabla not in tablas:
+                        if tabla:
+                            tablas.append(tabla)                # Agrego las tablas que no se agregaron por los campos seleccionados.
+
+    # Agregar tablas intermedias, en caso de ser necesarias:
+    if 'estado' in tablas:
+        if ('persona' in tablas) or ('centro' in tablas) or ('parroquia' in tablas):
+            if not 'municipio' in tablas:
+                tablas.append('municipio')
+        if ('persona' in tablas) or ('centro' in tablas):
+            if not 'parroquia' in tablas:
+                tablas.append('parroquia')
+        if ('persona' in tablas):
+            if not 'centro' in tablas:
+                tablas.append('centro')
+    if ('municipio' in tablas) and not ('estado' in tablas):
+        if ('persona' in tablas) or ('centro' in tablas):
+            if not 'parroquia' in tablas:
+                tablas.append('parroquia')
+        if ('persona' in tablas):
+            if not 'centro' in tablas:
+                tablas.append('centro')
+    if ('parroquia' in tablas) and not ('municipio' in tablas):
+        if ('persona' in tablas):
+            if not 'centro' in tablas:
+                tablas.append('centro')
+
     # Se crean las partes FROM y WHERE (joins y condiciones) de la consulta
     # Cuando la consulta es sobre una sola tabla de la base de datos.
 
@@ -313,6 +385,7 @@ def crearConsulta(attos_select, attos_where):
     # Cuando la consulta requiere mas de una tabla de la base de datos.
     else:
         joins = encontrarJoins(tablas)
+
         from_items = joins[0]
         if condiciones:
             where_items = " WHERE " + joins[1] + " AND (" + condiciones + ")"
@@ -332,63 +405,117 @@ def crearConsulta(attos_select, attos_where):
             hay_fijos = 'f5.numero'
         else:
             hay_fijos = hay_fijos + ', f5.numero'
+    
+    if limite:
+        limit = " LIMIT " + limite;
     if hay_fijos:
-        consulta = "SELECT DISTINCT ON (" + hay_fijos + ") " + select_items + " FROM " + from_items + where_items + " limit 50;"
+        consulta = "SELECT DISTINCT ON (" + hay_fijos + ") " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
     else:
-        consulta = "SELECT " + select_items + " FROM " + from_items + where_items + " limit 50;"
+        #consulta = "COPY (SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + ") TO '/home/administrador/Documentos/Bases_de_Datos/probando.csv' delimiter ',' csv header;"
+        consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
     return consulta
 
 
-# la funcion consultas, a traves de un formulario recibe una lista con los nombres de los atributos
-# a mostrar (SELECT) y otra lista con las condiciones a restringir de una consulta (WHERE), transforma
-# esas listas en un string SQL en forma de consulta valida, la ejecuta a nivel de la base de datos, 
-# y devuelve los resultados a traves de la interfaz.
+# La funcion consultas, a traves de un formulario recibe multiples elementos que el usuario introduce,
+# transforma esos elementos mediante varias funciones a una forma de consulta SQL para luego ejecutarla 
+# mediante el uso de cursores a nivel de la base de datos y luego redirir a otra pagina mostrando los
+# resultados obtenidos de realizar la consulta. 
 def consultas(request):
 
-    attos_select = request.POST.getlist('attos') # lista de atributos a mostrar.
-    attos_where = []
+    global consulta_final, resultados_consulta, conds_where, attos_select
+    resultados_pag = []
 
-    #conds_where = request.POST.getlist('deshabilitadas[]')   # ESTO DA ERROR 403 EN EL POST
-    #print "por aca"
-    #print conds_where
+    if not consulta_final:
 
-    conds_where = lista_attos_where         # DE MOMENTO ESTA ES OPCIONAL CON TODAS LAS CONDICIONES (VACIAS las no seleccionadas)
+        # Si la consulta es simple, aca se tienen todos los atributos a mostrar seleccionados por el usuario.
+        attos_select = request.POST.getlist('attos')
+        # Si no hay attos_select, es porque la consulta fue por agrupados,
+        # y se obtienen el agrupado y los atributos a mostrar por los cuales se agrupa.
+        agrupado = request.POST.getlist('agrupados') # campo por el cual se agrupa.
+        if not attos_select:
+            attos_select = request.POST.getlist('ag_attos') # campos por los cuales se agrupa.
+        # Si la consulta tiene condiciones (WHERE), aca se obtienen.
+        # EL ULTIMO elems_where QUE SE RECIBE ES EL DEL BOTON FINAL, EN ESE CASO LA LISTA LA 
+        # RECIBE VACIA, POR LO CUAL, NOS DEBEMOS QUEDAR CON EL PENULTIMO elems_where RECIBIDO.
+        # SE RECIBEN TANTOS elems_where COMO CAMBIOS EN LA LISTA DE CONDICIONES HAYA. POR ELLO
+        # CON CADA CAMBIO RECIBIDO SE ELIMINA EL ANTERIOR. OJOOOOOOOOOOOOOOOOOOOOOOOOOOO
+        elems_where = request.POST.getlist('deshabilitadas[]')
+        if elems_where:
+            del conds_where[:]
+            for elem in elems_where:
+                x = buscarElementoCompleto(elem,lista_attos_where)
+                # conds_where sera una lista de la forma: Ver lista_attos_where en listas.py.
+                conds_where.append(x)
+        # attos_where sera una lista de condiciones que mejora la forma que trae la lista conds_where
+        # y a su vez agrega los valores especificos que el usuario introdujo via formulario.
+        attos_where = []
+        for atto in conds_where:
+            temp = []
+            temp4 = []
+            valores = buscarElementoIndice(atto[0], conds_where, 2)     # ME DA LA LISTA DE VALORES: [("value interfaz",("tabla","atto"))]        
+            tipo = buscarElementoIndice(atto[0], conds_where, 1)        # ME DA EL TIPO DEL VALOR: "tipo" ej: "dependiente","simple","rango",etc
+            temp.append(tipo)                               # temp = ["tipo"]
+            for elem in valores:
+                temp2 = []
+                temp2.append(elem[1])                       # temp2 = [("tabla","atto")]
+                temp3 = request.POST.getlist(elem[0])       # temp3 = [val1, val2, ... , valN]
+                temp2 = temp2 + temp3                       # temp2 = [("tabla","atto"), val1, val2, ... , valN]
+                temp4.append(temp2)                         # temp4 = [ [("tabla","atto"), val1, val2, ... , valN], ... ]
+            temp = temp + temp4                             # temp = ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...]
+            attos_where.append(temp)                        # attos_where = [ ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...], ... ]
+        # Se toma el valor del limite si existe
+        limite = request.POST['limite']
+        # Se procede a crear la consulta con los valores recogidos y seguidamente a ejecutarla.
+        consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+        print consulta_final
+        x = connection.cursor()
+        x.execute(consulta_final)
+        resultados_consulta = x.fetchall()
 
-    # attos_where me almacena todas las condiciones seleccionadas por el usuario via html.
-    for atto in conds_where:
-        temp = []
-        temp4 = []
-        x = buscarLista(atto[0], conds_where, 2)    # ME DA LA LISTA DE VALORES: [("value interfaz",("tabla","atto"))]        # EN EL CORRECTO QUITAR LOS [0]
-        y = buscarLista(atto[0], conds_where, 1)    # ME DA EL TIPO DEL VALOR: "tipo" ej: "dependiente","simple","rango",etc
-        temp.append(y)
-        for elem in x:
-            temp2 = []
-            temp2.append(elem[1])
-            temp3 = request.POST.getlist(elem[0])
-            temp2 = temp2 + temp3
-            temp4.append(temp2)
-        temp = temp + temp4
-        attos_where.append(temp)        # attos_where es de la forma: [ ["tipo", [("tabla","atto"), "valor")], ... ], ... ]
+        #print resultados_consulta
 
+        # Si hay un agrupado se agrega a los atributos a mostrar
+        if agrupado[0]:
+            attos_select = agrupado + attos_select
 
-    consulta = crearConsulta(attos_select, attos_where)
-    print consulta
-    x = connection.cursor()
-    x.execute(consulta)
-    resultados_consulta = x.fetchall()
-    context = {'atributos': attos_select, 'results': resultados_consulta}
+    #print consulta_final
+    #print resultados_consulta[0:10]
+
+    paginator = Paginator(resultados_consulta, 10) # Show 25 contacts per page
+
+    page = request.GET.get('page')
+    try:
+        resultados_pag = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        resultados_pag = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        resultados_pag = paginator.page(paginator.num_pages)
+
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    #context = {'resultados_pag': resultados_pag}
     return render(request, 'asistente_de_consultas/consultas.html', context)
+
+          
 
 
 # La clase AtributosView muestra el formulario completo para hacer una consulta usando al asistente.
+# Requiere pasar todos los contextos y listas necesarias al html.
 class AtributosView(generic.ListView):
     template_name = 'asistente_de_consultas/atributos.html'
-    context_object_name = 'atributos_tupla'
-    queryset = listaAttos()
+    context_object_name = 'attos_select'
+    queryset = lista_attos
 
     def get_context_data(self, **kwargs):
         context = super(AtributosView, self).get_context_data(**kwargs)
         context['attos_where'] = lista_attos_where
+        context['agrupados'] = lista_agrupados
+        #context['ag_nivel_1'] = lista_agrupados_nivel_1
+        #context['ag_nivel_2'] = lista_agrupados_nivel_2
+        #context['ag_nivel_3'] = lista_agrupados_nivel_3
+        #context['ag_nivel_4'] = lista_agrupados_nivel_4
+        context['ag_nivel_5'] = lista_agrupados_nivel_5
         context['estados'] = Estado.objects.order_by('nombre')
         context['municipios'] = Municipio.objects.order_by('nombre')
         context['parroquias'] = Parroquia.objects.order_by('nombre')
@@ -440,8 +567,8 @@ class BuscarCentroAjaxView(generic.TemplateView):
         if centro:
             data = serializers.serialize('json', centro, fields=('nombre'))
         return HttpResponse(data, content_type='application/json')
-  
-  
+
+
 # ESTA HAY QUE MEJORARLA
 def queries(request):
     consulta = request.POST.get('query')
@@ -453,6 +580,47 @@ def queries(request):
         return render(request, 'asistente_de_consultas/consultas.html', {'results': resultados_consulta})
     else:
         return render(request, 'asistente_de_consultas/queries.html', {'error_message': 'NO INSERTASTE NADA'})
+
+
+def volverAlInicio(request):
+
+    global conds_where, consulta_final, resultados_consulta, attos_select
+    conds_where = []
+    consulta_final = ""
+    resultados_consulta = []
+    attos_select = []
+    print "Se limpiaron las Globales"
+    return render(request, 'asistente_de_consultas/consultas.html')
+    
+
+def some_view(request):
+
+    print "aqui llegue"
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(response)
+    row = []
+    for elem in attos_select:
+        row.append(elem)
+    print row
+    writer.writerow(row)
+    for elem in resultados_consulta:
+        row = []
+        for e in elem:
+            row.append(e)
+        print row
+        writer.writerow(row)
+
+    return response
+
+
+
+
+
+
 
 
 
