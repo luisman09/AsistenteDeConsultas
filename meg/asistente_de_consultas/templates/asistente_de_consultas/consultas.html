@@ -8,6 +8,9 @@
 {% endblock %}
 
 {% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
     | <a class="limpiarGlobales" href="{% url "homepage" %}"> Volver Al Inicio </a>
 {% endblock %}
 
@@ -16,10 +19,12 @@
     <div id="box" class="box">
 
         <div align="right">
-            <a href="{% url "asistente_de_consultas:atributos" %}">
+            <a href="{% url 'asistente_de_consultas:atributos' %}">
                 <input class="limpiarGlobales" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
             </a>
-            <input id="descargar-resultados" name="descargar-resultados" type="button" value="Descargar en formato CSV"/>
+            <a href="{% url 'asistente_de_consultas:exportar_csv' %}">
+                <input id="descargar-resultados" name="descargar-resultados" type="button" value="Descargar en formato CSV"/>
+            </a>
         </div>
 
         <p>Los resultados de su consulta son: </p>
@@ -59,15 +64,6 @@
         </div>
 
         <script>
-            $('#descargar-resultados').on('click',someView);
-
-            function someView(){
-                $.ajax({
-                    url: "{% url 'asistente_de_consultas:some_view' %}",
-                    type: 'get',                
-                });  
-
-            }
 
         </script>
 

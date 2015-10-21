@@ -11,7 +11,7 @@
     top: 10px;
     font-size: 14px;
     padding: 20px;
-    color: #888;
+    color: #444;
     background: #fff;
     left: 0;
     display: block;
@@ -55,6 +55,26 @@ ul.checkbox li {
     display:inline-block;
     width:12.3em;
 } 
+
+.simple-pequeño {
+    width: 65px;
+}
+
+.multi-mediano {
+    width: 150px;
+}
+
+.simple-mediano {
+    width: 150px;
+}
+
+.multi-grande {
+    width: 400px;
+}
+
+.agr-eli {
+    /* aqui viene el estilo de los botones +,-,x */
+}
 
 /* Consultas.html */
 /* tabla con los resultados */

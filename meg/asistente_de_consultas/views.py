@@ -329,8 +329,8 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
                 tablas.append(x[0])
     if group_by_items:
         group_by_items = " GROUP BY " + group_by_items + " ORDER BY " + group_by_items
-    else:
-        group_by_items = " ORDER BY " + select_items
+    #else:
+    #    group_by_items = " ORDER BY " + select_items
     # Se busca las condiciones del WHERE (no joins) de la consulta y se continua 
     # agregando a la lista de tablas, mas tablas participantes en la consulta
     # (solo en caso de ser necesario).
@@ -353,6 +353,11 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
                             tablas.append(tabla)                # Agrego las tablas que no se agregaron por los campos seleccionados.
 
     # Agregar tablas intermedias, en caso de ser necesarias:
+    if ('celular as c1' in tablas) or ('celular as c2' in tablas) or ('celular as c3' in tablas) or ('email as e1' in tablas) or ('email as e2' in tablas) or ('email as e3' in tablas) or ('fijo as f1' in tablas) or ('fijo as f2' in tablas) or ('fijo as f3' in tablas):
+        if ('estado' in tablas) or ('centro' in tablas):
+            if not 'persona' in tablas:
+                tablas.append('persona')
+
     if 'estado' in tablas:
         if ('persona' in tablas) or ('centro' in tablas) or ('parroquia' in tablas):
             if not 'municipio' in tablas:
@@ -374,6 +379,7 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
         if ('persona' in tablas):
             if not 'centro' in tablas:
                 tablas.append('centro')
+
 
     # Se crean las partes FROM y WHERE (joins y condiciones) de la consulta
     # Cuando la consulta es sobre una sola tabla de la base de datos.
@@ -406,12 +412,11 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
         else:
             hay_fijos = hay_fijos + ', f5.numero'
     
-    if limite:
-        limit = " LIMIT " + limite;
+    if limite[0]:
+        limit = " LIMIT " + limite[0];
     if hay_fijos:
         consulta = "SELECT DISTINCT ON (" + hay_fijos + ") " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
     else:
-        #consulta = "COPY (SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + ") TO '/home/administrador/Documentos/Bases_de_Datos/probando.csv' delimiter ',' csv header;"
         consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
     return consulta
 
@@ -427,58 +432,69 @@ def consultas(request):
 
     if not consulta_final:
 
-        # Si la consulta es simple, aca se tienen todos los atributos a mostrar seleccionados por el usuario.
-        attos_select = request.POST.getlist('attos')
-        # Si no hay attos_select, es porque la consulta fue por agrupados,
-        # y se obtienen el agrupado y los atributos a mostrar por los cuales se agrupa.
-        agrupado = request.POST.getlist('agrupados') # campo por el cual se agrupa.
-        if not attos_select:
-            attos_select = request.POST.getlist('ag_attos') # campos por los cuales se agrupa.
-        # Si la consulta tiene condiciones (WHERE), aca se obtienen.
-        # EL ULTIMO elems_where QUE SE RECIBE ES EL DEL BOTON FINAL, EN ESE CASO LA LISTA LA 
-        # RECIBE VACIA, POR LO CUAL, NOS DEBEMOS QUEDAR CON EL PENULTIMO elems_where RECIBIDO.
-        # SE RECIBEN TANTOS elems_where COMO CAMBIOS EN LA LISTA DE CONDICIONES HAYA. POR ELLO
-        # CON CADA CAMBIO RECIBIDO SE ELIMINA EL ANTERIOR. OJOOOOOOOOOOOOOOOOOOOOOOOOOOO
-        elems_where = request.POST.getlist('deshabilitadas[]')
-        if elems_where:
-            del conds_where[:]
-            for elem in elems_where:
-                x = buscarElementoCompleto(elem,lista_attos_where)
-                # conds_where sera una lista de la forma: Ver lista_attos_where en listas.py.
-                conds_where.append(x)
-        # attos_where sera una lista de condiciones que mejora la forma que trae la lista conds_where
-        # y a su vez agrega los valores especificos que el usuario introdujo via formulario.
-        attos_where = []
-        for atto in conds_where:
-            temp = []
-            temp4 = []
-            valores = buscarElementoIndice(atto[0], conds_where, 2)     # ME DA LA LISTA DE VALORES: [("value interfaz",("tabla","atto"))]        
-            tipo = buscarElementoIndice(atto[0], conds_where, 1)        # ME DA EL TIPO DEL VALOR: "tipo" ej: "dependiente","simple","rango",etc
-            temp.append(tipo)                               # temp = ["tipo"]
-            for elem in valores:
-                temp2 = []
-                temp2.append(elem[1])                       # temp2 = [("tabla","atto")]
-                temp3 = request.POST.getlist(elem[0])       # temp3 = [val1, val2, ... , valN]
-                temp2 = temp2 + temp3                       # temp2 = [("tabla","atto"), val1, val2, ... , valN]
-                temp4.append(temp2)                         # temp4 = [ [("tabla","atto"), val1, val2, ... , valN], ... ]
-            temp = temp + temp4                             # temp = ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...]
-            attos_where.append(temp)                        # attos_where = [ ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...], ... ]
-        # Se toma el valor del limite si existe
-        limite = request.POST['limite']
-        # Se procede a crear la consulta con los valores recogidos y seguidamente a ejecutarla.
-        consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
-        print consulta_final
-        x = connection.cursor()
-        x.execute(consulta_final)
-        resultados_consulta = x.fetchall()
+        query = request.POST.get('query')
+        if query:
+            
+            consulta_final = request.POST.get('query')
+            cursor = connection.cursor()
+            cursor.execute(consulta_final)
+            attos_select = [s[0] for s in cursor.description]
+            resultados_consulta = cursor.fetchall()
+        else:
 
-        #print resultados_consulta
+            # Si la consulta es simple, aca se tienen todos los atributos a mostrar seleccionados por el usuario.
+            attos_select = request.POST.getlist('attos')
 
-        # Si hay un agrupado se agrega a los atributos a mostrar
-        if agrupado[0]:
-            attos_select = agrupado + attos_select
+            # Si no hay attos_select, es porque la consulta fue por agrupados,
+            # y se obtienen el agrupado y los atributos a mostrar por los cuales se agrupa.
+            agrupado = request.POST.getlist('agrupados') # campo por el cual se agrupa.
+            if not attos_select:
+                attos_select = request.POST.getlist('ag_attos') # campos por los cuales se agrupa.
+            # Si la consulta tiene condiciones (WHERE), aca se obtienen.
+            # EL ULTIMO elems_where QUE SE RECIBE ES EL DEL BOTON FINAL, EN ESE CASO LA LISTA LA 
+            # RECIBE VACIA, POR LO CUAL, NOS DEBEMOS QUEDAR CON EL PENULTIMO elems_where RECIBIDO.
+            # SE RECIBEN TANTOS elems_where COMO CAMBIOS EN LA LISTA DE CONDICIONES HAYA. POR ELLO
+            # CON CADA CAMBIO RECIBIDO SE ELIMINA EL ANTERIOR. OJOOOOOOOOOOOOOOOOOOOOOOOOOOO
+            elems_where = request.POST.getlist('deshabilitadas[]')
+            if elems_where:
+                del conds_where[:]
+                for elem in elems_where:
+                    x = buscarElementoCompleto(elem,lista_attos_where)
+                    # conds_where sera una lista de la forma: Ver lista_attos_where en listas.py.
+                    conds_where.append(x)
+            # attos_where sera una lista de condiciones que mejora la forma que trae la lista conds_where
+            # y a su vez agrega los valores especificos que el usuario introdujo via formulario.
+            attos_where = []
+            for atto in conds_where:
+                temp = []
+                temp4 = []
+                valores = buscarElementoIndice(atto[0], conds_where, 2)     # ME DA LA LISTA DE VALORES: [("value interfaz",("tabla","atto"))]        
+                tipo = buscarElementoIndice(atto[0], conds_where, 1)        # ME DA EL TIPO DEL VALOR: "tipo" ej: "dependiente","simple","rango",etc
+                temp.append(tipo)                               # temp = ["tipo"]
+                for elem in valores:
+                    temp2 = []
+                    temp2.append(elem[1])                       # temp2 = [("tabla","atto")]
+                    temp3 = request.POST.getlist(elem[0])       # temp3 = [val1, val2, ... , valN]
+                    temp2 = temp2 + temp3                       # temp2 = [("tabla","atto"), val1, val2, ... , valN]
+                    temp4.append(temp2)                         # temp4 = [ [("tabla","atto"), val1, val2, ... , valN], ... ]
+                temp = temp + temp4                             # temp = ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...]
+                attos_where.append(temp)                        # attos_where = [ ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...], ... ]
+            # Se toma el valor del limite si existe
+            limite = request.POST.getlist('limite')
+            # Se procede a crear la consulta con los valores recogidos y seguidamente a ejecutarla.
+   
+            consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+            cursor = connection.cursor()
+            cursor.execute(consulta_final)
+            resultados_consulta = cursor.fetchall()
 
-    #print consulta_final
+            #print resultados_consulta
+
+            # Si hay un agrupado se agrega a los atributos a mostrar
+            if agrupado[0]:
+                attos_select = agrupado + attos_select
+
+    print consulta_final
     #print resultados_consulta[0:10]
 
     paginator = Paginator(resultados_consulta, 10) # Show 25 contacts per page
@@ -498,6 +514,9 @@ def consultas(request):
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
           
+class QueriesView(generic.TemplateView):
+    template_name = 'asistente_de_consultas/queries.html'
+    context_object_name = 'query'
 
 
 # La clase AtributosView muestra el formulario completo para hacer una consulta usando al asistente.
@@ -569,18 +588,6 @@ class BuscarCentroAjaxView(generic.TemplateView):
         return HttpResponse(data, content_type='application/json')
 
 
-# ESTA HAY QUE MEJORARLA
-def queries(request):
-    consulta = request.POST.get('query')
-    print consulta
-    if consulta:
-        x = connection.cursor()
-        x.execute(consulta)
-        resultados_consulta = x.fetchall()
-        return render(request, 'asistente_de_consultas/consultas.html', {'results': resultados_consulta})
-    else:
-        return render(request, 'asistente_de_consultas/queries.html', {'error_message': 'NO INSERTASTE NADA'})
-
 
 def volverAlInicio(request):
 
@@ -593,26 +600,23 @@ def volverAlInicio(request):
     return render(request, 'asistente_de_consultas/consultas.html')
     
 
-def some_view(request):
+def exportar_csv(request):
 
     print "aqui llegue"
 
-    # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
 
     writer = csv.writer(response)
     row = []
     for elem in attos_select:
         row.append(elem)
-    print row
-    writer.writerow(row)
+    writer.writerow([unicode(s).encode("utf-8") for s in row])
     for elem in resultados_consulta:
         row = []
         for e in elem:
             row.append(e)
-        print row
-        writer.writerow(row)
+        writer.writerow([unicode(s).encode("utf-8") for s in row])
 
     return response
 

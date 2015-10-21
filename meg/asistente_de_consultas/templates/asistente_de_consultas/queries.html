@@ -8,17 +8,37 @@
 {% endblock %}
 
 {% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
     | <a class="limpiarGlobales" href="{% url "homepage" %}"> Volver Al Inicio </a>
 {% endblock %}
 
 {% block contenido %}
 
-    <div id="box">
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-        <form action="{% url 'asistente_de_consultas:queries' %}" method="post">
-        {% csrf_token %}
-            Query: <textarea rows="10" cols="60" name="query"></textarea><br>
-        <input type="submit" value="Probar Consulta" />
+    <div class="box" id="box">
+        <form action="{% url 'asistente_de_consultas:consultas' %}" method="post">
+            {% csrf_token %}
+            <div align="center">
+                <label>Introduce tu Query: </label></br></br>
+                <textarea id="query" name="query" rows="10" cols="60"></textarea><br>
+                <input id="continuar" name="continuar" type="button" value="continuar"/></br></br>
+                <input id="boton-final" type="submit" value="Hacer Consulta" hidden="true"/>
+            </div>
+
+            <script>
+
+                $('#continuar').on('click', function(){
+                    query = $('#query').val();
+                    if (query == "") {
+                        alert("El query no debe estar vacio");
+                    } else {
+                        $('#boton-final').attr('hidden', false)
+                    }
+                });
+
+            </script>
+
         </form>
     </div>
 
