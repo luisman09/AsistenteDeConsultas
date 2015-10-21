@@ -64,6 +64,8 @@ def encontrarOD(t):
         contacto.append('fijo as f4')
     if 'fijo as f5' in t:
         contacto.append('fijo as f5')
+    if 'fijo' in t:
+        contacto.append('fijo')
     for elem in contacto:
         if 'persona' in t:
             origen_destino.append((elem, 'persona'))
@@ -135,7 +137,6 @@ def encontrarJoins(t):
                 from_joins = from_joins + ", " + elem
 
 
-      
     lista = lista_join
     for elem in origen_destino:
 
@@ -353,7 +354,7 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
                             tablas.append(tabla)                # Agrego las tablas que no se agregaron por los campos seleccionados.
 
     # Agregar tablas intermedias, en caso de ser necesarias:
-    if ('celular as c1' in tablas) or ('celular as c2' in tablas) or ('celular as c3' in tablas) or ('email as e1' in tablas) or ('email as e2' in tablas) or ('email as e3' in tablas) or ('fijo as f1' in tablas) or ('fijo as f2' in tablas) or ('fijo as f3' in tablas):
+    if ('celular as c1' in tablas) or ('celular as c2' in tablas) or ('celular as c5' in tablas) or ('email as e1' in tablas) or ('email as e2' in tablas) or ('email as e5' in tablas) or ('fijo as f2' in tablas) or ('fijo as f4' in tablas) or ('fijo as f5' in tablas) or ('fijo' in tablas):
         if ('estado' in tablas) or ('centro' in tablas):
             if not 'persona' in tablas:
                 tablas.append('persona')

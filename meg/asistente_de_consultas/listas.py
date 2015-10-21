@@ -63,9 +63,9 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                   ]
 
 
-lista_agrupados_nivel_1 = [("Estado",["estado","id"])]
-lista_agrupados_nivel_2 = lista_agrupados_nivel_1 + [("Municipio",["municipio","id"])]
-lista_agrupados_nivel_3 = lista_agrupados_nivel_2 + [("Parroquia",["parroquia","id"])]
+lista_agrupados_nivel_1 = [("Estado",["estado","nombre"])]
+lista_agrupados_nivel_2 = lista_agrupados_nivel_1 + [("Municipio",["municipio","nombre"])]
+lista_agrupados_nivel_3 = lista_agrupados_nivel_2 + [("Parroquia",["parroquia","nombre"])]
 lista_agrupados_nivel_4 = lista_agrupados_nivel_3 + [("Circuitos 15",["centro","circuitos_15"])]
 lista_agrupados_nivel_5 = lista_agrupados_nivel_4 + [("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
                                                      ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
@@ -132,7 +132,8 @@ lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
               ('email as e5', 'persona', 'e5.id_persona = persona.id'),
               ('fijo as f2', 'persona', 'f2.id_persona = persona.id'),
               ('fijo as f4', 'persona', 'f4.id_persona = persona.id'),
-              ('fijo as f5', 'persona', 'f5.id_persona = persona.id')
+              ('fijo as f5', 'persona', 'f5.id_persona = persona.id'),
+              ('fijo', 'persona', 'fijo.id_persona = persona.id')
              ]
 
 
