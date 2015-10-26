@@ -7,19 +7,17 @@ from django.apps import apps
 from django.db import connection
 from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
 import csv
-
+import json
 from .models import *
 from .listas import *
 
 
-# Variable global que me guarda todos las opciones deshabilitadas para el WHERE.
-# OJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO00000000 NECESITA SER GLOBAL PORQUE DE NO SERLO AL HACER LA CONSULTA LA LISTA PASA VACIA.
-conds_where = []
-consulta_final = ""
-resultados_consulta = []
-attos_select = []
+# Variables globales.
+conds_where = []            # Lista de elementos que seran condicionados en el WHERE.
+consulta_final = ""         # String que guarda la consulta final cuando se ejecuta
+resultados_consulta = []    # Guarda todos los resultados de la ejecucion de la consulta
+attos_select = []           # Lista de elementos que seran mostrados en el SELECT.
 
 
 # la funcion buscarElementoIndice recibe una clave, una lista en forma de diccionario (clave, valor(es))
@@ -265,7 +263,15 @@ def agregarCondiciones(attos_where):
                 if len(elem[i]) == 2:  
                     if elem[i][1]:
                         where_items.append("(" + elem[i][0][0] + "." + elem[i][0][1] + " = '" + elem[i][1] + "')")
-                                                                                         
+        elif tipo == "dependiente2":
+            disj_or = ""
+            for e, c in zip(elem[1][1:], elem[2][1:]): 
+                if disj_or == "": 
+                    disj_or = "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
+                else:
+                    disj_or = disj_or + " OR (" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
+            if disj_or:
+                where_items.append("(" + disj_or + ")") 
     for elem in where_items:
         if where_items_2 == "":
             where_items_2 = elem
@@ -431,21 +437,24 @@ def consultas(request):
     global consulta_final, resultados_consulta, conds_where, attos_select
     resultados_pag = []
 
+    # Si hay consulta final, es porque simplemente entro a consultas para cambiar de pagina.
+    # Si no, se crea la consulta.
     if not consulta_final:
-
+        
+        # Si viene por parte de un query directo entra en el if y crea la consulta.
+        # Si no, entra por el else y significa que la consulta utilizo el asistente.
+        # La consulta en ambos casos se ejecuta mediante un cursor de python.
         query = request.POST.get('query')
         if query:
-            
             consulta_final = request.POST.get('query')
+            print consulta_final
             cursor = connection.cursor()
             cursor.execute(consulta_final)
             attos_select = [s[0] for s in cursor.description]
             resultados_consulta = cursor.fetchall()
         else:
-
             # Si la consulta es simple, aca se tienen todos los atributos a mostrar seleccionados por el usuario.
             attos_select = request.POST.getlist('attos')
-
             # Si no hay attos_select, es porque la consulta fue por agrupados,
             # y se obtienen el agrupado y los atributos a mostrar por los cuales se agrupa.
             agrupado = request.POST.getlist('agrupados') # campo por el cual se agrupa.
@@ -482,46 +491,41 @@ def consultas(request):
                 attos_where.append(temp)                        # attos_where = [ ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...], ... ]
             # Se toma el valor del limite si existe
             limite = request.POST.getlist('limite')
-            # Se procede a crear la consulta con los valores recogidos y seguidamente a ejecutarla.
-   
+
             consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+            print consulta_final
             cursor = connection.cursor()
             cursor.execute(consulta_final)
             resultados_consulta = cursor.fetchall()
-
-            #print resultados_consulta
 
             # Si hay un agrupado se agrega a los atributos a mostrar
             if agrupado[0]:
                 attos_select = agrupado + attos_select
 
-    print consulta_final
-    #print resultados_consulta[0:10]
 
-    paginator = Paginator(resultados_consulta, 10) # Show 25 contacts per page
-
+    # Paginacion
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina
     page = request.GET.get('page')
     try:
         resultados_pag = paginator.page(page)
     except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
         resultados_pag = paginator.page(1)
     except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
         resultados_pag = paginator.page(paginator.num_pages)
 
     context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
-    #context = {'resultados_pag': resultados_pag}
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
-          
+
+# La clase QueriesView muestra el formulario completo para hacer una consulta directa
+# desde la interfaz. Requiere el contexto query.
 class QueriesView(generic.TemplateView):
     template_name = 'asistente_de_consultas/queries.html'
     context_object_name = 'query'
 
 
-# La clase AtributosView muestra el formulario completo para hacer una consulta usando al asistente.
-# Requiere pasar todos los contextos y listas necesarias al html.
+# La clase AtributosView muestra el formulario completo para hacer una consulta usando
+# al asistente. Requiere pasar todos los contextos y listas necesarias al html.
 class AtributosView(generic.ListView):
     template_name = 'asistente_de_consultas/atributos.html'
     context_object_name = 'attos_select'
@@ -578,7 +582,27 @@ class BusquedaAjax3View(generic.TemplateView):
         return HttpResponse(data, content_type='application/json')
 
 
-# Busca y Verifica que el centro exista en la Base de datos.
+# Busca los posibles circuitos de un estado y los devuelve.
+class BusquedaAjax4View(generic.TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        x = request.GET['edo']
+        consulta = """SELECT DISTINCT(circuitos_15) AS circuitos
+                      FROM estado e, municipio m, parroquia p, centro c
+                      WHERE e.id = m.id_edo AND m.id = p.id_mun AND
+                            p.id = c.id_parr AND e.id = """ + x + ";"            
+        cursor = connection.cursor()
+        cursor.execute(consulta)
+        data = cursor.fetchall()
+        circuitos = []
+        for elem in data:
+            if elem[0]:
+                circuitos.append(elem[0])
+        circuitos.sort()
+        return JsonResponse(circuitos, safe=False)
+
+
+# Busca y verifica que el centro exista en la Base de datos.
 class BuscarCentroAjaxView(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
@@ -589,7 +613,8 @@ class BuscarCentroAjaxView(generic.TemplateView):
         return HttpResponse(data, content_type='application/json')
 
 
-
+# Reinicia las variables globales que se utilizaron para hacer la consulta
+# anterior con el asistente. 
 def volverAlInicio(request):
 
     global conds_where, consulta_final, resultados_consulta, attos_select
@@ -601,13 +626,11 @@ def volverAlInicio(request):
     return render(request, 'asistente_de_consultas/consultas.html')
     
 
+# Permite la descarga de un archivo csv desde el asistente de consultas.
 def exportar_csv(request):
-
-    print "aqui llegue"
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
-
     writer = csv.writer(response)
     row = []
     for elem in attos_select:
@@ -618,7 +641,6 @@ def exportar_csv(request):
         for e in elem:
             row.append(e)
         writer.writerow([unicode(s).encode("utf-8") for s in row])
-
     return response
 
 

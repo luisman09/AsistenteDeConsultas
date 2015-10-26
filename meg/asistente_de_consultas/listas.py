@@ -148,6 +148,7 @@ lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
 #                   rango: input doble en forma de rango (para usar between)
 lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns",("municipio","id")),("parrs",("parroquia","id")),
                                                  ("ctros",("centro","id"))], "Ubicación (Edo-Mun-Parr-Centro)"),
+                     ("ubicacion-circs","dependiente2",[("edos-circs",("estado","id")),("circs",("centro","circuitos_15"))], "Ubicación (Edo-Circuito)"),
                      ("centro-esp","multiple",[("centro-id",("centro","id"))],"Centro Específico"),
                      ("cant-mesas","rango",[("min-mesas",("centro","mesas")),("max-mesas",("centro","mesas"))],"Cantidad de Mesas Electorales"),
                      ("cant-elects","rango",[("min-elects",("centro","electores")),("max-elects",("centro","electores"))],"Cantidad de Electores"),

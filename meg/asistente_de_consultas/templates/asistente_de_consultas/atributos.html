@@ -151,12 +151,46 @@
                                 <select class="otros-ctros multi-grande" id="otros-ctros" name="ctros" disabled="true" multiple>
                                     <option value="">Centros:</option>
                                 </select>
-                                <input class="agr-eli" class="eliminar-ubicacion" type="button" value="x">
+                                <input class="eliminar-ubicacion agr-eli" type="button" value="x">
                             </div>
                         </div>
                     </div>
                     </br> 
                 </div> 
+
+                <div id="ubicacion-circs" name="ubicacion-circs" hidden="true">     
+                    <div id="dinamico-ubicacion-circs">
+                        <select class="simple-mediano" id="edos-circs" name="edos-circs">
+                            <option value="" selected>Estado:</option>
+                            {% for estado in estados %}
+                                <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="simple-mediano" id="circs" name="circs" disabled="true">
+                            <option value="">Circuito:</option>
+                        </select>
+                        <input class="agr-eli" id="agregar-otra-ubicacion-circs" type="button" value="+"/>
+                        <input class="agr-eli" id="eliminar-ubicacion-circs" name="eliminar-ubicacion-circs" type="button" value="-"/>
+
+                        <div id="ubicacion-circs-adicional">
+                            <div class="agregar-eliminar-ubicacion-circs" style="display: none;">
+                                <select class="otros-edos-circs simple-mediano" id="otros-edos-circs" name="edos-circs">
+                                    <option value="" selected>Estado:</option>
+                                    {% for estado in estados %}
+                                        <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select class="otros-circs simple-mediano" id="otros-circs" name="circs" disabled="true" >
+                                    <option value="">Circuito:</option>
+                                </select>
+                                <input class="eliminar-ubicacion-circs agr-eli" type="button" value="x">
+                            </div>
+                        </div>
+                    </div>
+                    </br> 
+                </div> 
+
+
                 <!--Input simple para buscar centros especificos por su codigo.
                     Se pueden agregar hasta 10 centros diferentes, el primero es estatico y 
                     de alli en adelante son dinamicos (aparecen si se desea especificar otro centro).
@@ -174,7 +208,7 @@
                                 <label>Código de Centro:</label>
                                 <input class="otro-centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
                                 <input class="otro-validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
-                                <input class="agr-eli" class="eliminar-centro-esp" type="button" value="x">
+                                <input class="eliminar-centro-esp agr-eli" type="button" value="x">
                             </div>
                         </div>
                     </div>
@@ -329,7 +363,7 @@
             <div class="partes" id="parte_4" hidden="true">
                 <h3 align="center">*-----* Limita los resultados *-----*</h3>
 
-                <div id="nombre-completo" name="nombre-completo" align="center">  
+                <div id="lim" name="lim" align="center">  
                     <label> Límite de la consulta: </label>
                     <input id="limite" name="limite" type="text" onKeyPress="return numeroEnteroPositivo(event)" />
                     </br></br>  
@@ -408,6 +442,9 @@
                         $('select#muns').on('change',obtenerPrimerasParroquias);
                         $('select#parrs').on('change',obtenerPrimerosCentros);
                     }
+                    if (op == 'ubicacion-circs') {
+                        $('select#edos-circs').on('change', obtenerPrimerosCircuitos);
+                    }
                     if (op == 'centro-esp') {
                         $('#validar-centro-id').on('click', {id_elem: "centro-id"}, validarPrimerCentro);
                     }
@@ -418,7 +455,9 @@
                 // Habilita nuevamente la opcion y oculta (remueve) los elementos que agregan condiciones.
                 function eliminarOpcion(){
                     var div_container;
-                    if ($(this).attr("name") == 'eliminar-centro-esp' || $(this).attr("name") == 'eliminar-ubicacion' ) {
+                    if ($(this).attr("name") == 'eliminar-centro-esp' ||
+                        $(this).attr("name") == 'eliminar-ubicacion' || 
+                        $(this).attr("name") == 'eliminar-ubicacion-circs' ) {
                         var div_container = $(this).parent().parent().attr("id");
                     } else { 
                         var div_container = $(this).parent().attr("id");
@@ -428,7 +467,6 @@
                     opcionesDeshabilitadas();
                 }
 
-                // Todos los select pertenecen a esta clase
                 //$('.multi').multiselect();        # ESTE ESTA BIEN
                 //$('.simple').multiselect();       # ESTE ESTA BIEN
                 //$('.multiX').multiselect();
@@ -483,10 +521,8 @@
                         }); 
 
                         $hijosContenedor_ubi.find('.eliminar-ubicacion').attr('id', function(i) {
-                            return 'eliminar-ubicacion[' + i + ']';
+                            return 'eliminar-ubicacion-' + i;
                         });
-                        //console.log("asi queda el Container:");
-                        //console.log($contenedor_ubi.html());
                     }
 
                     // Ocurre cuando se añade una nueva ubicacion.
@@ -502,6 +538,52 @@
                     });
                 });
 
+
+                // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de las Ubicaciones con circuitos.
+                $(function() {
+                    var MAX = 10;
+                    var $agregar_ubicircs = $('#agregar-otra-ubicacion-circs');
+                        $contenedor_ubicircs = $('#ubicacion-circs-adicional');
+                        $template_ubicircs = $contenedor_ubicircs.children(':first').remove();
+
+                    function update() {
+
+                        var $hijosContenedor_ubicircs = $contenedor_ubicircs.children();
+                        // Desabilita el boton de agregar al llegar a 10.
+                        $agregar_ubicircs.prop('disabled', $hijosContenedor_ubicircs.length >= MAX);
+                        // Cambiar los id de los elementos.
+                        $hijosContenedor_ubicircs.find('.otros-edos-circs').attr('id', function(i) {
+                            return 'otros-edos-circs-' + i;
+                        });
+                        $hijosContenedor_ubicircs.find('.otros-circs').attr('id', function(i) {
+                            return 'otros-circs-' + i;
+                        });
+
+                        $hijosContenedor_ubicircs.on('change', '.otros-edos-circs', function() {
+                            var edo = $(this).val();
+                            var id_circs = $(this).parent().find('.otros-circs').attr("id");
+                            obtenerCircuitos(edo,id_circs);
+                        }); 
+
+                        $hijosContenedor_ubicircs.find('.eliminar-ubicacion-circs').attr('id', function(i) {
+                            return 'eliminar-ubicacion-circs-' + i;
+                        });
+                    }
+
+                    // Ocurre cuando se añade una nueva ubicacion.
+                    $agregar_ubicircs.on('click', function() {
+                        $template_ubicircs.clone().appendTo($contenedor_ubicircs).show();
+                        update();
+                    });
+
+                    // Ocurre cuando se elimina alguna de las ubicaciones agregadas..
+                    $('#dinamico-ubicacion-circs').on('click', '.eliminar-ubicacion-circs', function() {
+                        $(this).closest('.agregar-eliminar-ubicacion-circs').remove();
+                        update();
+                    });
+                });
+
+
                 // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de los Centros Especificos.
                 $(function() {
                     var MAX = 10;
@@ -509,35 +591,27 @@
                         $contenedor = $('#centro-esp-adicional');
                         $template = $contenedor.children(':first').remove();
 
-                    //console.log("contenedor:");
-                    //console.log($contenedor.html());
-                    //console.log("template:");
-                    //console.log($template.html());
-
                     function update() {
                         var $hijosContenedor = $contenedor.children();
                         // Desabilita el boton de agregar al llegar a 10.
                         $agregar.prop('disabled', $hijosContenedor.length >= MAX);
                         // Cambiar los id de los elementos.
                         $hijosContenedor.find('.otro-centro-id').attr('id', function(i) {
-                            return 'otro-centro-id[' + i + ']';
+                            return 'otro-centro-id-' + i;
                         });
                         $hijosContenedor.find('.otro-validar-centro-id').attr('id', function(i) {
-                            return 'otro-validar-centro-id[' + i + ']';
+                            return 'otro-validar-centro-id-' + i;
                         });
                         $hijosContenedor.find('.eliminar-centro-esp').attr('id', function(i) {
-                            return 'eliminar-centro-id[' + i + ']';
+                            return 'eliminar-centro-id-' + i;
                         });
                         // Validar el centro.
                         $hijosContenedor.on('click', '.otro-validar-centro-id', function() {
-                            console.log("ACAAAA entre");
                             var id_val = $(this).attr("id");
                             var id_elem = $(this).parent().find('.otro-centro-id').attr("id");
                             var centroId = $(this).parent().find('.otro-centro-id').val();
                             validarCentro(centroId);
                         }); 
-                        //console.log("asi queda el Container:");
-                        //console.log($contenedor.html());
                     }
 
                     // Ocurre cuando se añade un nuevo Centro.
@@ -601,7 +675,6 @@
 
                 // Verifica que los centros especificos sean correctos, si el usuario lo desea.
                 function validarCentro(centroId){
-                    console.log(centroId);
                     if (centroId.length < 8 || centroId.length > 9) {  
                         alert("El codigo de centro debe contener 8 o 9 digitos numericos."); 
                     } else {
@@ -636,10 +709,6 @@
 
                 // Obtiene todos los Municipios de un Estado especifico.
                 function obtenerMunicipios(edo,id_muns,id_parrs,id_ctros){
-                    console.log(edo);
-                    console.log(id_muns);
-                    console.log(id_parrs);
-                    console.log(id_ctros);
                     $.ajax({
                         data: {'edo': edo},
                         url: "{% url 'asistente_de_consultas:busqueda_ajax' %}",
@@ -649,8 +718,6 @@
                             for (var i = 0; i < data.length; i++) {
                                 options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
                             }
-                            console.log(options);
-                            console.log($('select#'+id_muns));
                             $('select#'+id_muns).html(options);
                             $('select#'+id_muns+' option:first').attr('selected', 'selected');
                             $('select#'+id_muns).attr('disabled', false);
@@ -664,9 +731,6 @@
 
                 // Obtiene todas las Parroquias de un Municipio especifico.
                 function obtenerParroquias(mun,id_parrs,id_ctros){
-                    console.log(mun);
-                    console.log(id_parrs);
-                    console.log(id_ctros);
                     $.ajax({
                         data: {'mun': mun},
                         url: "{% url 'asistente_de_consultas:busqueda_ajax2' %}",
@@ -687,8 +751,6 @@
 
                 // Obtiene todas los Centros de una Parroquia especifica.
                 function obtenerCentros(parr,id_ctros){
-                    console.log(parr);
-                    console.log(id_ctros);
                     $.ajax({
                         data: {'parr': parr},
                         url: "{% url 'asistente_de_consultas:busqueda_ajax3' %}",
@@ -704,6 +766,31 @@
                         }
                     });
                 }
+
+                function obtenerPrimerosCircuitos() {
+                    var edo = $(this).val();
+                    obtenerCircuitos(edo,'circs');
+                }
+
+                function obtenerCircuitos(edo,id_circs){
+                    $.ajax({
+                        data: {'edo': edo},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax4' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="">Circuito:</option>'
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i] != '"') {
+                                    options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                }
+                            }
+                            $('select#'+id_circs).html(options);
+                            $('select#'+id_circs+' option:first').attr('selected', 'selected');
+                            $('select#'+id_circs).attr('disabled', false);
+                        }
+                    });
+                }
+
 
             </script>
 
