@@ -14,26 +14,28 @@ from .listas import *
 
 
 # Variables globales.
+attos_select = []           # Lista de elementos que seran mostrados en el SELECT.
 conds_where = []            # Lista de elementos que seran condicionados en el WHERE.
 consulta_final = ""         # String que guarda la consulta final cuando se ejecuta
 resultados_consulta = []    # Guarda todos los resultados de la ejecucion de la consulta
-attos_select = []           # Lista de elementos que seran mostrados en el SELECT.
 
 
-# la funcion buscarElementoIndice recibe una clave, una lista en forma de diccionario (clave, valor(es))
-# y un indice, y devuelve el valor del diccionario correspondiente al indice. 
+# La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
 def buscarElementoIndice(a, lista, indice):
     for elem in lista:
         if a == elem[0]:
             return elem[indice]
 
 
-# la funcion buscarElementoCompleto recibe una clave y una lista en forma de diccionario (clave, valor(es)),
-# y devuelve el valor del diccionario completo del diccionario que contiene como clave a la clave dada. 
+# La funcion buscarElementoCompleto devuelve el valor del diccionario completo del diccionario
+# que contiene como clave a la clave dada. 
 def buscarElementoCompleto(a, lista):
     for elem in lista:
         if a == elem[0]:
             return elem
+
+
+# ME FALTA DOCUMENTAR Y MEJORAR DE ACA PARA ARRIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA OJOOOOOOOOOOOOOOOOOOOOO
 
 
 # La funcion encontrarOD devuelve una lista de origenes y destinos que seran tomados
@@ -285,20 +287,15 @@ def agregarCondiciones(attos_where):
 # Recibe los atributos a mostrar 
 def crearConsulta(attos_select, attos_where, agrupado, limite):
 
+    select_items, from_items, where_items, group_by_items = "", "", "", ""
+    condiciones, limit = "", ""
+    condiciones_contacto, tablas = [], []
     lista = lista_attos
-    select_items = ""
-    from_items = ""
-    where_items = ""
-    group_by_items = ""
-    condiciones = ""
-    condiciones_contacto = []
-    limit = ""
-    tablas = []
     # Si hay agrupado, entonces la lista cambia de lista_attos a lista_agrupados y ademas
     # agrega al agrupado a los atributos seleccionados
     if agrupado[0]:
         attos_select = agrupado + attos_select;
-        lista = lista_agrupados_nivel_5 + [buscarElementoCompleto(agrupado[0],lista_agrupados)]
+        lista = lista_agrupados_select + [buscarElementoCompleto(agrupado[0],lista_agrupados)]
 
     for elem in attos_select:
         x = buscarElementoIndice(elem, lista, 1)
@@ -428,83 +425,92 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
     return consulta
 
 
-# La funcion consultas, a traves de un formulario recibe multiples elementos que el usuario introduce,
-# transforma esos elementos mediante varias funciones a una forma de consulta SQL para luego ejecutarla 
-# mediante el uso de cursores a nivel de la base de datos y luego redirir a otra pagina mostrando los
-# resultados obtenidos de realizar la consulta. 
+# ME FALTA DOCUMENTAR Y MEJORAR DE ACA PARA ARRIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA OJOOOOOOOOOOOOOOOOOOOOO
+
+
+# La funcion obtenerCOndicionesWhere obtiene la lista de los atributos que seran 
+# condicionados y sus valores introducidos por el usuario mediante el formulario.
+def obtenerCondicionesWhere(request, elems_where):
+
+    # El ultimo elems_where que se recibe en consultas es el del boton final, en ese caso
+    # la lista de condiciones se recibe vacia, por lo cual, nos debemos quedar con el penultimo
+    # elems_where recibido que tendria todos las opciones que se quieren condicionar.
+    # Se reciben tantos elems_where como cambios en la lista de condiciones haya. por ello
+    # con cada cambio recibido se elimina la lista de condiciones anterior.
+    global conds_where
+    if elems_where:
+        del conds_where[:]
+        for elem in elems_where:
+            x = buscarElementoCompleto(elem,lista_attos_where)
+            conds_where.append(x)
+    # attos_where agrega los valores introducidos a las condiciones establecidas en conds_where.
+    attos_where = []
+    for atto in conds_where:
+        temp, temp4 = [], []
+        valores = buscarElementoIndice(atto[0], conds_where, 2)     # valores: [("value interfaz",("tabla","atto"))]        
+        tipo = buscarElementoIndice(atto[0], conds_where, 1)        # tipo: "tipo"
+        temp.append(tipo)                           # temp: ["tipo"]
+        for elem in valores:
+            temp2 = []
+            temp2.append(elem[1])                   # temp2: [("tabla","atto")]
+            temp3 = request.POST.getlist(elem[0])   # temp3: [val1, val2, ... , valN]
+            temp2 = temp2 + temp3       # temp2: [("tabla","atto"), val1, val2, ... , valN]
+            temp4.append(temp2)         # temp4: [ [("tabla","atto"), val1, val2, ... , valN], ... ]
+        temp = temp + temp4             # temp: ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...]
+        attos_where.append(temp)        # attos_where: [ ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...], ... ]
+    return attos_where
+
+
+# La funcion ejecutarConsulta ejecuta la consulta prediseñada en la base de datos
+# a traves de un cursor. Si la consulta viene por un query directo, se agregan los 
+# nombres de las columnas como cabeceras de tabla de los resultados que se obtendran.
+def ejecutarConsulta(consulta, esQueryDirecto):
+
+    print consulta
+    cursor = connection.cursor()
+    cursor.execute(consulta)
+    if esQueryDirecto:
+        global attos_select
+        attos_select = [s[0] for s in cursor.description]
+    resultados = cursor.fetchall()
+    return resultados
+
+
+# La funcion consultas tiene dos funciones en particular:
+# 1- recibir todos los request introducidos por el usuario a traves del formulario
+#    (ya sea mediante el uso del asistente o a traves de un query directo),
+#    formular la consulta y mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
 def consultas(request):
 
     global consulta_final, resultados_consulta, conds_where, attos_select
     resultados_pag = []
-
-    # Si hay consulta final, es porque simplemente entro a consultas para cambiar de pagina.
-    # Si no, se crea la consulta.
     if not consulta_final:
-        
-        # Si viene por parte de un query directo entra en el if y crea la consulta.
-        # Si no, entra por el else y significa que la consulta utilizo el asistente.
-        # La consulta en ambos casos se ejecuta mediante un cursor de python.
+        # Se obtiene el query directo.
         query = request.POST.get('query')
         if query:
-            consulta_final = request.POST.get('query')
-            print consulta_final
-            cursor = connection.cursor()
-            cursor.execute(consulta_final)
-            attos_select = [s[0] for s in cursor.description]
-            resultados_consulta = cursor.fetchall()
+            consulta_final = query
+            resultados_consulta = ejecutarConsulta(consulta_final, True)
         else:
-            # Si la consulta es simple, aca se tienen todos los atributos a mostrar seleccionados por el usuario.
+            # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
             attos_select = request.POST.getlist('attos')
-            # Si no hay attos_select, es porque la consulta fue por agrupados,
-            # y se obtienen el agrupado y los atributos a mostrar por los cuales se agrupa.
-            agrupado = request.POST.getlist('agrupados') # campo por el cual se agrupa.
+            # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
+            agrupado = request.POST.getlist('agrupados')
             if not attos_select:
-                attos_select = request.POST.getlist('ag_attos') # campos por los cuales se agrupa.
-            # Si la consulta tiene condiciones (WHERE), aca se obtienen.
-            # EL ULTIMO elems_where QUE SE RECIBE ES EL DEL BOTON FINAL, EN ESE CASO LA LISTA LA 
-            # RECIBE VACIA, POR LO CUAL, NOS DEBEMOS QUEDAR CON EL PENULTIMO elems_where RECIBIDO.
-            # SE RECIBEN TANTOS elems_where COMO CAMBIOS EN LA LISTA DE CONDICIONES HAYA. POR ELLO
-            # CON CADA CAMBIO RECIBIDO SE ELIMINA EL ANTERIOR. OJOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                attos_select = request.POST.getlist('ag_attos')
+            # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
             elems_where = request.POST.getlist('deshabilitadas[]')
-            if elems_where:
-                del conds_where[:]
-                for elem in elems_where:
-                    x = buscarElementoCompleto(elem,lista_attos_where)
-                    # conds_where sera una lista de la forma: Ver lista_attos_where en listas.py.
-                    conds_where.append(x)
-            # attos_where sera una lista de condiciones que mejora la forma que trae la lista conds_where
-            # y a su vez agrega los valores especificos que el usuario introdujo via formulario.
-            attos_where = []
-            for atto in conds_where:
-                temp = []
-                temp4 = []
-                valores = buscarElementoIndice(atto[0], conds_where, 2)     # ME DA LA LISTA DE VALORES: [("value interfaz",("tabla","atto"))]        
-                tipo = buscarElementoIndice(atto[0], conds_where, 1)        # ME DA EL TIPO DEL VALOR: "tipo" ej: "dependiente","simple","rango",etc
-                temp.append(tipo)                               # temp = ["tipo"]
-                for elem in valores:
-                    temp2 = []
-                    temp2.append(elem[1])                       # temp2 = [("tabla","atto")]
-                    temp3 = request.POST.getlist(elem[0])       # temp3 = [val1, val2, ... , valN]
-                    temp2 = temp2 + temp3                       # temp2 = [("tabla","atto"), val1, val2, ... , valN]
-                    temp4.append(temp2)                         # temp4 = [ [("tabla","atto"), val1, val2, ... , valN], ... ]
-                temp = temp + temp4                             # temp = ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...]
-                attos_where.append(temp)                        # attos_where = [ ["tipo", [("tabla","atto"), val1, val2, ... , valN], ...], ... ]
-            # Se toma el valor del limite si existe
+            attos_where = obtenerCondicionesWhere(request, elems_where)
+            # Se obtiene el valor del limite, si existe.
             limite = request.POST.getlist('limite')
-
             consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
-            print consulta_final
-            cursor = connection.cursor()
-            cursor.execute(consulta_final)
-            resultados_consulta = cursor.fetchall()
-
+            resultados_consulta = ejecutarConsulta(consulta_final, False)
             # Si hay un agrupado se agrega a los atributos a mostrar
             if agrupado[0]:
                 attos_select = agrupado + attos_select
 
-
-    # Paginacion
-    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina
+    # Paginacion.
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
     page = request.GET.get('page')
     try:
         resultados_pag = paginator.page(page)
@@ -512,109 +518,12 @@ def consultas(request):
         resultados_pag = paginator.page(1)
     except EmptyPage:
         resultados_pag = paginator.page(paginator.num_pages)
-
     context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
-# La clase QueriesView muestra el formulario completo para hacer una consulta directa
-# desde la interfaz. Requiere el contexto query.
-class QueriesView(generic.TemplateView):
-    template_name = 'asistente_de_consultas/queries.html'
-    context_object_name = 'query'
-
-
-# La clase AtributosView muestra el formulario completo para hacer una consulta usando
-# al asistente. Requiere pasar todos los contextos y listas necesarias al html.
-class AtributosView(generic.ListView):
-    template_name = 'asistente_de_consultas/atributos.html'
-    context_object_name = 'attos_select'
-    queryset = lista_attos
-
-    def get_context_data(self, **kwargs):
-        context = super(AtributosView, self).get_context_data(**kwargs)
-        context['attos_where'] = lista_attos_where
-        context['agrupados'] = lista_agrupados
-        #context['ag_nivel_1'] = lista_agrupados_nivel_1
-        #context['ag_nivel_2'] = lista_agrupados_nivel_2
-        #context['ag_nivel_3'] = lista_agrupados_nivel_3
-        #context['ag_nivel_4'] = lista_agrupados_nivel_4
-        context['ag_nivel_5'] = lista_agrupados_nivel_5
-        context['estados'] = Estado.objects.order_by('nombre')
-        context['municipios'] = Municipio.objects.order_by('nombre')
-        context['parroquias'] = Parroquia.objects.order_by('nombre')
-        context['circuitos_15'] = lista_circuitos_15
-        context['nacionalidades'] = lista_nacionalidades
-        context['sexo'] = lista_sexo
-        context['estratos'] = lista_estratos
-        context['edos_civiles'] = lista_edos_civiles
-        context['ipps'] = lista_ipps
-        return context
-
-
-# Busca el estado seleccionado y devuelve sus municipios.
-class BusquedaAjaxView(generic.TemplateView):
-    
-    def get(self, request, *args, **kwargs):
-        x = request.GET['edo']
-        municipios = Municipio.objects.filter(id_edo=x).order_by('nombre')
-        data = serializers.serialize('json', municipios, fields=('nombre'))
-        return HttpResponse(data, content_type='application/json')
-
-
-# Busca el municipio seleccionado y devuelve sus parroquias.
-class BusquedaAjax2View(generic.TemplateView):
-    
-    def get(self, request, *args, **kwargs):
-        x = request.GET['mun']
-        parroquias = Parroquia.objects.filter(id_mun=x).order_by('nombre')
-        data = serializers.serialize('json', parroquias, fields=('nombre'))
-        return HttpResponse(data, content_type='application/json')
-
-
-# Busca la parroquia seleccionada y devuelve sus centros.
-class BusquedaAjax3View(generic.TemplateView):
-    
-    def get(self, request, *args, **kwargs):
-        x = request.GET['parr']
-        centros = Centro.objects.filter(id_parr=x).order_by('nombre')
-        data = serializers.serialize('json', centros, fields=('nombre'))
-        return HttpResponse(data, content_type='application/json')
-
-
-# Busca los posibles circuitos de un estado y los devuelve.
-class BusquedaAjax4View(generic.TemplateView):
-    
-    def get(self, request, *args, **kwargs):
-        x = request.GET['edo']
-        consulta = """SELECT DISTINCT(circuitos_15) AS circuitos
-                      FROM estado e, municipio m, parroquia p, centro c
-                      WHERE e.id = m.id_edo AND m.id = p.id_mun AND
-                            p.id = c.id_parr AND e.id = """ + x + ";"            
-        cursor = connection.cursor()
-        cursor.execute(consulta)
-        data = cursor.fetchall()
-        circuitos = []
-        for elem in data:
-            if elem[0]:
-                circuitos.append(elem[0])
-        circuitos.sort()
-        return JsonResponse(circuitos, safe=False)
-
-
-# Busca y verifica que el centro exista en la Base de datos.
-class BuscarCentroAjaxView(generic.TemplateView):
-
-    def get(self, request, *args, **kwargs):
-        x = request.GET['centroId']
-        centro = Centro.objects.filter(id=int(x))
-        if centro:
-            data = serializers.serialize('json', centro, fields=('nombre'))
-        return HttpResponse(data, content_type='application/json')
-
-
-# Reinicia las variables globales que se utilizaron para hacer la consulta
-# anterior con el asistente. 
+# La funcion volverAlInicio reinicia las variables globales que se utilizaron para hacer
+# la consulta anterior con el asistente. 
 def volverAlInicio(request):
 
     global conds_where, consulta_final, resultados_consulta, attos_select
@@ -626,7 +535,8 @@ def volverAlInicio(request):
     return render(request, 'asistente_de_consultas/consultas.html')
     
 
-# Permite la descarga de un archivo csv desde el asistente de consultas.
+# La funcion exportar_csv permite la descarga de un archivo csv desde el asistente de consultas
+# con los resultados de haber ejecutado alguna consulta.
 def exportar_csv(request):
 
     response = HttpResponse(content_type='text/csv')
@@ -644,6 +554,93 @@ def exportar_csv(request):
     return response
 
 
+# La clase AtributosView muestra el formulario completo para hacer una consulta usando
+# al asistente. Requiere pasar todos los contextos y listas necesarias al html.
+class AtributosView(generic.ListView):
+    template_name = 'asistente_de_consultas/atributos.html'
+    context_object_name = 'attos_select'
+    queryset = lista_attos
+
+    def get_context_data(self, **kwargs):
+        context = super(AtributosView, self).get_context_data(**kwargs)
+        context['attos_where'] = lista_attos_where
+        context['agrupados'] = lista_agrupados
+        context['agrupados_select'] = lista_agrupados_select
+        context['estados'] = Estado.objects.order_by('nombre')
+        context['municipios'] = Municipio.objects.order_by('nombre')
+        context['parroquias'] = Parroquia.objects.order_by('nombre')
+        context['nacionalidades'] = lista_nacionalidades
+        context['sexo'] = lista_sexo
+        context['estratos'] = lista_estratos
+        context['edos_civiles'] = lista_edos_civiles
+        context['ipps'] = lista_ipps
+        return context
+
+
+# La clase QueriesView muestra el formulario completo para hacer una consulta directa
+# desde la interfaz. Requiere el contexto query.
+class QueriesView(generic.TemplateView):
+    template_name = 'asistente_de_consultas/queries.html'
+    context_object_name = 'query'
+
+
+# La clase BusquedaAjaxView busca el estado seleccionado y devuelve sus municipios.
+class BusquedaAjaxView(generic.TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        x = request.GET['edo']
+        municipios = Municipio.objects.filter(id_edo=x).order_by('nombre')
+        data = serializers.serialize('json', municipios, fields=('nombre'))
+        return HttpResponse(data, content_type='application/json')
+
+
+# La clase BusquedaAjax2View busca el municipio seleccionado y devuelve sus parroquias.
+class BusquedaAjax2View(generic.TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        x = request.GET['mun']
+        parroquias = Parroquia.objects.filter(id_mun=x).order_by('nombre')
+        data = serializers.serialize('json', parroquias, fields=('nombre'))
+        return HttpResponse(data, content_type='application/json')
+
+
+# La clase BusquedaAjax3View busca la parroquia seleccionada y devuelve sus centros.
+class BusquedaAjax3View(generic.TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        x = request.GET['parr']
+        centros = Centro.objects.filter(id_parr=x).order_by('nombre')
+        data = serializers.serialize('json', centros, fields=('nombre'))
+        return HttpResponse(data, content_type='application/json')
+
+
+# La clase BusquedaAjax4View busca los posibles circuitos de un estado y los devuelve.
+class BusquedaAjax4View(generic.TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        x = request.GET['edo']
+        consulta = """SELECT DISTINCT(circuitos_15) AS circuitos
+                      FROM estado e, municipio m, parroquia p, centro c
+                      WHERE e.id = m.id_edo AND m.id = p.id_mun AND
+                            p.id = c.id_parr AND e.id = """ + x + ";"            
+        data = ejecutarConsulta(consulta, False)
+        circuitos = []
+        for elem in data:
+            if elem[0]:
+                circuitos.append(elem[0])
+        circuitos.sort()
+        return JsonResponse(circuitos, safe=False)
+
+
+# La clase BuscarCentroAjaxView busca y verifica que el centro exista en la base de datos.
+class BuscarCentroAjaxView(generic.TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        x = request.GET['centroId']
+        centro = Centro.objects.filter(id=int(x))
+        if centro:
+            data = serializers.serialize('json', centro, fields=('nombre'))
+        return HttpResponse(data, content_type='application/json')
 
 
 

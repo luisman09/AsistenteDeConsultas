@@ -63,15 +63,13 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                   ]
 
 
-lista_agrupados_nivel_1 = [("Estado",["estado","nombre"])]
-lista_agrupados_nivel_2 = lista_agrupados_nivel_1 + [("Municipio",["municipio","nombre"])]
-lista_agrupados_nivel_3 = lista_agrupados_nivel_2 + [("Parroquia",["parroquia","nombre"])]
-lista_agrupados_nivel_4 = lista_agrupados_nivel_3 + [("Circuitos 15",["centro","circuitos_15"])]
-lista_agrupados_nivel_5 = lista_agrupados_nivel_4 + [("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
-                                                     ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
-                                                     ("Estrato",["persona","estrato"]),("IPP",["persona","ipp"]),
-                                                     ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
-                                                    ]
+lista_agrupados_select = [("Estado",["estado","nombre"]),("Municipio",["municipio","nombre"]),
+                          ("Parroquia",["parroquia","nombre"]),("Circuitos 15",["centro","circuitos_15"]),
+                          ("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
+                          ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
+                          ("Estrato",["persona","estrato"]),("IPP",["persona","ipp"]),
+                          ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
+                         ]
 
 
 # la lista cambios contiene los datos de la tabla hubo_cambios.
@@ -165,8 +163,6 @@ lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ("ipp","multiple",[("ipps",("persona","ipp"))],"Índice de Preferencia Política (IPP)"),
                      ("isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))],"Índice Socioeconómico Inferido (ISEI)"),
                     ]
-
-lista_circuitos_15 = [1,2,3,4,5,6,7,8,9,10,11,12]
 
 lista_nacionalidades = ['V','E']
 

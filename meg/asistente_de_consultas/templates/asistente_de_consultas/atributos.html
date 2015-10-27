@@ -72,7 +72,7 @@
                     </br>
                     <fieldset id="ag" class="group-checkbox"> 
                         <ul class="checkbox"> 
-                        {% for elem in ag_nivel_5 %}
+                        {% for elem in agrupados_select %}
                             <li>
                                 <input class="seleccionados" id="ag_attos{{ forloop.counter }}" name="ag_attos" type="checkbox" value="{{ elem.0 }}" />
                                 <label for="ag_attos{{ forloop.counter }}">{{ elem.0 }}</label>
