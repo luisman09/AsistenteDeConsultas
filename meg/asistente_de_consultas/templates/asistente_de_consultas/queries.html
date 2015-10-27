@@ -21,9 +21,11 @@
             {% csrf_token %}
             <div align="center">
                 <label>Introduce tu Query: </label></br></br>
-                <textarea id="query" name="query" rows="10" cols="60"></textarea><br>
-                <input id="continuar" name="continuar" type="button" value="continuar"/></br></br>
-                <input id="boton-final" type="submit" value="Hacer Consulta" hidden="true"/>
+                <textarea class="form-control" id="query" name="query" rows="10" cols="60"></textarea><br>
+                <input class="btn btn-sm" id="continuar" name="continuar" type="button" value="continuar"/></br></br>
+                <div id="boton-final" hidden="true">
+                    <input class="btn btn-primary" id="boton-final" type="submit" value="Hacer Consulta"/>
+                </div>
             </div>
 
             <script>
@@ -33,7 +35,7 @@
                     if (query == "") {
                         alert("El query no debe estar vacio");
                     } else {
-                        $('#boton-final').attr('hidden', false)
+                        $('div#boton-final').show();
                     }
                 });
 

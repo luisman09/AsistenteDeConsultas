@@ -20,15 +20,15 @@
 
         <div align="right">
             <a href="{% url 'asistente_de_consultas:atributos' %}">
-                <input class="limpiarGlobales" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
+                <input class="limpiarGlobales btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
             </a>
             <a href="{% url 'asistente_de_consultas:exportar_csv' %}">
-                <input id="descargar-resultados" name="descargar-resultados" type="button" value="Descargar en formato CSV"/>
+                <input class="btn btn-primary" id="descargar-resultados" name="descargar-resultados" type="button" value="Descargar en formato CSV"/>
             </a>
         </div>
 
         <p>Los resultados de su consulta son: </p>
-        <table id="t01">
+        <table class="table table-stripped table-bordered" id="t01">
             <thead>
                 <tr>
                     {% for a in atributos %}

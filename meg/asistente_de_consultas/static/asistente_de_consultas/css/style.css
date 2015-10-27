@@ -93,22 +93,18 @@ th, td {
 }
 
 table#t01 tr:nth-child(even) {
-    background-color: #eee;
+    background-color: #dddddd;
     color: black;
 }
 
 table#t01 tr:nth-child(odd) {
-    background-color:#fff;
+    background-color:#eeeeee;
     color: black;
 }
 
 table#t01 th	{
     padding: 5px;
-    background-color: black;
+    background-color: #286090;
     color: white;
 }
-
-
-
-
 

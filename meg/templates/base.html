@@ -26,8 +26,6 @@
         <script type="text/javascript" src="{% static 'asistente_de_consultas/js/jquery.dataTables.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'asistente_de_consultas/js/dataTables.bootstrap.min.js' %}"></script>-->
 
-        <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/select2.min.css' %}"/>
-        <script type="text/javascript" src="{% static 'asistente_de_consultas/js/select2.full.min.js' %}"></script>
         {% block encabezado %}
         {% endblock %}
     </head>
@@ -39,7 +37,7 @@
                 {% if user.is_authenticated  %} | <a class="limpiarGlobales" href="{% url "logout" %}"> Cerrar Sesión </a> {% endif %}
             </div>
             <div align=center>
-                <h2> Asistente de Consultas MEG </h2>
+                <h2> Asistente de Consultas <img src="{% static 'asistente_de_consultas/images/logo-200x375.png' %}" width="125" height="67"> </h2> 
             </div>
         </header>
         <section class='contenido'>

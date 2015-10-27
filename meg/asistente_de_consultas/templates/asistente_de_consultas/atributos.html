@@ -22,8 +22,8 @@
             {% csrf_token %}
             <!--Este primer div permite escoger si se quiere hacer una consulta simple o una consulta con agrupados.-->
             <div class="partes" id="inicio" align="center">
-                <input id="consulta-simple" name="consulta-simple" type="button" value="Realizar Consulta Simple"/>
-                <input id="consulta-agrupados" name="consulta-agrupados" type="button" value="Realizar Consulta Con Agrupados"/>
+                <input class="btn btn-primary" id="consulta-simple" name="consulta-simple" type="button" value="Realizar Consulta Simple"/>
+                <input class="btn btn-primary" id="consulta-agrupados" name="consulta-agrupados" type="button" value="Realizar Consulta Con Agrupados"/>
             </div> 
             <!--A continuacion vendran varios div que realizan funciones especificas cada uno.
                 Para realizar una consulta con el asistente, sea simple o con agrupados, se debe
@@ -52,7 +52,7 @@
                 </br> 
                 <!--Las partes 2, 3 y 4 apareceran unicamente si hay al menos un elemento seleccionado.-->
                 <div align="center">
-                    <input id="continuar-simple" name="continuar-simple" type="button" value="continuar"/>
+                    <input class="btn btn-sm" id="continuar-simple" name="continuar-simple" type="button" value="continuar"/>
                 </div>
             </div>
             <div class="partes" id="parte_1-agrupados" hidden="true">
@@ -62,7 +62,7 @@
                 -->
                 <div id="consulta-agrupados">
                     <div align="center">
-                        <select name="agrupados" id="agrupados" class="simple">
+                        <select class="simple-mediano" id="agrupados" name="agrupados">
                             <option value="">Campo a Agrupar:</option>
                             {% for elem in agrupados %}
                                 <option id="agrupados{{ forloop.counter }}" value="{{ elem.0 }}">{{ elem.0 }}</option>
@@ -84,7 +84,7 @@
                 </br> 
                 <!--Las partes 2, 3 y 4 apareceran unicamente si hay un agrupado seleccionado.-->
                 <div align="center">
-                    <input id="continuar-agrupados" name="continuar-agrupados" type="button" value="continuar"/>
+                    <input class="btn btn-sm" id="continuar-agrupados" name="continuar-agrupados" type="button" value="continuar"/>
                 </div>
             </div>
             </br>
@@ -100,7 +100,7 @@
                     con habilitar y deshabilitar elementos.
                 -->
                 <div align="center">
-                    <select id="conds" name="conds">
+                    <select class="lista" id="conds" name="conds">
                         <option>Campos a condicionar:</option>
                         {% for elem in attos_where %}
                             <option id="{{ elem.0 }}" value="{{ elem.0 }}">{{ elem.3 }}</option>
@@ -116,42 +116,42 @@
                 -->
                 <div id="ubicacion" name="ubicacion" hidden="true">     
                     <div id="dinamico-ubicacion">
-                        <select class="simple-mediano" id="edos" name="edos">
+                        <select class="simple-mediano lista " id="edos" name="edos">
                             <option value="" selected>Estado:</option>
                             {% for estado in estados %}
                                 <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
                             {% endfor %}
                         </select>
-                        <select class="simple-mediano" id="muns" name="muns" disabled="true">
+                        <select class="simple-mediano" id="muns" name="muns" hidden="true">
                             <option value="">Municipio:</option>
                         </select>
-                        <select class="simple-mediano" id="parrs" name="parrs" disabled="true">
+                        <select class="simple-mediano" id="parrs" name="parrs" hidden="true">
                             <option value="">Parroquia:</option>
                         </select>
-                        <select class="multi-grande" id="ctros" name="ctros" disabled="true" multiple>
+                        <select class="multi-grande" id="ctros" name="ctros" hidden="true" multiple>
                             <option value="">Centros:</option>
                         </select>
-                        <input class="agr-eli" id="agregar-otra-ubicacion" type="button" value="+"/>
-                        <input class="agr-eli" id="eliminar-ubicacion" name="eliminar-ubicacion" type="button" value="-"/>
+                        <input class="btn btn-sm" id="agregar-otra-ubicacion" type="button" value="+"/>
+                        <input class="btn btn-sm" id="eliminar-ubicacion" name="eliminar-ubicacion" type="button" value="-"/>
 
                         <div id="ubicacion-adicional">
                             <div class="agregar-eliminar-ubicacion" style="display: none;">
-                                <select class="otros-edos simple-mediano" id="otros-edos" name="edos">
+                                <select class="otros-edos simple-mediano lista-d" id="otros-edos" name="edos">
                                     <option value="" selected>Estado:</option>
                                     {% for estado in estados %}
                                         <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
                                     {% endfor %}
                                 </select>
-                                <select class="otros-muns simple-mediano" id="otros-muns" name="muns" disabled="true" >
+                                <select class="otros-muns simple-mediano" id="otros-muns" name="muns" hidden="true" >
                                     <option value="">Municipio:</option>
                                 </select>
-                                <select class="otras-parrs simple-mediano" id="otras-parrs" name="parrs" disabled="true">
+                                <select class="otras-parrs simple-mediano" id="otras-parrs" name="parrs" hidden="true">
                                     <option value="">Parroquia:</option>
                                 </select>
-                                <select class="otros-ctros multi-grande" id="otros-ctros" name="ctros" disabled="true" multiple>
+                                <select class="otros-ctros multi-grande" id="otros-ctros" name="ctros" hidden="true" multiple>
                                     <option value="">Centros:</option>
                                 </select>
-                                <input class="eliminar-ubicacion agr-eli" type="button" value="x">
+                                <input class="eliminar-ubicacion btn btn-sm" type="button" value="x">
                             </div>
                         </div>
                     </div>
@@ -160,36 +160,35 @@
 
                 <div id="ubicacion-circs" name="ubicacion-circs" hidden="true">     
                     <div id="dinamico-ubicacion-circs">
-                        <select class="simple-mediano" id="edos-circs" name="edos-circs">
+                        <select class="lista" id="edos-circs" name="edos-circs">
                             <option value="" selected>Estado:</option>
                             {% for estado in estados %}
                                 <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
                             {% endfor %}
                         </select>
-                        <select class="simple-mediano" id="circs" name="circs" disabled="true">
+                        <select class="simple-mediano" id="circs" name="circs" hidden="true">
                             <option value="">Circuito:</option>
                         </select>
-                        <input class="agr-eli" id="agregar-otra-ubicacion-circs" type="button" value="+"/>
-                        <input class="agr-eli" id="eliminar-ubicacion-circs" name="eliminar-ubicacion-circs" type="button" value="-"/>
+                        <input class="btn btn-sm" id="agregar-otra-ubicacion-circs" type="button" value="+"/>
+                        <input class="btn btn-sm" id="eliminar-ubicacion-circs" name="eliminar-ubicacion-circs" type="button" value="-"/>
 
                         <div id="ubicacion-circs-adicional">
                             <div class="agregar-eliminar-ubicacion-circs" style="display: none;">
-                                <select class="otros-edos-circs simple-mediano" id="otros-edos-circs" name="edos-circs">
+                                <select class="otros-edos-circs simple-mediano lista-d" id="otros-edos-circs" name="edos-circs">
                                     <option value="" selected>Estado:</option>
                                     {% for estado in estados %}
                                         <option value="{{ estado.id }}"> {{ estado.nombre }}</option>
                                     {% endfor %}
                                 </select>
-                                <select class="otros-circs simple-mediano" id="otros-circs" name="circs" disabled="true" >
+                                <select class="otros-circs simple-mediano" id="otros-circs" name="circs" hidden="true">
                                     <option value="">Circuito:</option>
                                 </select>
-                                <input class="eliminar-ubicacion-circs agr-eli" type="button" value="x">
+                                <input class="eliminar-ubicacion-circs btn btn-sm" type="button" value="x">
                             </div>
                         </div>
                     </div>
                     </br> 
                 </div> 
-
 
                 <!--Input simple para buscar centros especificos por su codigo.
                     Se pueden agregar hasta 10 centros diferentes, el primero es estatico y 
@@ -200,30 +199,19 @@
                     <div id="dinamico-centro-esp">
                         <label>Código de Centro:  </label>
                         <input id="centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
-                        <input id="validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
-                        <input class="agr-eli" id="agregar-otro-centro-esp" type="button" value="+">
-                        <input class="agr-eli" id="eliminar-centro-esp" name="eliminar-centro-esp" type="button" value="-"/>
+                        <input class="btn btn-sm" id="validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
+                        <input class="btn btn-sm" id="agregar-otro-centro-esp" type="button" value="+">
+                        <input class="btn btn-sm" id="eliminar-centro-esp" name="eliminar-centro-esp" type="button" value="-"/>
                         <div id="centro-esp-adicional">
                             <div class="agregar-eliminar-centro-esp" style="display: none;">
                                 <label>Código de Centro:</label>
                                 <input class="otro-centro-id" name="centro-id" onKeyPress="return numeroEnteroPositivo(event)"/>
-                                <input class="otro-validar-centro-id" name="validar-centro-id" type="button" value="validar"/>
-                                <input class="eliminar-centro-esp agr-eli" type="button" value="x">
+                                <input class="otro-validar-centro-id btn btn-sm" name="validar-centro-id" type="button" value="validar"/>
+                                <input class="eliminar-centro-esp btn btn-sm" type="button" value="x">
                             </div>
                         </div>
                     </div>
                     </br> 
-                </div>
-                <!--Select multiple para escoger los circuitos de 2015.   VER COMO HACER PARA AGREGARLOS A CORDE A ESTADO   -->          
-                <div id="circuitos-15" name="circuitos-15" hidden="true"> 
-                    <select class="multi-mediano" id="circuitos" name="circuitos" multiple>
-                        <option value="" selected>Circuitos:</option>
-                        {% for circuito in circuitos_15 %}
-                            <option value="{{ circuito }}"> {{ circuito }}</option>
-                        {% endfor %}
-                    </select>
-                    <input class="agr-eli" id="eliminar-circuitos-15" name="eliminar-circuitos-15" type="button" value="-"/>
-                    </br></br>  
                 </div>
                 <!--Dos campos input para escoger la cantidad de mesas.-->
                 <div id="cant-mesas" name="cant-mesas" hidden="true"> 
@@ -232,7 +220,7 @@
                     <label> y </label>
                     <input id="max-mesas" name="max-mesas" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
                     <label> Mesas Electorales. </label>
-                    <input class="agr-eli" id="eliminar-cant-mesas" name="eliminar-cant-mesas" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-cant-mesas" name="eliminar-cant-mesas" type="button" value="-"/>
                     </br></br>  
                 </div>
                 <!--Dos campos input para escoger la cantidad de electores.-->
@@ -242,7 +230,7 @@
                     <label> y </label>
                     <input id="max-elects" name="max-elects" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
                     <label> Electores. </label>
-                    <input class="agr-eli" id="eliminar-cant-elects" name="eliminar-cant-elects" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-cant-elects" name="eliminar-cant-elects" type="button" value="-"/>
                     </br></br>  
                 </div>
                 <!--Dos campos input para escoger la cantidad de electores venezolanos.-->
@@ -252,7 +240,7 @@
                     <label> y </label>
                     <input id="max-venez" name="max-venez" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
                     <label> Electores Venezolanos. </label>
-                    <input class="agr-eli" id="eliminar-cant-venez" name="eliminar-cant-venez" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-cant-venez" name="eliminar-cant-venez" type="button" value="-"/>
                     </br></br>  
                 </div>  
                 <!--Dos campos input para escoger la cantidad de electores extranjeros.-->
@@ -262,21 +250,21 @@
                     <label> y </label>
                     <input id="max-extr" name="max-extr" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
                     <label> Electores Extranjeros. </label>
-                    <input class="agr-eli" id="eliminar-cant-extr" name="eliminar-cant-extr" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-cant-extr" name="eliminar-cant-extr" type="button" value="-"/>
                     </br></br>  
                 </div>   
                 <!--Un campo select simple para escoger la nacionalidad y un campo input para introducir la CI.
                     Si no se introduce CI, se puede utilizar para buscar a las personas por nacionalidad.
                 -->
                 <div id="cedula-esp" name="cedula-esp" hidden="true">  
-                    <select class="simple-pequeño" id="nac" name="nac">
+                    <select class="simple-pequeño lista" id="nac" name="nac">
                         <option value="" selected>Nac:</option>
                         {% for nac in nacionalidades %}
                             <option value="'{{ nac }}'"> {{ nac }}</option>
                         {% endfor %}
                     </select>
                     <input id="ci" name="ci" type="text" placeholder="Número de Cédula" onKeyPress="return numeroEnteroPositivo(event)"/>
-                    <input class="agr-eli" id="eliminar-cedula-esp" name="eliminar-cedula-esp" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-cedula-esp" name="eliminar-cedula-esp" type="button" value="-"/>
                     </br></br>  
                 </div>
                 <!--Cuatro inputs seguidos para indicar los nombres y apellidos.
@@ -287,7 +275,7 @@
                     <input id="segundo-nombre" name="segundo-nombre" type="text" placeholder="Segundo Nombre" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>  
                     <input id="primer-apellido" name="primer-apellido" type="text" placeholder="Primer Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
                     <input id="segundo-apellido" name="segundo-apellido" type="text" placeholder="Segundo Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
-                    <input class="agr-eli" id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="button" value="-"/>
                     </br></br>  
                 </div>  
                 <!--Dos campos input para escoger los rangos de edad.-->
@@ -297,51 +285,51 @@
                     <label> y </label>
                     <input id="max-edad" name="max-edad" type="text" onKeyPress="return numeroEnteroPositivo(event)"/>
                     <label> Años de Edad. </label>
-                    <input class="agr-eli" id="eliminar-edad" name="eliminar-edad" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-edad" name="eliminar-edad" type="button" value="-"/>
                     </br></br>  
                 </div> 
                 <!--Select simple para escoger el sexo.-->
                 <div id="genero" name="genero" hidden="true">  
-                    <select class="simple-pequeño" id="sexo" name="sexo">
+                    <select class="simple-pequeño lista" id="sexo" name="sexo">
                         <option value="" selected>Sexo:</option>
                         {% for gen in sexo %}
                             <option value="'{{ gen }}'"> {{ gen }}</option>
                         {% endfor %}
                     </select>
-                    <input class="agr-eli" id="eliminar-genero" name="eliminar-genero" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-genero" name="eliminar-genero" type="button" value="-"/>
                     </br></br>  
                 </div>  
                 <!--Select multiple para escoger los estratos socioeconomicos.-->
                 <div id="estrato-soc" name="estrato-soc" hidden="true"> 
-                    <select class="multi-mediano" id="estratos" name="estratos" multiple>
+                    <select class="multi-mediano lista" id="estratos" name="estratos" multiple>
                         <option value="" selected>Estratos:</option>
                         {% for estrato in estratos %}
                             <option value="'{{ estrato }}'"> {{ estrato }}</option>
                         {% endfor %}
                     </select>
-                    <input class="agr-eli" id="eliminar-estrato-soc" name="eliminar-estrato-soc" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-estrato-soc" name="eliminar-estrato-soc" type="button" value="-"/>
                     </br></br>  
                 </div>
                 <!--Select multiple para escoger los estados civiles.-->
                 <div id="estado-civil" name="estado-civil" hidden="true"> 
-                    <select class="multi-mediano" id="estados-civiles" name="estados-civiles" multiple>
+                    <select class="multi-mediano lista" id="estados-civiles" name="estados-civiles" multiple>
                         <option value="" selected>Estados Civiles:</option>
                         {% for ecivil in edos_civiles %}
                             <option value="{{ ecivil}}"> {{ ecivil }}</option>
                         {% endfor %}
                     </select>
-                    <input class="agr-eli" id="eliminar-estado-civil" name="eliminar-estado-civil" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-estado-civil" name="eliminar-estado-civil" type="button" value="-"/>
                     </br></br>  
                 </div>
                 <!--Select multiple para escoger los indices de preferencia politica.-->
                 <div id="ipp" name="ipp" hidden="true"> 
-                    <select class="multi-mediano" id="ipps" name="ipps" multiple>
+                    <select class="multi-mediano lista" id="ipps" name="ipps" multiple>
                         <option value="" selected>IPP's:</option>
                         {% for ipp in ipps %}
                             <option value="{{ ipp }}"> {{ ipp }}</option>
                         {% endfor %}
                     </select>
-                    <input class="agr-eli" id="eliminar-ipp" name="eliminar-ipp" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-ipp" name="eliminar-ipp" type="button" value="-"/>
                     </br></br>  
                 </div>
                 <!--Dos campos input para escoger el rango deL Indice SocioEconomico Inferido.-->
@@ -351,7 +339,7 @@
                     <label> y </label>
                     <input id="max-isei" name="max-isei" type="text" onKeyPress="return numeroRealPositivo(event)"/>
                     <label> % del Índice Socioeconómico Inferido (ISEI). </label>
-                    <input class="agr-eli" id="eliminar-isei" name="eliminar-isei" type="button" value="-"/>
+                    <input class="btn btn-sm" id="eliminar-isei" name="eliminar-isei" type="button" value="-"/>
                     </br></br>  
                 </div> 
             </div>
@@ -372,24 +360,27 @@
             </div>
             </br>
             <!--Boton final para proceder a realizar la consulta.-->
-            <div class="partes" id="final" align="center" hidden="true">
-                <input id="boton-final" type="submit" value="Hacer Consulta" />
+            <div id="boton-final" align="center" hidden="true">
+                <input class="btn btn-primary" id="boton-final" type="submit" value="Hacer Consulta" />
             </div>
 
             <script>
 
                 // Se ejecuta si se escoge una consulta simple.
                 $('#consulta-simple').on('click', function() {
-                    $('#consulta-simple').attr('hidden', true);
-                    $('#consulta-agrupados').attr('hidden', true);
-                    $('div#parte_1-simple').attr('hidden', false);
+                    $('#consulta-simple').hide()
+                    $('#consulta-agrupados').hide()
+                    $('div#parte_1-simple').show();
                 });
 
                 // Se ejecuta si se escoge una consulta con agrupados.
                 $('#consulta-agrupados').on('click', function() {
-                    $('#consulta-agrupados').attr('hidden', true);
-                    $('#consulta-simple').attr('hidden', true);
-                    $('div#parte_1-agrupados').attr('hidden', false);
+                    $('#consulta-agrupados').hide();
+                    $('#consulta-simple').hide();
+                    $('div#parte_1-agrupados').show();
+                    $('#agrupados').multiselect()({
+                        maxHeight: 200,
+                    });
                 });
 
                 // Se ejecututa al clickear el boton continuar de una consulta simple.
@@ -421,11 +412,14 @@
 
                 // Muestra las otras opciones (condiciones, orden y limites,) para continuar cualquier consulta.
                 function activarPartes() {
-                    $('div#parte_2').attr('hidden', false);
-                    $('div#parte_3').attr('hidden', false);
-                    $('div#parte_4').attr('hidden', false);
-                    $('div#parte_5').attr('hidden', false);
-                    $('div#final').attr('hidden', false);
+                    $('div#parte_2').show();
+                    $('div#parte_3').show();
+                    $('div#parte_4').show();
+                    $('div#parte_5').show();
+                    $('div#boton-final').show();
+                    $('.lista').multiselect()({
+                        maxHeight: 200,
+                    });
                 }
 
                 // Se ejecuta cada vez que se elige una opcion para condicionar la consulta.
@@ -439,8 +433,8 @@
                     $('select#conds option:first').attr('selected', 'selected');
                     if (op == 'ubicacion') {
                         $('select#edos').on('change', obtenerPrimerosMunicipios);
-                        $('select#muns').on('change',obtenerPrimerasParroquias);
-                        $('select#parrs').on('change',obtenerPrimerosCentros);
+                        $('select#muns').on('change', obtenerPrimerasParroquias);
+                        $('select#parrs').on('change', obtenerPrimerosCentros);
                     }
                     if (op == 'ubicacion-circs') {
                         $('select#edos-circs').on('change', obtenerPrimerosCircuitos);
@@ -466,13 +460,6 @@
                     var y = $('select#conds').find('option[value="'+div_container+'"]').attr('disabled', false);
                     opcionesDeshabilitadas();
                 }
-
-                //$('.multi').multiselect();        # ESTE ESTA BIEN
-                //$('.simple').multiselect();       # ESTE ESTA BIEN
-                //$('.multiX').multiselect();
-                //$('.simpleX').multiselect();
-                //$('.multi').select2();
-                //$('.simple').select2();
 
                 // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de las Ubicaciones.
                 $(function() {
@@ -529,6 +516,9 @@
                     $agregar_ubi.on('click', function() {
                         $template_ubi.clone().appendTo($contenedor_ubi).show();
                         update();
+                        $('.lista-d').multiselect()({
+                            maxHeight: 200,
+                        });
                     });
 
                     // Ocurre cuando se elimina alguna de las ubicaciones agregadas..
@@ -574,6 +564,9 @@
                     $agregar_ubicircs.on('click', function() {
                         $template_ubicircs.clone().appendTo($contenedor_ubicircs).show();
                         update();
+                        $('.lista-d').multiselect()({
+                            maxHeight: 200,
+                        });
                     });
 
                     // Ocurre cuando se elimina alguna de las ubicaciones agregadas..
@@ -719,12 +712,16 @@
                                 options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
                             }
                             $('select#'+id_muns).html(options);
-                            $('select#'+id_muns+' option:first').attr('selected', 'selected');
-                            $('select#'+id_muns).attr('disabled', false);
-                            $('select#'+id_parrs+' option:first').attr('selected', 'selected');
-                            $('select#'+id_parrs).attr('disabled', true);
-                            $('select#'+id_ctros+' option:first').attr('selected', 'selected');
-                            $('select#'+id_ctros).attr('disabled', true);
+                            $('select#'+id_muns).multiselect('rebuild')({
+                                maxHeight: 200,
+                            });
+                            //$('select#'+id_muns).html(options);
+                            //$('select#'+id_muns+' option:first').attr('selected', 'selected');
+                            //$('select#'+id_muns).attr('disabled', false);
+                            //$('select#'+id_parrs+' option:first').attr('selected', 'selected');
+                            //$('select#'+id_parrs).attr('disabled', true);
+                            //$('select#'+id_ctros+' option:first').attr('selected', 'selected');
+                            //$('select#'+id_ctros).attr('disabled', true);
                         }
                     });
                 }
@@ -741,10 +738,14 @@
                                 options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
                             }
                             $('select#'+id_parrs).html(options);
-                            $('select#'+id_parrs+' option:first').attr('selected', 'selected');
-                            $('select#'+id_parrs).attr('disabled', false);
-                            $('select#'+id_ctros+' option:first').attr('selected', 'selected');
-                            $('select#'+id_ctros).attr('disabled', true);
+                            $('select#'+id_parrs).multiselect('rebuild')({
+                                maxHeight: 200,
+                            });
+                            //$('select#'+id_parrs).html(options);
+                            //$('select#'+id_parrs+' option:first').attr('selected', 'selected');
+                            //$('select#'+id_parrs).attr('disabled', false);
+                            //$('select#'+id_ctros+' option:first').attr('selected', 'selected');
+                            //$('select#'+id_ctros).attr('disabled', true);
                         }
                     });
                 }
@@ -761,8 +762,12 @@
                                 options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
                             }
                             $('select#'+id_ctros).html(options);
-                            $('select#'+id_ctros+' option:first').attr('selected', 'selected');
-                            $('select#'+id_ctros).attr('disabled', false);
+                            $('select#'+id_ctros).multiselect('rebuild')({
+                                maxHeight: 200,
+                            });
+                            //$('select#'+id_ctros).html(options);
+                            //$('select#'+id_ctros+' option:first').attr('selected', 'selected');
+                            //$('select#'+id_ctros).attr('disabled', false);
                         }
                     });
                 }
@@ -785,8 +790,9 @@
                                 }
                             }
                             $('select#'+id_circs).html(options);
-                            $('select#'+id_circs+' option:first').attr('selected', 'selected');
-                            $('select#'+id_circs).attr('disabled', false);
+                            $('select#'+id_circs).multiselect('rebuild')({
+                                maxHeight: 200,
+                            });
                         }
                     });
                 }

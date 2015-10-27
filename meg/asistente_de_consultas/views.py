@@ -17,7 +17,7 @@ from .listas import *
 attos_select = []           # Lista de elementos que seran mostrados en el SELECT.
 conds_where = []            # Lista de elementos que seran condicionados en el WHERE.
 consulta_final = ""         # String que guarda la consulta final cuando se ejecuta
-resultados_consulta = []    # Guarda todos los resultados de la ejecucion de la consulta
+resultados_consulta = []    # Lista que guarda todos los resultados de la consulta.
 
 
 # La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
