@@ -232,14 +232,14 @@ def agregarCondiciones(attos_where):
             if disj_or:
                 where_items.append("(" + disj_or + ")")
         elif tipo == "multiple":
-            if elem[1][1]:
-                disj_or = ""
-                for e in elem[1][1:]:
+            disj_or = ""
+            for e in elem[1][1:]:
+                if e:
                     if disj_or == "":
                         disj_or = "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
                     else:
                         disj_or = disj_or + " OR " "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
-                where_items.append("(" + disj_or + ")")
+            where_items.append("(" + disj_or + ")")
         elif tipo == "simple":
             if len(elem[1]) == 2:
                 if elem[1][1]:
