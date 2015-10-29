@@ -178,9 +178,7 @@ def agregarCondiciones(attos_where):
         tipo = elem[0]
         if tipo == "dependiente":
             i = 4
-            parrs = []
-            muns = []
-            edos = []
+            parrs, muns, edos = [], [], []
             disj_or = ""
             while i > 0:
                 if len(elem[i]) >= 2: # Esto verifica que se tengan dos elementos (aunque el segundo sea vacio) o mas de dos en el caso de centro.
@@ -247,12 +245,16 @@ def agregarCondiciones(attos_where):
                 if elem[1][1]:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + elem[1][1] + ")")
         elif tipo == "rango":
-            if len(elem[1]) == 2:
-                if elem[1][1] and elem[2][1]:
-                    if not elem[1][0][0]: # caso funcion edad
-                        where_items.append("(" + elem[1][0][1] + " BETWEEN " + elem[1][1] + " AND " + elem[2][1] + ")")
-                    else:
-                        where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " BETWEEN " + elem[1][1] + " AND " + elem[2][1] + ")")
+            mini, maxi, minimo_abs, maximo_abs = elem[1][1], elem[2][1], '0', '1000000'
+            if ((not mini) and maxi):
+                mini = minimo_abs
+            if (mini and (not maxi)):
+                maxi = maximo_abs
+            if (mini and maxi):
+                if not elem[1][0][0]: # caso funcion edad
+                    where_items.append("(" + elem[1][0][1] + " BETWEEN " + mini + " AND " + maxi + ")")
+                else:
+                    where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " BETWEEN " + mini + " AND " + maxi + ")")
         elif tipo == "doble": 
             if len(elem[1]) == 2: 
                 if elem[1][1]:
@@ -268,10 +270,11 @@ def agregarCondiciones(attos_where):
         elif tipo == "dependiente2":
             disj_or = ""
             for e, c in zip(elem[1][1:], elem[2][1:]): 
-                if disj_or == "": 
-                    disj_or = "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
-                else:
-                    disj_or = disj_or + " OR (" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
+                if (e and c):
+                    if disj_or == "": 
+                        disj_or = "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
+                    else:
+                        disj_or = disj_or + " OR (" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
             if disj_or:
                 where_items.append("(" + disj_or + ")") 
     for elem in where_items:
@@ -610,7 +613,7 @@ class BusquedaAjax3View(generic.TemplateView):
     def get(self, request, *args, **kwargs):
         x = request.GET['parr']
         centros = Centro.objects.filter(id_parr=x).order_by('nombre')
-        data = serializers.serialize('json', centros, fields=('nombre'))
+        data = serializers.serialize('json', centros)
         return HttpResponse(data, content_type='application/json')
 
 

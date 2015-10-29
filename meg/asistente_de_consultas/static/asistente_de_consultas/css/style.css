@@ -72,8 +72,8 @@ ul.checkbox li {
     width: 400px;
 }
 
-.agr-eli {
-    /* aqui viene el estilo de los botones +,-,x */
+.multiselect .dropdown-toggle .btn .btn-default {
+    width: 150px; 
 }
 
 /* Consultas.html */
