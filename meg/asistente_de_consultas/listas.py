@@ -170,6 +170,6 @@ lista_sexo = ['F','M']
 
 lista_estratos = ['A','B','C','D','E']
 
-lista_edos_civiles = [0,1,2,3,4,5,6,7,8]
+lista_edos_civiles = [1,2,3,4,5,6,7,8]
 
 lista_ipps = [0,1,2,3,4,5,6,7,8,9]
