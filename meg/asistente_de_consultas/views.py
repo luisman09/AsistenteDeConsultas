@@ -646,6 +646,11 @@ class BuscarCentroAjaxView(generic.TemplateView):
         return HttpResponse(data, content_type='application/json')
 
 
+# La clase MuestrasView es la clase principal para el manejo de la generacion de muestras.
+class MuestrasView(generic.TemplateView):
+    template_name = 'asistente_de_consultas/muestras.html'
+
+
 
 
 
