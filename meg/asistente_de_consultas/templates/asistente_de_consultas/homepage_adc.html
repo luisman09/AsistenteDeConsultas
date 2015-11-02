@@ -6,13 +6,24 @@
 {% endcomment %}
 
 {% block titulo %} 
-    Inicio
+    ADC MEG - Inicio
 {% endblock %}
 
 {% block encabezado %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/style.css' %}" />
+    <script type="text/javascript" src="{% static 'asistente_de_consultas/js/funciones.js' %}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'asistente_de_consultas/css/bootstrap-multiselect.css' %}"/>
+    <script type="text/javascript" src="{% static 'asistente_de_consultas/js/bootstrap-multiselect.js' %}"></script>
+
 {% endblock %}
 
 {% block navegacion %}
+{% endblock %}
+
+{% block titulo_body %}
+    Asistente de Consultas
 {% endblock %}
 
 {% block contenido %}
@@ -37,3 +48,5 @@
     {% endif %}
 
 {% endblock %}
+
+

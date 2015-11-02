@@ -49,13 +49,16 @@
 
         <script>
             $('.limpiarGlobales').on('click',volverAlInicio);
+
             function volverAlInicio(){
                 $.ajax({
                     url: "{% url 'asistente_de_consultas:volver_al_inicio' %}",
                     type: 'get',                
                 });  
+
             }
         </script>
 
     </body>
 </html>
+
