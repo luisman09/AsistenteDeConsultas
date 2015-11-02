@@ -39,9 +39,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'asistente_de_consultas',
     'registration',
-    #'compressor',
-    #'dajaxice',
-    #'dajax',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -69,11 +66,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            #'loaders': [
-            #    'django.template.loaders.filesystem.Loader',
-            #    'django.template.loaders.app_directories.Loader',
-            #    'django.template.loaders.eggs.Loader',
-            #],
         },
     },
 ]

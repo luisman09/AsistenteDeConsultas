@@ -106,19 +106,19 @@
                     <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>     
                     <div id="dinamico-ubicacion">
                         <div class="col-sm-9">
-                            <select class="simple-mediano lista " id="edos" name="edos">
+                            <select class="lista " id="edos" name="edos">
                                 <option value="" selected> Estado </option>
                                 {% for estado in estados %}
                                     <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
                                 {% endfor %}
                             </select>
-                            <select class="simple-mediano" id="muns" name="muns" hidden="true">
+                            <select id="muns" name="muns" hidden="true">
                                 <option value="" selected> Municipio </option>
                             </select>
-                            <select class="simple-mediano" id="parrs" name="parrs" hidden="true">
+                            <select id="parrs" name="parrs" hidden="true">
                                 <option value="" selected> Parroquia </option>
                             </select>
-                            <select class="multi-grande" id="ctros" name="ctros" hidden="true" multiple>
+                            <select id="ctros" name="ctros" hidden="true" multiple>
                                 <option value="" selected> Centros </option>
                             </select>
                         </div>
@@ -129,19 +129,19 @@
                             <div class="agregar-eliminar-ubicacion form-group" style="display: none;">
                                 <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>
                                 <div class="col-sm-9">
-                                    <select class="otros-edos simple-mediano lista-d" id="otros-edos" name="edos">
+                                    <select class="otros-edos lista-d" id="otros-edos" name="edos">
                                         <option value="" selected> Estado </option>
                                         {% for estado in estados %}
                                             <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
                                         {% endfor %}
                                     </select>
-                                    <select class="otros-muns simple-mediano" id="otros-muns" name="muns" hidden="true" >
+                                    <select class="otros-muns" id="otros-muns" name="muns" hidden="true" >
                                         <option value="" selected> Municipio </option>
                                     </select>
-                                    <select class="otras-parrs simple-mediano" id="otras-parrs" name="parrs" hidden="true">
+                                    <select class="otras-parrs" id="otras-parrs" name="parrs" hidden="true">
                                         <option value="" selected> Parroquia </option>
                                     </select>
-                                    <select class="otros-ctros multi-grande" id="otros-ctros" name="ctros" hidden="true" multiple>
+                                    <select class="otros-ctros" id="otros-ctros" name="ctros" hidden="true" multiple>
                                         <option value="" selected> Centros </option>
                                     </select>
                                 </div>
@@ -165,7 +165,7 @@
                                     <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
                                 {% endfor %}
                             </select>
-                            <select class="simple-mediano" id="circs" name="circs" hidden="true">
+                            <select id="circs" name="circs" hidden="true">
                                 <option value="" selected> Circuito </option>
                             </select>
                         </div>
@@ -176,13 +176,13 @@
                             <div class="agregar-eliminar-ubicacion-circs form-group" style="display: none;">
                                 <label class="col-sm-2 control-label"> Ubicación por Circuitos: </label>
                                 <div class="col-sm-4">
-                                    <select class="otros-edos-circs simple-mediano lista-d" id="otros-edos-circs" name="edos-circs">
+                                    <select class="otros-edos-circs lista-d" id="otros-edos-circs" name="edos-circs">
                                         <option value="" selected> Estado </option>
                                         {% for estado in estados %}
                                             <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
                                         {% endfor %}
                                     </select>
-                                    <select class="otros-circs simple-mediano" id="otros-circs" name="circs" hidden="true">
+                                    <select class="otros-circs" id="otros-circs" name="circs" hidden="true">
                                         <option value="" selected> Circuito </option>
                                     </select>
                                 </div>
@@ -273,7 +273,7 @@
                 <div class="form-group" id="cedula-esp" name="cedula-esp" hidden="true">
                     <label class="col-sm-2 control-label"> Cédula de Identidad: </label>
                     <div class="col-sm-1">
-                        <select class="form-contol simple-pequeño lista" id="nac" name="nac">
+                        <select class="form-contol lista" id="nac" name="nac">
                             <option value="" selected> Nac </option>
                             {% for nac in nacionalidades %}
                                 <option value="'{{ nac }}'"> {{ nac }} </option>
@@ -321,7 +321,7 @@
                 <div class="form-group" id="genero" name="genero" hidden="true">  
                     <label class="col-sm-2 control-label"> Sexo: </label>
                     <div class="col-sm-2">
-                        <select class="simple-pequeño lista" id="sexo" name="sexo">
+                        <select class="lista" id="sexo" name="sexo">
                             <option value="" selected> Sexo </option>
                             {% for gen in sexo %}
                                 <option value="'{{ gen }}'"> {{ gen }} </option>
@@ -335,7 +335,7 @@
                 <div class="form-group" id="estrato-soc" name="estrato-soc" hidden="true"> 
                     <label class="col-sm-2 control-label"> Estratos Socioeconómicos: </label>
                     <div class="col-sm-2">
-                        <select class="multi-mediano lista" id="estratos" name="estratos" multiple>
+                        <select class="lista" id="estratos" name="estratos" multiple>
                             <option value="" selected> Estratos </option>
                             {% for estrato in estratos %}
                                 <option value="'{{ estrato }}'"> {{ estrato }} </option>
@@ -349,7 +349,7 @@
                 <div class="form-group" id="estado-civil" name="estado-civil" hidden="true"> 
                     <label class="col-sm-2 control-label"> Estados Civiles: </label>
                     <div class="col-sm-2">
-                        <select class="multi-mediano lista" id="estados-civiles" name="estados-civiles" multiple>
+                        <select class="lista" id="estados-civiles" name="estados-civiles" multiple>
                             <option value="" selected> Estados Civiles </option>
                             {% for ecivil in edos_civiles %}
                                 <option value="{{ ecivil}}"> {{ ecivil }} </option>
@@ -363,7 +363,7 @@
                 <div class="form-group" id="ipp" name="ipp" hidden="true"> 
                     <label class="col-sm-2 control-label"> Índices de Pref. Política (IPP): </label>
                     <div class="col-sm-2">
-                        <select class="multi-mediano lista" id="ipps" name="ipps" multiple>
+                        <select class="lista" id="ipps" name="ipps" multiple>
                             <option value="" selected> IPP's </option>
                             {% for ipp in ipps %}
                                 <option value="{{ ipp }}"> {{ ipp }}</option>

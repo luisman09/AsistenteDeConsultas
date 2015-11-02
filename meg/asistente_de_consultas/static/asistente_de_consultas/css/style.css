@@ -56,22 +56,6 @@ ul.checkbox li {
     width:12.3em;
 } 
 
-.simple-pequeño {
-    width: 65px;
-}
-
-.multi-mediano {
-    width: 150px;
-}
-
-.simple-mediano {
-    width: 150px;
-}
-
-.multi-grande {
-    width: 400px;
-}
-
 .multiselect .dropdown-toggle .btn .btn-default {
     width: 150px; 
 }

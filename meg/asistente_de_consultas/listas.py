@@ -6,8 +6,8 @@
 # en postgresql. 
 
 
-# La lista demografica contiene los datos de las tablas centro, parroquia, municipio y estado.
-# Representa los centros de votacion actuales con sus caracteristicas y sus ubicaciones.
+# La lista lista_demografica contiene los elementos mostrables correspondientes a las tablas 
+# centro, parroquia, municipio y estado.
 lista_demografica = [("Edo Id",["estado","id"]),("Estado",["estado","nombre"]),
                      ("Mun Id",["municipio","id - (id_edo*100)"]),("Municipio",["municipio","nombre"]),
                      ("Parr Id",["parroquia","id - (id_mun*100)"]),("Parroquia",["parroquia","nombre"]),
@@ -20,6 +20,8 @@ lista_demografica = [("Edo Id",["estado","id"]),("Estado",["estado","nombre"]),
                     ]
 
 
+# La lista lista_personas contiene todos los elementos mostrables correspondientes a los
+# datos personales de cada una de las personas de la bd.
 lista_personas = [("Nacionalidad",["persona","nac"]),("Cedula",["persona","ci"]),
                   ("Primer Nombre",["persona","nombre1"]),("Segundo Nombre",["persona","nombre2"]),
                   ("Primer Apellido",["persona","apellido1"]),("Segundo Apellido",["persona","apellido2"]),
@@ -30,6 +32,8 @@ lista_personas = [("Nacionalidad",["persona","nac"]),("Cedula",["persona","ci"])
                  ]
 
 
+# La lista lista_contactos contiene todos los elementos mostrables referentes a los datos
+# de contacto de las personas.
 lista_contactos = [("Celular 1",["celular as c1","c1.numero","c1","1"]),("Celular 2",["celular as c2","c2.numero","c2","2"]),
                    ("Celular 3",["celular as c5","c5.numero","c5","5"]),("Email 1",["email as e1","e1.direccion","e1","1"]),
                    ("Email 2",["email as e2","e2.direccion","e2","2"]),("Email 3",["email as e5","e5.direccion","e5","5"]),
@@ -38,12 +42,15 @@ lista_contactos = [("Celular 1",["celular as c1","c1.numero","c1","1"]),("Celula
                   ]
 
 
-# La funcion lista_attos retorna una lista que devuelve tuplas, en donde los primeros elementos
+# La lista lista_attos retorna una lista que devuelve tuplas, en donde los primeros elementos
 # son los nombres visibles de los atributos que puede escoger el usuario y los segundos elementos 
 # son a su vez tuplas, que representan el nombre de la tabla y el nombre del 
 # atributo (o funcion) tal cual como aparecen (o se ejecutan) a nivel de base de datos.
 lista_attos = lista_demografica + lista_personas + lista_contactos
 
+
+# La lista lista_agrupados contiene todas las posibles agrupaciones de elementos que permitiran
+# agrupaciones sobre si mismos. 
 lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                    ("Cantidad de Municipios",["municipio","count(municipio.id)","f"]),
                    ("Cantidad de Parroquias",["parroquia","count(parroquia.id)","f"]),
@@ -63,6 +70,8 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                   ]
 
 
+# La lista lista_agrupados_select contiene todos los posibles campos por los cuales
+# los cuales el usuario puede agrupar una consulta con GROUP BY.
 lista_agrupados_select = [("Estado",["estado","nombre"]),("Municipio",["municipio","nombre"]),
                           ("Parroquia",["parroquia","nombre"]),("Circuitos 15",["centro","circuitos_15"]),
                           ("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
@@ -72,16 +81,9 @@ lista_agrupados_select = [("Estado",["estado","nombre"]),("Municipio",["municipi
                          ]
 
 
-# la lista cambios contiene los datos de la tabla hubo_cambios.
-# Representa los cambios ocurridos entre diferentes elecciones.
-lista_cambios = [("Tipo de Cambio",("hubo_cambio","tipo_mov")),("Centro Anterior",("hubo_cambio","centro_viejo")),
-                 ("Centro Vigente",("hubo_cambio","centro_nuevo")),("Valido hasta",("hubo_cambio","periodo_viejo")),
-                 ("Vigente desde",("hubo_cambio","periodo_nuevo"))
-                ]
-
-
-# La lista indicadores contiene los datos de la tabla caracteristicas_socioeconomicas.
+# La lista lista_indicadores contiene los datos de la tabla caracteristicas_socioeconomicas.
 # Representa algunas caracteristicas socioeconomicas de un grupo de personas.
+# AUN NO EN USO Y LE FALTAN MODIFICACIONES
 lista_indicadores = [("Hijos",("caracteristicas_socioeconomicas","hijos")),("Profesion",("caracteristicas_socioeconomicas","profesion")),
                      ("Oficio",("caracteristicas_socioeconomicas","oficio")),("Trabajo",("caracteristicas_socioeconomicas","trabajo")),
                      ("Familiares",("caracteristicas_socioeconomicas","familiares")),("Info Bancaria",("caracteristicas_socioeconomicas","info_bancaria")),
@@ -99,8 +101,10 @@ lista_indicadores = [("Hijos",("caracteristicas_socioeconomicas","hijos")),("Pro
                     ]
 
 
-# La lista sector privado contiene los datos de las tablas empresa, producto y transaccion.
-# Representa los datos de adquision de productos o servicios en algunas empresas por parte de algunas personas. 
+# La lista lista_sector_privado contiene los datos de las tablas empresa, producto y transaccion.
+# Representa los datos de adquision de productos o servicios en algunas empresas
+# por parte de algunas personas. 
+# AUN NO EN USO Y LE FALTAN MODIFICACIONES
 lista_sector_privado = [("Empresa Id",("empresa","id")),("Empresa",("empresa","nombre")),
                         ("Producto Id",("producto","id")),("Producto",("producto","nombre")),
                         ("Categoria Id",("producto","id_categoria")),("Categoria",("producto","categoria")),
@@ -110,7 +114,8 @@ lista_sector_privado = [("Empresa Id",("empresa","id")),("Empresa",("empresa","n
                         ("Precio",("transaccion","precio"))
                        ]
 
-
+# La lista lista_join contiene todos los posibles join que puede haber en la base de datos. 
+# Desde una tabla origen hasta una tabla destino.
 lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
               ('persona', 'parroquia', 'persona.id_centro = centro.id AND centro.id_parr = parroquia.id'),
               ('persona', 'municipio', 'persona.id_centro = centro.id AND centro.id_parr = parroquia.id AND parroquia.id_mun = municipio.id'),
@@ -135,10 +140,11 @@ lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
              ]
 
 
-# La lista attos_where contiene los nombres de los values de las opciones a condicionar, 
+# La lista lista_attos_where contiene los nombres de los values de las opciones a condicionar, 
 # el tipo de opcion que corresponde y una lista de todo lo que contiene, es decir, valor del 
 # elemento(s) y nombre de la tabla y atributo que referencia a nivel de la base de datos.
-# Los tipos son:    dependiente: input dependiente. (listas desplegables dependientes).
+# Los tipos son:    dependiente: input dependiente de 4 niveles. (listas desplegables dependientes).
+#                   dependiente2: input dependiente de 2 niveles.
 #                   simple: input simple, sea por texto o por seleccion.
 #                   doble: input doble, dos inputs simples juntos.
 #                   multiple: input multiple, seleccion multiple.
@@ -164,12 +170,17 @@ lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ("isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))],"Índice Socioeconómico Inferido (ISEI)"),
                     ]
 
+# Lista de posibles Nacionalidades
 lista_nacionalidades = ['V','E']
 
+# Lista de posibles Sexos
 lista_sexo = ['F','M']
 
+# Lista de posibles Estratos
 lista_estratos = ['A','B','C','D','E']
 
+# Lista de posibles Estados Civiles
 lista_edos_civiles = [1,2,3,4,5,6,7,8]
 
+# Lista de posibles IPP's
 lista_ipps = [0,1,2,3,4,5,6,7,8,9]

@@ -67,6 +67,9 @@ class Centro(models.Model):
         ordering = ['id']
 
 
+# DE ACA EN ADELANTE NO SE ESTA HACIENDO USO DE NINGUNO DE ESTOS MODELOS. 
+# PERO ES POSIBLE QUE SE UTILICEN EN OTRO MOMENTO.
+
 class Persona(models.Model):
     nac = models.CharField(max_length=1)
     ci = models.IntegerField()
