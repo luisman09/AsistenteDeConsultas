@@ -17,14 +17,13 @@
 {% block contenido %}
 
     <div class="box" id="box">
-        <form action="{% url 'asistente_de_consultas:consultas' %}" method="post">
+        <form id="queries-form" action="{% url 'asistente_de_consultas:consultas_queries' %}" method="post">
             {% csrf_token %}
             <div align="center">
                 <label> Introduce tu Query: </label></br></br>
                 <textarea class="form-control" id="query" name="query" rows="10" cols="60"></textarea><br>
-                <input class="btn btn-sm" id="continuar" name="continuar" type="button" value="continuar"/></br></br>
-                <div id="boton-final" hidden="true">
-                    <input class="btn btn-primary" id="boton-final" type="submit" value="Hacer Consulta"/>
+                <div id="boton-continuar" align="center">
+                    <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
                 </div>
             </div>
 
@@ -34,8 +33,16 @@
                     query = $('#query').val();
                     if (query == "") {
                         alert("El query no debe estar vacio");
-                    } else {
-                        $('div#boton-final').show();
+                    } else { 
+                        if (query.indexOf("select") == -1) {
+                            alert("El query debe contener la palabra 'select'");
+                        } else {
+                            if (query.indexOf("from") == -1) {
+                                alert("El query debe contener la palabra 'from'");
+                            } else {
+                                $('#queries-form').submit();
+                            }
+                        }
                     }
                 });
 

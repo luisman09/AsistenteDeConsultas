@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block navegacion %}
-    | <a class="limpiarGlobales" href="{% url "homepage" %}"> Volver Al Inicio </a>
+    | <a class="limpiarGlobales" href="{% url 'homepage' %}"> Volver Al Inicio </a>
 {% endblock %}
 
 {% block contenido %}
@@ -19,7 +19,7 @@
     <div id="box" class="box">
 
         <div align="right">
-            <a href="{% url 'asistente_de_consultas:atributos' %}">
+            <a href="{% url 'homepage' %}">
                 <input class="limpiarGlobales btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
             </a>
             <a href="{% url 'asistente_de_consultas:exportar_csv' %}">

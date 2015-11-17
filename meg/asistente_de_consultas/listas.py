@@ -55,7 +55,7 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                    ("Cantidad de Municipios",["municipio","count(municipio.id)","f"]),
                    ("Cantidad de Parroquias",["parroquia","count(parroquia.id)","f"]),
                    ("Cantidad de Centros",["centro","count(centro.id)","f"]),
-                   ("Cantidad de Electores", ["centro","sum(centro.electores)","f"]),
+                   ("Cantidad de Electores (Centro)", ["centro","sum(centro.electores)","f"]),
                    ("Cantidad de Elecs Venezolanos",["centro","sum(centro.venezolanos)","f"]),
                    ("Cantidad de Elecs Extranjeros",["centro","sum(centro.extranjeros)","f"]),
                    ("Cantidad de Mesas Electorales",["centro","sum(centro.mesas)","f"]),
@@ -80,6 +80,12 @@ lista_agrupados_select = [("Estado",["estado","nombre"]),("Municipio",["municipi
                           ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
                          ]
 
+
+# La lista lista_elems_muestreo contiene todos los elementos mostrables sobre los cuales
+# se puede realizar una generacion de muestras.
+lista_muestreo = lista_contactos[0:6]
+
+lista_muestreo_select = lista_demografica[0:9] + lista_demografica[13:15] + lista_personas
 
 # La lista lista_indicadores contiene los datos de la tabla caracteristicas_socioeconomicas.
 # Representa algunas caracteristicas socioeconomicas de un grupo de personas.
@@ -151,24 +157,28 @@ lista_join = [('persona', 'centro', 'persona.id_centro = centro.id'),
 #                   cuadruple: input cuadruple, cuatro inputs simples juntos.
 #                   rango: input doble en forma de rango (para usar between)
 lista_attos_where = [("ubicacion","dependiente",[("edos",("estado","id")),("muns",("municipio","id")),("parrs",("parroquia","id")),
-                                                 ("ctros",("centro","id"))], "Ubicación (Edo-Mun-Parr-Centro)"),
-                     ("ubicacion-circs","dependiente2",[("edos-circs",("estado","id")),("circs",("centro","circuitos_15"))], "Ubicación (Edo-Circuito)"),
+                                                 ("ctros",("centro","id"))], "Ubicación (Edo-Mun-Parr-Centro)", "Edo-Mun-Parr"),
+                     ("ubicacion-circs","dependiente2",[("edos-circs",("estado","id")),("circs",("centro","circuitos_15"))], "Ubicación (Edo-Circuito)", "Edo-Circuito"),
                      ("centro-esp","multiple",[("centro-id",("centro","id"))],"Centro Específico"),
-                     ("cant-mesas","rango",[("min-mesas",("centro","mesas")),("max-mesas",("centro","mesas"))],"Cantidad de Mesas Electorales"),
-                     ("cant-elects","rango",[("min-elects",("centro","electores")),("max-elects",("centro","electores"))],"Cantidad de Electores"),
-                     ("cant-venez","rango",[("min-venez",("centro","venezolanos")),("max-venez",("centro","venezolanos"))],"Cantidad de Elects Venezolanos"),
-                     ("cant-extr","rango",[("min-extr",("centro","extranjeros")),("max-extr",("centro","extranjeros"))],"Cantidad de Elects Extranjeros"),
-                     ("cedula-esp","doble",[("nac",("persona","nac")),("ci",("persona","ci"))],"Cédula de Identidad"),
+                     ("cant-mesas","rango",[("min-mesas",("centro","mesas")),("max-mesas",("centro","mesas"))], "Cantidad de Mesas Electorales"),
+                     ("cant-elects","rango",[("min-elects",("centro","electores")),("max-elects",("centro","electores"))], "Cantidad de Electores (Centro)"),
+                     ("cant-venez","rango",[("min-venez",("centro","venezolanos")),("max-venez",("centro","venezolanos"))], "Cantidad de Elects Venezolanos"),
+                     ("cant-extr","rango",[("min-extr",("centro","extranjeros")),("max-extr",("centro","extranjeros"))], "Cantidad de Elects Extranjeros"),
+                     ("cedula-esp","doble",[("nac",("persona","nac")),("ci",("persona","ci"))], "Cédula de Identidad"),
                      ("nombre-completo","cuadruple",[("primer-nombre",("persona","nombre1")),("segundo-nombre",("persona","nombre2")),
-                                                     ("primer-apellido",("persona","apellido1")),("segundo-apellido",("persona","apellido2"))],"Nombre Completo"),
+                                                     ("primer-apellido",("persona","apellido1")),("segundo-apellido",("persona","apellido2"))], "Nombre Completo (Persona)"),
                      ("edad","rango",[("min-edad",("","date_part('year',age(fecha_nac))::integer")),
-                                      ("max-edad",("","date_part('year',age(fecha_nac))::integer"))],"Edad"),
-                     ("genero","simple",[("sexo",("persona","sexo"))],"Sexo"),
-                     ("estrato-soc","multiple",[("estratos",("persona","estrato"))],"Estrato Socioeconómico"),
-                     ("estado-civil","multiple",[("estados-civiles",("persona","ecivil"))],"Estado Civil"),
-                     ("ipp","multiple",[("ipps",("persona","ipp"))],"Índice de Preferencia Política (IPP)"),
-                     ("isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))],"Índice Socioeconómico Inferido (ISEI)"),
+                                      ("max-edad",("","date_part('year',age(fecha_nac))::integer"))], "Edad", "Edad"),
+                     ("genero","simple",[("sexo",("persona","sexo"))], "Sexo", "Sexo"),
+                     ("estrato-soc","multiple",[("estratos",("persona","estrato"))], "Estrato Socioeconómico", "Estrato"),
+                     ("estado-civil","multiple",[("estados-civiles",("persona","ecivil"))], "Estado Civil", "E. Civil"),
+                     ("ipp","multiple",[("ipps",("persona","ipp"))], "Índice de Preferencia Política (IPP)", "IPP"),
+                     ("isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))], "Índice Socioeconómico Inferido (ISEI)", "ISEI"),
                     ]
+
+
+lista_attos_matriz_cols = lista_attos_where[9:15] 
+lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[9:15] 
 
 # Lista de posibles Nacionalidades
 lista_nacionalidades = ['V','E']
@@ -184,3 +194,17 @@ lista_edos_civiles = [1,2,3,4,5,6,7,8]
 
 # Lista de posibles IPP's
 lista_ipps = [0,1,2,3,4,5,6,7,8,9]
+
+
+
+lista_3 = ['1','2','3']
+lista_5 = ['1','2','3','4','5']
+lista_10 = ['1','2','3','4','5','6','7','8','9','10']
+lista_25 = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
+
+
+lista_matrices = [("3 x 3", (lista_3, lista_3)), ("5 x 3", (lista_5, lista_3)),("5 x 5", (lista_5, lista_5)),
+                  ("10 x 5", (lista_10, lista_5)), ("10 x 10", (lista_10, lista_10)), ("25 x 10", (lista_25, lista_10)) 
+                 ]         
+
+

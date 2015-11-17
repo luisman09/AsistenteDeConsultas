@@ -76,19 +76,23 @@ th, td {
     text-align: left;
 }
 
-table#t01 tr:nth-child(even) {
+table tr:nth-child(even) {
     background-color: #dddddd;
     color: black;
 }
 
-table#t01 tr:nth-child(odd) {
+table tr:nth-child(odd) {
     background-color:#eeeeee;
     color: black;
 }
 
-table#t01 th	{
+table th    {
     padding: 5px;
     background-color: #286090;
     color: white;
 }
 
+table#t02 th.crossed
+{
+    background-image: linear-gradient(to bottom left,  transparent calc(50% - 1px), #dddddd, transparent calc(50% + 1px)); 
+}

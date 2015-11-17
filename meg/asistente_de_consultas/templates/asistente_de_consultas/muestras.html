@@ -16,8 +16,369 @@
 
 {% block contenido %}
 
-    <div class="box" id="box" align="center">
-        <h1> Página en Construcción </h1>
+    <div class="box" id="box">
+        <form id="muestras-form" action="{% url 'asistente_de_consultas:consultas_muestras' %}" method="post">
+            {% csrf_token %}
+            <!--Parte 1: Elemento de muestreo y dimension de la matriz.-->
+            <div class="partes" id="parte_1-generador">
+                <h3 align="center"> Selecciona los atributos a mostrar </h3>
+                <!--Lista desplegable que permite seleccionar el elmento de muestreo, 
+                    seguida de dos inputs simples para dimensionar la matriz de la muestra.-->
+                <div id="elemento-de-muestreo">
+                    <fieldset id="mst" class="group-checkbox"> 
+                        <ul class="checkbox"> 
+                        {% for elem in muestreo_select %}
+                            <li>
+                                <input class="seleccionados" id="mst_attos{{ forloop.counter }}" name="mst_attos" type="checkbox" value="{{ elem.0 }}" />
+                                <label for="mst_attos{{ forloop.counter }}"> {{ elem.0 }} </label>
+                            </li>
+                        {% endfor %}
+                        </ul> 
+                    </fieldset>
+                    </br>
+                    <div align="center">
+                        <select class="lista" id="elems_muestreo" name="elems_muestreo">
+                            <option value="" selected> Elemento de muestreo </option>
+                            {% for elem in muestreo %}
+                                <option id="elems_muestreo{{ forloop.counter }}" value="{{ elem.0 }}"> {{ elem.0 }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                </br>
+                <div class="partes" id="parte_2-generador">
+                    <h3 align="center"> Crea la matriz de selección de muestras </h3>
+                    <!--<div align="center">
+                        <select class="lista" id="dim-matriz" name="dim-matriz">
+                            <option value="" selected> Dimension Predefinida de la Matriz </option>
+                            {% for elem in lista_matrices %}
+                                <option id="dimension{{ forloop.counter }}" value="{{ elem.0 }}"> {{ elem.0 }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    </br>-->
+                    <div class="form-group" id="matriz" name="matriz"> 
+                        <table class="table table-stripped table-bordered" id="t02">
+                            <thead>
+                                <tr>
+                                    <th class="col-sm-2 crossed">   
+                                        <div align="right">
+                                            <select class="form-contol lista" id="elems-cols" name="elems-cols">
+                                                <option value="" selected> Condición </option>
+                                                {% for elem in attos_matriz_cols %}
+                                                    <option id="{{ elem.0 }}" value="{{ elem.0 }}"> {{ elem.4 }} </option>
+                                                {% endfor %}
+                                            </select>  
+                                        </div>
+                                        </br>        
+                                        <div align="left">
+                                            <select class="form-contol lista" id="elems-fils" name="elems-fils">
+                                                <option value="" selected> Condición </option>
+                                                {% for elem in attos_matriz_fils %}
+                                                    <option id="{{ elem.0 }}" value="{{ elem.0 }}"> {{ elem.4 }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </th>
+                                    {% for elem in lista_5 %}
+                                        <th class="col-sm-1">
+                                            <div class="elems-cols-edad" hidden="true">
+                                                <input class="form-control" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                </br>
+                                            </div>
+                                            <div class="elems-cols-genero" hidden="true">
+                                                <select class="lista" id="sexo-{{ forloop.counter }}" name="sexo-{{ forloop.counter }}">
+                                                    <option value="" selected> Sexo </option>
+                                                    {% for gen in sexo %}
+                                                        <option value="'{{ gen }}'"> {{ gen }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
+                                            </div>
+                                            <div class="elems-cols-estrato-soc" hidden="true">
+                                                <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}">
+                                                    <option value="" selected> Estrato </option>
+                                                    {% for estrato in estratos %}
+                                                        <option value="'{{ estrato }}'"> {{ estrato }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
+                                            </div>
+                                            <div class="elems-cols-estado-civil" hidden="true">
+                                                <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}">
+                                                    <option value="" selected> E. Civil </option>
+                                                    {% for ecivil in edos_civiles %}
+                                                        <option value="'{{ ecivil }}'"> {{ ecivil }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
+                                            </div>
+                                            <div class="elems-cols-ipp" hidden="true">
+                                                <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}">
+                                                    <option value="" selected> IPP </option>
+                                                    {% for ipp in ipps %}
+                                                        <option value="'{{ ipp }}'"> {{ ipp }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
+                                            </div>
+                                            <div class="elems-cols-isei" hidden="true">
+                                                <input class="form-control" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                            </div>
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>    
+                            </tfoot>
+                                {% for elem in lista_10 %}
+                                    <tr>
+                                        <th class="col-sm-2">
+                                            <div class="elems-fils-ubicacion" hidden="true">
+                                                <select class="lista elems-edos" id="edos-{{ forloop.counter }}" name="edos-{{ forloop.counter }}">
+                                                    <option value="" selected> Estado </option>
+                                                    {% for estado in estados %}
+                                                        <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <select class="lista elems-muns" id="muns-{{ forloop.counter }}" name="muns-{{ forloop.counter }}">
+                                                    <option value="" selected> Municipio </option>
+                                                </select>
+                                                <select class="lista elems-parrs" id="parrs-{{ forloop.counter }}" name="parrs-{{ forloop.counter }}">
+                                                    <option value="" selected> Parroquia </option>
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils-ubicacion-circs" hidden="true">
+                                                <select class="lista elems-edos-circs" id="edos-circs-{{ forloop.counter }}" name="edos-circs-{{ forloop.counter }}">
+                                                    <option value="" selected> Estado </option>
+                                                    {% for estado in estados %}
+                                                        <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <select class="lista elems-circs" id="circs-{{ forloop.counter }}" name="circs-{{ forloop.counter }}">
+                                                    <option value="" selected> Circuito </option>
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils-edad" hidden="true">
+                                                <input class="form-control" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                            </div>
+                                            <div class="elems-fils-genero" hidden="true">
+                                                <select class="lista" id="sexo-{{ forloop.counter }}" name="sexo-{{ forloop.counter }}">
+                                                    <option value="" selected> Sexo </option>
+                                                    {% for gen in sexo %}
+                                                        <option value="'{{ gen }}'"> {{ gen }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils-estrato-soc" hidden="true">
+                                                <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}">
+                                                    <option value="" selected> Estrato </option>
+                                                    {% for estrato in estratos %}
+                                                        <option value="'{{ estrato }}'"> {{ estrato }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils-estado-civil" hidden="true">
+                                                <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}">
+                                                    <option value="" selected> E. Civil </option>
+                                                    {% for ecivil in edos_civiles %}
+                                                        <option value="'{{ ecivil }}'"> {{ ecivil }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils-ipp" hidden="true">
+                                                <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}">
+                                                    <option value="" selected> IPP </option>
+                                                    {% for ipp in ipps %}
+                                                        <option value="'{{ ipp }}'"> {{ ipp }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils-isei" hidden="true">
+                                                <input class="form-control" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                            </div>
+                                        </th>
+                                        {% for elem in lista_5 %}
+                                            <td class="col-sm-1" > 
+                                                <!--ver como poner un id unico a traves de los dos ciclos-->
+                                                <input class="form-control" id="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" name="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" type="text" placeholder="Lím" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tfoot>
+                        </table>
+                    </div>
+                    </br>
+                    <div class="form-group" id="factor-matriz" name="factor-matriz">
+                        <div class="form-group" id="fac" name="fac">  
+                            <label class="col-sm-3 control-label"> Factor de Muestreo: </label>
+                            <div class="col-sm-2">
+                                <input class="form-control" id="factor" name="factor" type="text" placeholder="Factor" onKeyPress="return numeroEnteroPositivo(event)"/>
+                            </div>
+                            </br></br>  
+                        </div> 
+                    </div>
+                    </br>
+                    <!--Boton continuar para verificar que la consulta sea una consulta valida.
+                        Es importate resaltar que algunas de las combinaciones posibles para generar
+                        una consulta, pueden no tener sentido alguno y aun asi, ser validas.-->
+                    <div id="boton-continuar" align="center">
+                        <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
+                    </div>
+                    </br>
+                </div> 
+                </br> 
+            </div>
+            </br>
+
+            <!--Manejo de scripts que permiten las funcionalidades javascript, jquery y ajax.-->
+            <script>
+
+                $('.lista').multiselect({
+                    maxHeight: '200',
+                });
+
+                $('select#elems-cols').on('change', activarOpcionesCols);
+
+                $('select#elems-fils').on('change', activarOpcionesFils);
+
+                function activarOpcionesCols(){
+                    var op = $('#elems-cols').val();
+                    $('div.elems-cols-'+op).attr('hidden', false);
+                    //$('#elems-cols').multiselect('disable');
+                }
+
+                function activarOpcionesFils(){
+                    var op = $('#elems-fils').val();
+                    $('div.elems-fils-'+op).attr('hidden', false);
+                    if (op == 'ubicacion') {
+                        $('select.elems-edos').on('change', obtenerMunicipios2);
+                        $('select.elems-muns').on('change', obtenerParroquias2);
+                    }
+                    if (op == 'ubicacion-circs') {
+                        $('select.elems-edos-circs').on('change', obtenerCircuitos2);
+                    }
+                    //$('#elems-fils').multiselect('disable');
+                }
+
+
+                // Se ejecuta cuando se cree tener todos los parametros para realizar la consulta.
+                // Verifica si la consulta sera factible, y en dado caso mostrara el boton para ejecutarla,
+                // o manda una alerta con algun mensaje de error. 
+                $('#continuar').on('click', function() {
+                    var op = $('select#elems_muestreo').val();
+                    if (op == "") {
+                        alert('Se debe seleccionar al menos un elemento de muestro de tipo contacto.');
+                    } else {
+                        fil = $('select#elems-fils').val();
+                        col = $('select#elems-cols').val();
+                        if (fil == "" || col == "") {
+                            alert('los elementos de filas y columnas de la matriz no pueden ser vacios');
+                        } else {
+                            fac = $('input#factor').val();
+                            if (fac == "") {
+                                alert('El factor de muestreo no puede ser vacio.');
+                            } else {
+                                $('#muestras-form').submit();
+                            }
+                        }
+                    }
+                });
+
+
+                // Obtiene todos los Municipios de un Estado especifico.
+                function obtenerMunicipios2(){
+                    var edo = $(this).val();
+                    var id_muns = $(this).parent().find('.elems-muns').attr("id");
+                    var id_parrs = $(this).parent().find('.elems-parrs').attr("id");
+                    $.ajax({
+                        data: {'edo': edo},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Municipio </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                            }
+                            var options2 = '<option value="" selected> Parroquia </option>'
+                            console.log(options)
+                            $('select#'+id_muns).html(options);
+                            $('select#'+id_muns).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_muns).multiselect('rebuild');
+                            $('select#'+id_parrs).html(options2);
+                            $('select#'+id_parrs).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_parrs).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                // Obtiene todas las Parroquias de un Municipio especifico.
+                function obtenerParroquias2(){
+                    var mun = $(this).val();
+                    var id_parrs = $(this).parent().find('.elems-parrs').attr("id");
+                    $.ajax({
+                        data: {'mun': mun},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax2' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Parroquia </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                            }
+                            console.log(options)
+                            $('select#'+id_parrs).html(options);
+                            $('select#'+id_parrs).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_parrs).multiselect('rebuild');
+                        }
+                    });
+                }               
+
+                // Obtiene todos los Circuitos de un Estado especifico.
+                function obtenerCircuitos2(){
+                    var edo = $(this).val();
+                    var id_circs = $(this).parent().find('.elems-circs').attr("id");
+                    $.ajax({
+                        data: {'edo': edo},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax4' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Circuito </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i] != '"') {
+                                    options += '<option value="' + data[i] + '">' + data[i] + '</option>';
+                                }
+                            }
+                            $('select#'+id_circs).html(options);
+                            $('select#'+id_circs).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_circs).multiselect('rebuild');
+                        }
+                    });
+                }
+
+
+                // A partir de aca: Funciones de validacion de inputs.
+
+                // Solo permite ingresar numeros y backspace en el input.
+                function numeroEnteroPositivo(e){
+                    var key = window.Event ? e.which : e.keyCode
+                    return (key >= 48 && key <= 57) || (key == 8)
+                }
+
+            </script>
+
+        </form>
     </div>
 
 {% endblock %}

@@ -19,6 +19,10 @@ conds_where = []            # Lista de elementos que seran condicionados en el W
 consulta_final = ""         # String que guarda la consulta final cuando se ejecuta
 resultados_consulta = []    # Lista que guarda todos los resultados de la consulta.
 
+attos_muestreo = []
+consulta_final_muestras = ""         # String que guarda la consulta final cuando se ejecuta
+resultados_consulta_muestras = []    # Lista que guarda todos los resultados de la consulta.
+
 
 # La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
 def buscarElementoIndice(a, lista, indice):
@@ -282,7 +286,6 @@ def agregarCondiciones(attos_where):
             where_items_2 = elem
         else:
             where_items_2 = where_items_2 + " AND " + elem
-    #print where_items_2
     return where_items_2
 
 # La funcion crearConsulta crea la consulta que sera ejecutada a nivel de la base de datos
@@ -488,33 +491,28 @@ def consultas(request):
 
     global consulta_final, resultados_consulta, conds_where, attos_select
     resultados_pag = []
-    if not consulta_final:
-        # Se obtiene el query directo.
-        query = request.POST.get('query')
-        if query:
-            consulta_final = query
-            resultados_consulta = ejecutarConsulta(consulta_final, True)
-        else:
-            # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
-            attos_select = request.POST.getlist('attos')
-            # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
-            agrupado = request.POST.getlist('agrupados')
-            if not attos_select:
-                attos_select = request.POST.getlist('ag_attos')
-            # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
-            elems_where = request.POST.getlist('deshabilitadas[]')
-            attos_where = obtenerCondicionesWhere(request, elems_where)
-            # Se obtiene el valor del limite, si existe.
-            limite = request.POST.getlist('limite')
-            consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
-            resultados_consulta = ejecutarConsulta(consulta_final, False)
-            # Si hay un agrupado se agrega a los atributos a mostrar
-            if agrupado[0]:
-                attos_select = agrupado + attos_select
+
+    page = request.GET.get('page')
+    if not page:
+        # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
+        attos_select = request.POST.getlist('attos')
+        # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
+        agrupado = request.POST.getlist('agrupados')
+        if not attos_select:
+            attos_select = request.POST.getlist('ag_attos')
+        # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
+        elems_where = request.POST.getlist('deshabilitadas[]')
+        attos_where = obtenerCondicionesWhere(request, elems_where)
+        # Se obtiene el valor del limite, si existe.
+        limite = request.POST.getlist('limite')
+        consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+        resultados_consulta = ejecutarConsulta(consulta_final, False)
+        # Si hay un agrupado se agrega a los atributos a mostrar
+        if agrupado[0]:
+            attos_select = agrupado + attos_select
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
-    page = request.GET.get('page')
     try:
         resultados_pag = paginator.page(page)
     except PageNotAnInteger:
@@ -525,9 +523,38 @@ def consultas(request):
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
-# La funcion volverAlInicio reinicia las variables globales que se utilizaron para hacer
+# La funcion consultas tiene dos funciones en particular:
+# 1- recibir todos los request introducidos por el usuario a traves del formulario
+#    (ya sea mediante el uso del asistente o a traves de un query directo),
+#    formular la consulta y mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
+def consultas_queries(request):
+
+    global consulta_final, resultados_consulta, conds_where, attos_select
+    resultados_pag = []
+
+    page = request.GET.get('page')
+    if not page:
+        # Se obtiene el query directo.
+        query = request.POST.get('query')
+        consulta_final = query
+        resultados_consulta = ejecutarConsulta(consulta_final, True)
+
+    # Paginacion.
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
+    try:
+        resultados_pag = paginator.page(page)
+    except PageNotAnInteger:
+        resultados_pag = paginator.page(1)
+    except EmptyPage:
+        resultados_pag = paginator.page(paginator.num_pages)
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    return render(request, 'asistente_de_consultas/consultas.html', context)
+
+
+# La funcion limpiarGlobales reinicia las variables globales que se utilizaron para hacer
 # la consulta anterior con el asistente. 
-def volverAlInicio(request):
+def limpiarGlobales(request):
 
     global conds_where, consulta_final, resultados_consulta, attos_select
     conds_where = []
@@ -647,10 +674,160 @@ class BuscarCentroAjaxView(generic.TemplateView):
 
 
 # La clase MuestrasView es la clase principal para el manejo de la generacion de muestras.
-class MuestrasView(generic.TemplateView):
+class MuestrasView(generic.ListView):
     template_name = 'asistente_de_consultas/muestras.html'
+    context_object_name = 'muestreo'
+    queryset = lista_muestreo
+
+    def get_context_data(self, **kwargs):
+        context = super(MuestrasView, self).get_context_data(**kwargs)
+        context['muestreo_select'] = lista_muestreo_select
+        context['attos_matriz_cols'] = lista_attos_matriz_cols
+        context['attos_matriz_fils'] = lista_attos_matriz_fils
+        context['lista_matrices'] = lista_matrices
+        context['lista_3'] = lista_3
+        context['lista_5'] = lista_5
+        context['lista_10'] = lista_10
+        context['lista_25'] = lista_25
+        context['estados'] = Estado.objects.order_by('nombre')
+        context['municipios'] = Municipio.objects.order_by('nombre')
+        context['parroquias'] = Parroquia.objects.order_by('nombre')
+        context['sexo'] = lista_sexo
+        context['estratos'] = lista_estratos
+        context['edos_civiles'] = lista_edos_civiles
+        context['ipps'] = lista_ipps
+        return context
 
 
+# La funcion consultas tiene dos funciones en particular:
+# 1- recibir todos los request introducidos por el usuario a traves del formulario
+#    (ya sea mediante el uso del asistente o a traves de un query directo),
+#    formular la consulta y mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
+def consultas_muestras(request):
+
+    global consulta_final_muestras, resultados_consulta_muestras, attos_muestreo
+    resultados_pag = []
+
+    page = request.GET.get('page')
+    if not page: 
+
+        # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
+        elem_muestreo = request.POST.getlist('elems_muestreo')
+        attos_muestreo = request.POST.getlist('mst_attos')
+        attos_muestreo = elem_muestreo + attos_muestreo
+        #print attos_muestreo
+        factor = request.POST.getlist('factor')
+        #print factor
+        elem_cols = request.POST.getlist('elems-cols')
+        elem_fils = request.POST.getlist('elems-fils')
+        #print elem_cols
+        #print elem_fils
+
+        fils = buscarElementoCompleto(elem_fils[0],lista_attos_where)
+        cols = buscarElementoCompleto(elem_cols[0],lista_attos_where)
+        #print fils
+        #print cols
+        tipo_fils, tipo_cols = fils[1], cols[1]
+        if tipo_fils == "multiple":
+            tipo_fils = "simple"
+        if tipo_cols == "multiple":
+            tipo_cols = "simple"
+
+        lista_fils = []
+        for elem in lista_10:
+            casos = []
+            for e in fils[2]:
+                tabla_atto = e[1]
+                val = e[0]+'-'+elem
+                valores = request.POST.getlist(val)
+                for valor in valores:
+                    if valor != "":
+                        casos.append([tabla_atto, valor])
+            if casos:
+                lista_fils.append([tipo_fils]+casos)
+
+        #print lista_fils
+
+        lista_cols = []
+        for elem in lista_5:
+            casos = []
+            for e in cols[2]:
+                tabla_atto = e[1]
+                val = e[0]+'-'+elem
+                valores = request.POST.getlist(val)
+                for valor in valores:
+                    if valor != "":
+                        casos.append([tabla_atto, valor])
+            if casos:
+                lista_cols.append([tipo_cols]+casos)
+
+        #print lista_cols 
+
+        lista_matriz = []
+        for fil in lista_fils:
+            casos = []
+            for col in lista_cols:
+                casos.append([fil] + [col])
+            lista_matriz.append(casos)
+
+        print ""
+        print lista_matriz
+
+
+        matriz_factores = []
+        for fil in lista_10:
+            fila = []
+            for col in lista_5:
+                val = 'limite-'+fil+'-'+col
+                lim = request.POST.getlist(val)
+                fila.append(lim)
+            if fila:
+                matriz_factores.append(fila)
+
+        print ""
+        print matriz_factores
+
+        matriz = []
+        i = 0
+        while i < len(lista_matriz):
+            matriz.append(zip (lista_matriz[i],matriz_factores[i]))
+            i+=1
+
+        print ""
+        print matriz
+
+        consulta_list = []
+        for limits in matriz:
+            for lim in limits:
+                if lim[1][0]:
+                    limit = int(lim[1][0])*int(factor[0])
+                    c = crearConsulta(attos_muestreo, lim[0], [''], [str(limit)])
+                    c1 = c[:-1].partition('LIMIT')
+                    c2 = c1[0] + "ORDER BY random() " + c1[1] + c1[2]
+                    consulta_list.append(c2) 
+
+        consulta = ""
+        for elem in consulta_list:
+            if consulta == "":
+                consulta = "("+elem+")"
+            else:
+                consulta = consulta + " UNION " + "("+elem+")"
+        consulta = consulta+";"
+        consulta_final_muestras = consulta
+        resultados_consulta_muestras = ejecutarConsulta(consulta_final_muestras, False)
+
+
+    # Paginacion.
+    paginator = Paginator(resultados_consulta_muestras, 10) # Muestra 10 elementos por pagina.
+    try:
+        resultados_pag = paginator.page(page)
+    except PageNotAnInteger:
+        resultados_pag = paginator.page(1)
+    except EmptyPage:
+        resultados_pag = paginator.page(paginator.num_pages)
+    context = {'atributos': attos_muestreo, 'resultados_pag': resultados_pag}
+    return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
 
