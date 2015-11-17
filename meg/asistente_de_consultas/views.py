@@ -178,7 +178,6 @@ def agregarCondiciones(attos_where):
     where_items_2 = ""
 
     for elem in attos_where:
-
         tipo = elem[0]
         if tipo == "dependiente":
             i = 4
@@ -734,6 +733,7 @@ def consultas_muestras(request):
         if tipo_cols == "multiple":
             tipo_cols = "simple"
 
+
         lista_fils = []
         for elem in lista_10:
             casos = []
@@ -741,12 +741,17 @@ def consultas_muestras(request):
                 tabla_atto = e[1]
                 val = e[0]+'-'+elem
                 valores = request.POST.getlist(val)
-                for valor in valores:
-                    if valor != "":
-                        casos.append([tabla_atto, valor])
+                print valores
+                if (len(valores) == 2):
+                    if (valores[0] == ''):
+                        casos.append([tabla_atto, valores[1]])
+                    else:
+                        casos.append([tabla_atto, valores[0]])
+                else:
+                    casos.append([tabla_atto, valores[0]])
+            print casos
             if casos:
                 lista_fils.append([tipo_fils]+casos)
-
         #print lista_fils
 
         lista_cols = []
@@ -756,12 +761,17 @@ def consultas_muestras(request):
                 tabla_atto = e[1]
                 val = e[0]+'-'+elem
                 valores = request.POST.getlist(val)
-                for valor in valores:
-                    if valor != "":
-                        casos.append([tabla_atto, valor])
+                print valores
+                if (len(valores) == 2):
+                    if (valores[0] == ''):
+                        casos.append([tabla_atto, valores[1]])
+                    else:
+                        casos.append([tabla_atto, valores[0]])
+                else:
+                    casos.append([tabla_atto, valores[0]])
+            print casos
             if casos:
                 lista_cols.append([tipo_cols]+casos)
-
         #print lista_cols 
 
         lista_matriz = []
@@ -770,10 +780,7 @@ def consultas_muestras(request):
             for col in lista_cols:
                 casos.append([fil] + [col])
             lista_matriz.append(casos)
-
-        print ""
-        print lista_matriz
-
+        #print lista_matriz
 
         matriz_factores = []
         for fil in lista_10:
@@ -784,18 +791,14 @@ def consultas_muestras(request):
                 fila.append(lim)
             if fila:
                 matriz_factores.append(fila)
-
-        print ""
-        print matriz_factores
+        #print matriz_factores
 
         matriz = []
         i = 0
         while i < len(lista_matriz):
             matriz.append(zip (lista_matriz[i],matriz_factores[i]))
             i+=1
-
-        print ""
-        print matriz
+        #print matriz
 
         consulta_list = []
         for limits in matriz:

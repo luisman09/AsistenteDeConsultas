@@ -148,6 +148,9 @@
                                                 <select class="lista elems-parrs" id="parrs-{{ forloop.counter }}" name="parrs-{{ forloop.counter }}">
                                                     <option value="" selected> Parroquia </option>
                                                 </select>
+                                                <select class="lista elems-ctros" id="ctros-{{ forloop.counter }}" name="ctros-{{ forloop.counter }}">
+                                                    <option value="" selected> Centro </option>
+                                                </select>
                                             </div>
                                             <div class="elems-fils-ubicacion-circs" hidden="true">
                                                 <select class="lista elems-edos-circs" id="edos-circs-{{ forloop.counter }}" name="edos-circs-{{ forloop.counter }}">
@@ -258,6 +261,7 @@
                     if (op == 'ubicacion') {
                         $('select.elems-edos').on('change', obtenerMunicipios2);
                         $('select.elems-muns').on('change', obtenerParroquias2);
+                        $('select.elems-parrs').on('change', obtenerCentros2);
                     }
                     if (op == 'ubicacion-circs') {
                         $('select.elems-edos-circs').on('change', obtenerCircuitos2);
@@ -305,6 +309,7 @@
                                 options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
                             }
                             var options2 = '<option value="" selected> Parroquia </option>'
+                            var options3 = '<option value="" selected> Centro </option>'
                             console.log(options)
                             $('select#'+id_muns).html(options);
                             $('select#'+id_muns).multiselect({
@@ -316,6 +321,11 @@
                                 maxHeight: '200',
                             });
                             $('select#'+id_parrs).multiselect('rebuild');
+                            $('select#'+id_ctros).html(options3);
+                            $('select#'+id_ctros).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_ctros).multiselect('rebuild');
                         }
                     });
                 }
@@ -333,15 +343,44 @@
                             for (var i = 0; i < data.length; i++) {
                                 options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
                             }
+                            var options2 = '<option value="" selected> Centro </option>'
                             console.log(options)
                             $('select#'+id_parrs).html(options);
                             $('select#'+id_parrs).multiselect({
                                 maxHeight: '200',
                             });
                             $('select#'+id_parrs).multiselect('rebuild');
+                            $('select#'+id_ctros).html(options2);
+                            $('select#'+id_ctros).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_ctros).multiselect('rebuild');
                         }
                     });
-                }               
+                }    
+
+                // Obtiene todos los Centros de una Parroquia especifica.
+                function obtenerCentros2(){
+                    var parr = $(this).val();
+                    var id_ctros = $(this).parent().find('.elems-ctros').attr("id");
+                    $.ajax({
+                        data: {'parr': parr},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax3' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Centro </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].pk + '</option>';
+                            }
+                            console.log(options)
+                            $('select#'+id_ctros).html(options);
+                            $('select#'+id_ctros).multiselect({
+                                maxHeight: '200',
+                            });
+                            $('select#'+id_ctros).multiselect('rebuild');
+                        }
+                    });
+                }            
 
                 // Obtiene todos los Circuitos de un Estado especifico.
                 function obtenerCircuitos2(){
