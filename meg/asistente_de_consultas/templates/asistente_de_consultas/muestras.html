@@ -63,7 +63,7 @@
                                 <tr>
                                     <th class="col-sm-2 crossed">   
                                         <div align="right">
-                                            <select class="form-contol lista" id="elems-cols" name="elems-cols">
+                                            <select class="form-contol lista" id="elems-cols" name="elems-cols" multiple>
                                                 <option value="" selected> Condición </option>
                                                 {% for elem in attos_matriz_cols %}
                                                     <option id="{{ elem.0 }}" value="{{ elem.0 }}"> {{ elem.4 }} </option>
@@ -82,12 +82,12 @@
                                     </th>
                                     {% for elem in lista_5 %}
                                         <th class="col-sm-1">
-                                            <div class="elems-cols-edad" hidden="true">
+                                            <div class="elems-cols elems-cols-edad" hidden="true">
                                                 <input class="form-control" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
                                                 <input class="form-control" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                                 </br>
                                             </div>
-                                            <div class="elems-cols-genero" hidden="true">
+                                            <div class="elems-cols elems-cols-genero" hidden="true">
                                                 <select class="lista" id="sexo-{{ forloop.counter }}" name="sexo-{{ forloop.counter }}">
                                                     <option value="" selected> Sexo </option>
                                                     {% for gen in sexo %}
@@ -96,7 +96,7 @@
                                                 </select>
                                                 </br></br>
                                             </div>
-                                            <div class="elems-cols-estrato-soc" hidden="true">
+                                            <div class="elems-cols elems-cols-estrato-soc" hidden="true">
                                                 <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}">
                                                     <option value="" selected> Estrato </option>
                                                     {% for estrato in estratos %}
@@ -105,7 +105,7 @@
                                                 </select>
                                                 </br></br>
                                             </div>
-                                            <div class="elems-cols-estado-civil" hidden="true">
+                                            <div class="elems-cols elems-cols-estado-civil" hidden="true">
                                                 <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}">
                                                     <option value="" selected> E. Civil </option>
                                                     {% for ecivil in edos_civiles %}
@@ -114,7 +114,7 @@
                                                 </select>
                                                 </br></br>
                                             </div>
-                                            <div class="elems-cols-ipp" hidden="true">
+                                            <div class="elems-cols elems-cols-ipp" hidden="true">
                                                 <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}">
                                                     <option value="" selected> IPP </option>
                                                     {% for ipp in ipps %}
@@ -123,7 +123,7 @@
                                                 </select>
                                                 </br></br>
                                             </div>
-                                            <div class="elems-cols-isei" hidden="true">
+                                            <div class="elems-cols elems-cols-isei" hidden="true">
                                                 <input class="form-control" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
                                                 <input class="form-control" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </div>
@@ -135,7 +135,7 @@
                                 {% for elem in lista_10 %}
                                     <tr>
                                         <th class="col-sm-2">
-                                            <div class="elems-fils-ubicacion" hidden="true">
+                                            <div class="elems-fils elems-fils-ubicacion" hidden="true">
                                                 <select class="lista elems-edos" id="edos-{{ forloop.counter }}" name="edos-{{ forloop.counter }}">
                                                     <option value="" selected> Estado </option>
                                                     {% for estado in estados %}
@@ -152,7 +152,7 @@
                                                     <option value="" selected> Centro </option>
                                                 </select>
                                             </div>
-                                            <div class="elems-fils-ubicacion-circs" hidden="true">
+                                            <div class="elems-fils elems-fils-ubicacion-circs" hidden="true">
                                                 <select class="lista elems-edos-circs" id="edos-circs-{{ forloop.counter }}" name="edos-circs-{{ forloop.counter }}">
                                                     <option value="" selected> Estado </option>
                                                     {% for estado in estados %}
@@ -163,11 +163,11 @@
                                                     <option value="" selected> Circuito </option>
                                                 </select>
                                             </div>
-                                            <div class="elems-fils-edad" hidden="true">
+                                            <div class="elems-fils elems-fils-edad" hidden="true">
                                                 <input class="form-control" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
                                                 <input class="form-control" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </div>
-                                            <div class="elems-fils-genero" hidden="true">
+                                            <div class="elems-fils elems-fils-genero" hidden="true">
                                                 <select class="lista" id="sexo-{{ forloop.counter }}" name="sexo-{{ forloop.counter }}">
                                                     <option value="" selected> Sexo </option>
                                                     {% for gen in sexo %}
@@ -175,7 +175,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <div class="elems-fils-estrato-soc" hidden="true">
+                                            <div class="elems-fils elems-fils-estrato-soc" hidden="true">
                                                 <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}">
                                                     <option value="" selected> Estrato </option>
                                                     {% for estrato in estratos %}
@@ -183,7 +183,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <div class="elems-fils-estado-civil" hidden="true">
+                                            <div class="elems-fils elems-fils-estado-civil" hidden="true">
                                                 <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}">
                                                     <option value="" selected> E. Civil </option>
                                                     {% for ecivil in edos_civiles %}
@@ -191,7 +191,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <div class="elems-fils-ipp" hidden="true">
+                                            <div class="elems-fils elems-fils-ipp" hidden="true">
                                                 <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}">
                                                     <option value="" selected> IPP </option>
                                                     {% for ipp in ipps %}
@@ -199,7 +199,7 @@
                                                     {% endfor %}
                                                 </select>
                                             </div>
-                                            <div class="elems-fils-isei" hidden="true">
+                                            <div class="elems-fils elems-fils-isei" hidden="true">
                                                 <input class="form-control" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
                                                 <input class="form-control" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </div>
@@ -250,12 +250,17 @@
                 $('select#elems-fils').on('change', activarOpcionesFils);
 
                 function activarOpcionesCols(){
-                    var op = $('#elems-cols').val();
-                    $('div.elems-cols-'+op).attr('hidden', false);
-                    //$('#elems-cols').multiselect('disable');
+                    $('div.elems-cols').attr('hidden', true);
+                    var ops = $('#elems-cols').val();
+                    for (var i = 0; i < ops.length; i++) {
+                        if (ops[i] != '') {
+                            $('div.elems-cols-'+ops[i]).attr('hidden', false); 
+                        }
+                    }  
                 }
 
                 function activarOpcionesFils(){
+                    $('div.elems-fils').attr('hidden', true);
                     var op = $('#elems-fils').val();
                     $('div.elems-fils-'+op).attr('hidden', false);
                     if (op == 'ubicacion') {
@@ -266,9 +271,7 @@
                     if (op == 'ubicacion-circs') {
                         $('select.elems-edos-circs').on('change', obtenerCircuitos2);
                     }
-                    //$('#elems-fils').multiselect('disable');
                 }
-
 
                 // Se ejecuta cuando se cree tener todos los parametros para realizar la consulta.
                 // Verifica si la consulta sera factible, y en dado caso mostrara el boton para ejecutarla,

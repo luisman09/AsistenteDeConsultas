@@ -724,15 +724,19 @@ def consultas_muestras(request):
         #print elem_fils
 
         fils = buscarElementoCompleto(elem_fils[0],lista_attos_where)
-        cols = buscarElementoCompleto(elem_cols[0],lista_attos_where)
+        cols = []
+        for elem in elem_cols:
+            if elem != '':
+                cols.append(buscarElementoCompleto(elem,lista_attos_where))
+
+        if fils[1] == "multiple":
+            fils[1] = "simple"
+        for elem in cols:
+            if elem[1] == "multiple":
+                elem[1] = "simple" 
+
         #print fils
         #print cols
-        tipo_fils, tipo_cols = fils[1], cols[1]
-        if tipo_fils == "multiple":
-            tipo_fils = "simple"
-        if tipo_cols == "multiple":
-            tipo_cols = "simple"
-
 
         lista_fils = []
         for elem in lista_10:
@@ -741,7 +745,6 @@ def consultas_muestras(request):
                 tabla_atto = e[1]
                 val = e[0]+'-'+elem
                 valores = request.POST.getlist(val)
-                print valores
                 if (len(valores) == 2):
                     if (valores[0] == ''):
                         casos.append([tabla_atto, valores[1]])
@@ -749,38 +752,41 @@ def consultas_muestras(request):
                         casos.append([tabla_atto, valores[0]])
                 else:
                     casos.append([tabla_atto, valores[0]])
-            print casos
             if casos:
-                lista_fils.append([tipo_fils]+casos)
+                lista_fils.append([fils[1]]+casos)
+
         #print lista_fils
 
         lista_cols = []
         for elem in lista_5:
-            casos = []
-            for e in cols[2]:
-                tabla_atto = e[1]
-                val = e[0]+'-'+elem
-                valores = request.POST.getlist(val)
-                print valores
-                if (len(valores) == 2):
-                    if (valores[0] == ''):
-                        casos.append([tabla_atto, valores[1]])
+            casos_final = []
+            for elemento in cols:
+                casos = []
+                for e in elemento[2]:
+                    tabla_atto = e[1]
+                    val = e[0]+'-'+elem
+                    valores = request.POST.getlist(val)
+                    if (len(valores) == 2):
+                        if (valores[0] == ''):
+                            casos.append([tabla_atto, valores[1]])
+                        else:
+                            casos.append([tabla_atto, valores[0]])
                     else:
                         casos.append([tabla_atto, valores[0]])
-                else:
-                    casos.append([tabla_atto, valores[0]])
-            print casos
-            if casos:
-                lista_cols.append([tipo_cols]+casos)
+                if casos:
+                    casos_final.append([elemento[1]]+casos)
+            if casos_final:
+                lista_cols.append(casos_final)
+
         #print lista_cols 
 
         lista_matriz = []
         for fil in lista_fils:
             casos = []
             for col in lista_cols:
-                casos.append([fil] + [col])
+                casos.append([fil] + col)
             lista_matriz.append(casos)
-        #print lista_matriz
+        print lista_matriz
 
         matriz_factores = []
         for fil in lista_10:
