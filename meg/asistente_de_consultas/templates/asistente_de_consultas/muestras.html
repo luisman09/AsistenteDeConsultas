@@ -97,7 +97,7 @@
                                                 </br></br>
                                             </div>
                                             <div class="elems-cols elems-cols-estrato-soc" hidden="true">
-                                                <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}">
+                                                <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> Estrato </option>
                                                     {% for estrato in estratos %}
                                                         <option value="'{{ estrato }}'"> {{ estrato }} </option>
@@ -106,7 +106,7 @@
                                                 </br></br>
                                             </div>
                                             <div class="elems-cols elems-cols-estado-civil" hidden="true">
-                                                <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}">
+                                                <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> E. Civil </option>
                                                     {% for ecivil in edos_civiles %}
                                                         <option value="'{{ ecivil }}'"> {{ ecivil }} </option>
@@ -115,7 +115,7 @@
                                                 </br></br>
                                             </div>
                                             <div class="elems-cols elems-cols-ipp" hidden="true">
-                                                <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}">
+                                                <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> IPP </option>
                                                     {% for ipp in ipps %}
                                                         <option value="'{{ ipp }}'"> {{ ipp }} </option>
@@ -176,7 +176,7 @@
                                                 </select>
                                             </div>
                                             <div class="elems-fils elems-fils-estrato-soc" hidden="true">
-                                                <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}">
+                                                <select class="lista" id="estratos-{{ forloop.counter }}" name="estratos-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> Estrato </option>
                                                     {% for estrato in estratos %}
                                                         <option value="'{{ estrato }}'"> {{ estrato }} </option>
@@ -184,7 +184,7 @@
                                                 </select>
                                             </div>
                                             <div class="elems-fils elems-fils-estado-civil" hidden="true">
-                                                <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}">
+                                                <select class="lista" id="estados-civiles-{{ forloop.counter }}" name="estados-civiles-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> E. Civil </option>
                                                     {% for ecivil in edos_civiles %}
                                                         <option value="'{{ ecivil }}'"> {{ ecivil }} </option>
@@ -192,7 +192,7 @@
                                                 </select>
                                             </div>
                                             <div class="elems-fils elems-fils-ipp" hidden="true">
-                                                <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}">
+                                                <select class="lista" id="ipps-{{ forloop.counter }}" name="ipps-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> IPP </option>
                                                     {% for ipp in ipps %}
                                                         <option value="'{{ ipp }}'"> {{ ipp }} </option>
