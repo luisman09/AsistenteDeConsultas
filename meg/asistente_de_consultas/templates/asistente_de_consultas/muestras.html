@@ -70,7 +70,7 @@
                                                 {% endfor %}
                                             </select>  
                                         </div>
-                                        </br>        
+                                        </br></br></br>      
                                         <div align="left">
                                             <select class="form-contol lista" id="elems-fils" name="elems-fils">
                                                 <option value="" selected> Condición </option>
@@ -80,11 +80,12 @@
                                             </select>
                                         </div>
                                     </th>
-                                    {% for elem in lista_5 %}
+                                    <!--Aqui se coloca la lista referente a la cantidad de columnas-->
+                                    {% for elem in lista_10 %}
                                         <th class="col-sm-1">
                                             <div class="elems-cols elems-cols-edad" hidden="true">
-                                                <input class="form-control" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
-                                                <input class="form-control" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                                 </br>
                                             </div>
                                             <div class="elems-cols elems-cols-genero" hidden="true">
@@ -124,14 +125,15 @@
                                                 </br></br>
                                             </div>
                                             <div class="elems-cols elems-cols-isei" hidden="true">
-                                                <input class="form-control" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
-                                                <input class="form-control" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </div>
                                         </th>
                                     {% endfor %}
                                 </tr>
                             </thead>    
                             </tfoot>
+                                <!--Aqui se coloca la lista referente a la cantidad de filas-->
                                 {% for elem in lista_10 %}
                                     <tr>
                                         <th class="col-sm-2">
@@ -164,8 +166,8 @@
                                                 </select>
                                             </div>
                                             <div class="elems-fils elems-fils-edad" hidden="true">
-                                                <input class="form-control" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
-                                                <input class="form-control" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="min-edad-{{ forloop.counter }}" name="min-edad-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="max-edad-{{ forloop.counter }}" name="max-edad-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </div>
                                             <div class="elems-fils elems-fils-genero" hidden="true">
                                                 <select class="lista" id="sexo-{{ forloop.counter }}" name="sexo-{{ forloop.counter }}">
@@ -200,14 +202,15 @@
                                                 </select>
                                             </div>
                                             <div class="elems-fils elems-fils-isei" hidden="true">
-                                                <input class="form-control" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
-                                                <input class="form-control" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </div>
                                         </th>
-                                        {% for elem in lista_5 %}
+                                        <!--Aqui se coloca la lista referente a la cantidad de columnas-->
+                                        {% for elem in lista_10 %}
                                             <td class="col-sm-1" > 
                                                 <!--ver como poner un id unico a traves de los dos ciclos-->
-                                                <input class="form-control" id="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" name="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" type="text" placeholder="Lím" onKeyPress="return numeroEnteroPositivo(event)"/>
+                                                <input class="form-control input-sm" id="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" name="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" type="text" placeholder="Lím" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </td>
                                         {% endfor %}
                                     </tr>
@@ -244,6 +247,12 @@
                 $('.lista').multiselect({
                     maxHeight: '200',
                 });
+
+                //$('select#dim-matriz').on('change', activarMatriz);
+
+                //function activarMatriz(){
+                //    $('div#matriz').attr('hidden', false);
+                //}
 
                 $('select#elems-cols').on('change', activarOpcionesCols);
 

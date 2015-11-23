@@ -203,8 +203,8 @@ lista_10 = ['1','2','3','4','5','6','7','8','9','10']
 lista_25 = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
 
 
-lista_matrices = [("3 x 3", (lista_3, lista_3)), ("5 x 3", (lista_5, lista_3)),("5 x 5", (lista_5, lista_5)),
-                  ("10 x 5", (lista_10, lista_5)), ("10 x 10", (lista_10, lista_10)), ("25 x 10", (lista_25, lista_10)) 
+lista_matrices = [("3 x 3", lista_3, lista_3), ("5 x 3", lista_5, lista_3), ("5 x 5", lista_5, lista_5),
+                  ("10 x 5", lista_10, lista_5), ("10 x 10", lista_10, lista_10), ("25 x 10", lista_25, lista_10) 
                  ]         
 
 

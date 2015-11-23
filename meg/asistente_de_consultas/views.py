@@ -729,23 +729,16 @@ def consultas_muestras(request):
             if elem != '':
                 cols.append(buscarElementoCompleto(elem,lista_attos_where))
 
-        #if fils[1] == "multiple":
-        #    fils[1] = "simple"
-        #for elem in cols:
-        #    if elem[1] == "multiple":
-        #        elem[1] = "simple" 
-
-        print fils
-        print cols
+        #print fils
+        #print cols
 
         lista_fils = []
-        for elem in lista_10:
+        for elem in lista_25:
             casos = []
             for e in fils[2]:
                 tabla_atto = e[1]
                 val = e[0]+'-'+elem
                 valores = request.POST.getlist(val)
-                print valores
                 multis = []
                 for v in valores:
                     if (v != ''):
@@ -758,7 +751,7 @@ def consultas_muestras(request):
         print lista_fils
 
         lista_cols = []
-        for elem in lista_5:
+        for elem in lista_25:
             casos_final = []
             for elemento in cols:
                 casos = []
@@ -766,7 +759,6 @@ def consultas_muestras(request):
                     tabla_atto = e[1]
                     val = e[0]+'-'+elem
                     valores = request.POST.getlist(val)
-                    print valores
                     multis = []
                     for v in valores:
                         if (v != ''):
@@ -787,19 +779,19 @@ def consultas_muestras(request):
                 casos.append([fil] + col)
             lista_matriz.append(casos)
         
-        #print lista_matriz
+        print lista_matriz
 
         matriz_factores = []
-        for fil in lista_10:
+        for fil in lista_25[0:len(lista_fils)]:
             fila = []
-            for col in lista_5:
+            for col in lista_25[0:len(lista_cols)]:
                 val = 'limite-'+fil+'-'+col
                 lim = request.POST.getlist(val)
                 fila.append(lim)
             if fila:
                 matriz_factores.append(fila)
         
-        #print matriz_factores
+        print matriz_factores
 
         matriz = []
         i = 0
@@ -807,7 +799,7 @@ def consultas_muestras(request):
             matriz.append(zip (lista_matriz[i],matriz_factores[i]))
             i+=1
         
-        #print matriz
+        print matriz
 
         consulta_list = []
         for limits in matriz:
