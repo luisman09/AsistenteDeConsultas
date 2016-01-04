@@ -509,6 +509,7 @@ def consultas(request):
         # Si hay un agrupado se agrega a los atributos a mostrar
         if agrupado[0]:
             attos_select = agrupado + attos_select
+        print attos_where
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
@@ -733,16 +734,26 @@ def consultas_muestras(request):
         #print cols
 
         lista_fils = []
-        for elem in lista_25:
+        for elem in lista_10:
             casos = []
             for e in fils[2]:
                 tabla_atto = e[1]
                 val = e[0]+'-'+elem
                 valores = request.POST.getlist(val)
                 multis = []
-                for v in valores:
-                    if (v != ''):
-                        multis.append(v)
+                if len(valores) == 2:
+                    if not valores[0]:
+                        multis.append(valores[1])
+                    else:
+                        multis.append(valores[0])
+                else:
+                    if len(valores) == 1:
+                        multis.append(valores[0])
+                    else:
+                        for v in valores:
+                            if v != '':
+                                multis.append(v)
+                print multis
                 if multis:
                     casos.append([tabla_atto] + multis)
             if casos:
@@ -751,18 +762,28 @@ def consultas_muestras(request):
         print lista_fils
 
         lista_cols = []
-        for elem in lista_25:
+        for elem in lista_10:
             casos_final = []
             for elemento in cols:
                 casos = []
                 for e in elemento[2]:
                     tabla_atto = e[1]
                     val = e[0]+'-'+elem
+                    # valores casi siempre tiene dos elementos, uno de ellos siempre es vacio
+                    # en los casos de ubicacion si tiene un solo valor, y en los casos multiples tiene
+                    # la cantidad de valores seleccionados mas uno vacio.
                     valores = request.POST.getlist(val)
                     multis = []
-                    for v in valores:
-                        if (v != ''):
-                            multis.append(v)
+                    if len(valores) == 2:
+                        if not valores[0]:
+                            multis.append(valores[1])
+                        else:
+                            multis.append(valores[0])
+                    else: 
+                        for v in valores:
+                            if v != '':
+                                multis.append(v)
+                    print multis
                     if multis:
                         casos.append([tabla_atto] + multis)
                 if casos:
@@ -779,7 +800,7 @@ def consultas_muestras(request):
                 casos.append([fil] + col)
             lista_matriz.append(casos)
         
-        print lista_matriz
+        #print lista_matriz
 
         matriz_factores = []
         for fil in lista_25[0:len(lista_fils)]:
@@ -791,7 +812,7 @@ def consultas_muestras(request):
             if fila:
                 matriz_factores.append(fila)
         
-        print matriz_factores
+        #print matriz_factores
 
         matriz = []
         i = 0
@@ -799,7 +820,7 @@ def consultas_muestras(request):
             matriz.append(zip (lista_matriz[i],matriz_factores[i]))
             i+=1
         
-        print matriz
+        #print matriz
 
         consulta_list = []
         for limits in matriz:

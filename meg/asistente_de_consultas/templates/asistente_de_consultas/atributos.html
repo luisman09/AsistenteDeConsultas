@@ -104,7 +104,7 @@
                     <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>     
                     <div id="dinamico-ubicacion">
                         <div class="col-sm-9">
-                            <select class="lista " id="edos" name="edos">
+                            <select class="lista" id="edos" name="edos">
                                 <option value="" selected> Estado </option>
                                 {% for estado in estados %}
                                     <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
@@ -426,12 +426,32 @@
                     $('#consulta-agrupados').hide();
                     $('#consulta-simple').hide();
                     $('div#parte_1-agrupados').show();
-                    $('#agrupados').multiselect({
-                        maxHeight: '200',
-                    });
+                    aplicarMultiselect('#agrupados');
                     tipo_consulta = 1
                     activarPartes();
                 });
+
+                /*$('.lista').on('change', function() {
+                    seleccionado = $(this).attr('id');
+                    console.log(seleccionado);
+                    multiple = $(this).attr('multiple');
+                    console.log(multiple);
+                    if (multiple == 'multiple') {
+                        $(seleccionado+' option:first').removeAttr('selected');
+                    }
+                    $(seleccionado).multiselect('refresh');
+                    aplicarMultiselect(seleccionado);
+                });*/
+
+                function aplicarMultiselect(elemento) {
+                    $()
+                    $(elemento).multiselect({
+                        maxHeight: '200',
+                        nonSelectedText: 'Ninguno seleccioando',
+                        nSelectedText: ' seleccionados',
+                        allSelectedText: 'Todos seleccionados'
+                    });
+                }
 
                 // Muestra las otras opciones (condiciones, orden y limites,) para cualquier tipo de consulta.
                 function activarPartes() {
@@ -440,9 +460,7 @@
                     $('div#parte_4').show();
                     $('div#parte_5').show();
                     $('div#boton-continuar').show();
-                    $('.lista').multiselect({
-                        maxHeight: '200',
-                    });
+                    aplicarMultiselect('.lista');
                 }
 
                 // Se ejecuta cada vez que se elige una opcion para condicionar la consulta.
@@ -621,9 +639,7 @@
                     $agregar_ubi.on('click', function() {
                         $template_ubi.clone().appendTo($contenedor_ubi).show();
                         update();
-                        $('.lista-d').multiselect({
-                            maxHeight: '200',
-                        });
+                        aplicarMultiselect('.lista-d');
                     });
 
                     // Ocurre cuando se elimina alguna de las ubicaciones dinamicas agregadas.
@@ -669,9 +685,7 @@
                     $agregar_ubicircs.on('click', function() {
                         $template_ubicircs.clone().appendTo($contenedor_ubicircs).show();
                         update();
-                        $('.lista-d').multiselect({
-                            maxHeight: '200',
-                        });
+                        aplicarMultiselect('.lista-d');
                     });
 
                     // Ocurre cuando se elimina alguna de las ubicaciones por circuitos agregadas..
@@ -783,19 +797,13 @@
                             var options2 = '<option value="" selected> Parroquia </option>'
                             var options3 = '<option value="" selected> Centros </option>'
                             $('select#'+id_muns).html(options);
-                            $('select#'+id_muns).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_muns);
                             $('select#'+id_muns).multiselect('rebuild');
                             $('select#'+id_parrs).html(options2);
-                            $('select#'+id_parrs).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_parrs);
                             $('select#'+id_parrs).multiselect('rebuild');
                             $('select#'+id_ctros).html(options3);
-                            $('select#'+id_ctros).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_ctros);
                             $('select#'+id_ctros).multiselect('rebuild');
                         }
                     });
@@ -814,14 +822,10 @@
                             }
                             var options2 = '<option value="" selected> Centros </option>'
                             $('select#'+id_parrs).html(options);
-                            $('select#'+id_parrs).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_parrs);
                             $('select#'+id_parrs).multiselect('rebuild');
                             $('select#'+id_ctros).html(options2);
-                            $('select#'+id_ctros).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_ctros);
                             $('select#'+id_ctros).multiselect('rebuild');
                         }
                     });
@@ -839,9 +843,7 @@
                                 options += '<option value="' + data[i].pk + '">' + data[i].pk + '</option>';
                             }
                             $('select#'+id_ctros).html(options);
-                            $('select#'+id_ctros).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_ctros);
                             $('select#'+id_ctros).multiselect('rebuild');
                         }
                     });
@@ -867,9 +869,7 @@
                                 }
                             }
                             $('select#'+id_circs).html(options);
-                            $('select#'+id_circs).multiselect({
-                                maxHeight: '200',
-                            });
+                            aplicarMultiselect('select#'+id_circs);
                             $('select#'+id_circs).multiselect('rebuild');
                         }
                     });
