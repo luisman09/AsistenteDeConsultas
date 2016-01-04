@@ -21,6 +21,7 @@ resultados_consulta = []    # Lista que guarda todos los resultados de la consul
 attos_muestreo = []         # Lista que guarda los elementos a mostrar junto con el elemento de muestreo.
 consulta_final_muestras = ""         # String que guarda la consulta final de muestreo cuando se ejecuta.
 resultados_consulta_muestras = []    # Lista que guarda todos los resultados de la consulta de muestreo.
+es_muestra = 0
 
 
 # La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
@@ -456,8 +457,10 @@ def ejecutarConsulta(consulta, esQueryDirecto):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas(request):
 
-    global consulta_final, resultados_consulta, conds_where, attos_select
+    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
     resultados_pag = []
+
+    es_muestra = 0
 
     page = request.GET.get('page')
     if not page:
@@ -497,8 +500,10 @@ def consultas(request):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_queries(request):
 
-    global consulta_final, resultados_consulta, conds_where, attos_select
+    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
     resultados_pag = []
+
+    es_muestra = 0
 
     page = request.GET.get('page')
     if not page:
@@ -536,14 +541,21 @@ def limpiarGlobales(request):
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_csv(request):
 
+    if es_muestra == 0:
+        cabecera = attos_select
+        resultados = resultados_consulta
+    else:
+        cabecera = attos_muestreo
+        resultados = resultados_consulta_muestras
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
     writer = csv.writer(response)
     row = []
-    for elem in attos_select:
+    for elem in cabecera:
         row.append(elem)
     writer.writerow([unicode(s).encode("utf-8") for s in row])
-    for elem in resultados_consulta:
+    for elem in resultados:
         row = []
         for e in elem:
             row.append(e)
@@ -672,8 +684,10 @@ class MuestrasView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_muestras(request):
 
-    global consulta_final_muestras, resultados_consulta_muestras, attos_muestreo
+    global consulta_final_muestras, resultados_consulta_muestras, attos_muestreo, es_muestra
     resultados_pag = []
+
+    es_muestra = 1
 
     page = request.GET.get('page')
     if not page: 
