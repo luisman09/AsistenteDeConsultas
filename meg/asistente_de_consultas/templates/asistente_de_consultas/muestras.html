@@ -4,7 +4,7 @@
 {% endcomment %}
 
 {% block titulo %} 
-    Gen. de Muestras
+    Muestras
 {% endblock %}
 
 {% block encabezado %}
@@ -19,11 +19,12 @@
     <div class="box" id="box">
         <form id="muestras-form" action="{% url 'asistente_de_consultas:consultas_muestras' %}" method="post">
             {% csrf_token %}
-            <!--Parte 1: Elemento de muestreo y dimension de la matriz.-->
+            <!--Parte Unica: Elementos a mostrar junto con el elemento de muestreo seguido de
+                La matriz de generacion de muestras y el factor de las muestras.-->
             <div class="partes" id="parte_1-generador">
                 <h3 align="center"> Selecciona los atributos a mostrar </h3>
-                <!--Lista desplegable que permite seleccionar el elmento de muestreo, 
-                    seguida de dos inputs simples para dimensionar la matriz de la muestra.-->
+                <!--Caja de checkbox que te permite escoger los atributos para mostrar seguida de
+                    una lista desplegable que permite seleccionar el elemento de muestreo.-->
                 <div id="elemento-de-muestreo">
                     <fieldset id="mst" class="group-checkbox"> 
                         <ul class="checkbox"> 
@@ -46,21 +47,16 @@
                     </div>
                 </div>
                 </br>
+                <!--A partir de aca se muestran los elementos de muestreo-->
                 <div class="partes" id="parte_2-generador">
                     <h3 align="center"> Crea la matriz de selección de muestras </h3>
-                    <!--<div align="center">
-                        <select class="lista" id="dim-matriz" name="dim-matriz">
-                            <option value="" selected> Dimension Predefinida de la Matriz </option>
-                            {% for elem in lista_matrices %}
-                                <option id="dimension{{ forloop.counter }}" value="{{ elem.0 }}"> {{ elem.0 }} </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    </br>-->
                     <div class="form-group" id="matriz" name="matriz"> 
                         <table class="table table-stripped table-bordered" id="t02">
                             <thead>
                                 <tr>
+                                    <!--Primer cuadro de la tabla. Contiene dos listas desplegables:
+                                        Una simple para seleccionar los elementos de las columnas y 
+                                        otra multiple para seleccionar los elementos de las filas.-->
                                     <th class="col-sm-2 crossed">   
                                         <div align="right">
                                             <select class="form-contol lista" id="elems-cols" name="elems-cols" multiple>
@@ -80,7 +76,11 @@
                                             </select>
                                         </div>
                                     </th>
-                                    <!--Aqui se coloca la lista referente a la cantidad de columnas-->
+                                    <!--A continuacion se procedera a llenar las filas cabecera de la matriz con las
+                                        condiciones posibles que se pueden especificar: Edades, Sexo, Estratos,
+                                        Estados civiles, IPP's e ISEI's. Para este caso se podra especificar mas
+                                        de una de estas condiciones.-->
+                                    <!--Lista referente a la cantidad de columnas [por ahora lista_10]-->
                                     {% for elem in lista_10 %}
                                         <th class="col-sm-1">
                                             <div class="elems-cols elems-cols-edad" hidden="true">
@@ -133,7 +133,12 @@
                                 </tr>
                             </thead>    
                             </tfoot>
-                                <!--Aqui se coloca la lista referente a la cantidad de filas-->
+                                <!--A continuacion se procedera a llenar las columnas de la matriz. La primera 
+                                    columna tendra las condiciones posibles que se pueden especificar: Ubicación demografica y por circuitos, Edades, Sexo, Estratos, Estados civiles, IPP's e 
+                                    ISEI's. Para este caso se podra especificar solo una de estas condiciones.
+                                    El resto de las columnas seran llenadas con un campo input que permitira 
+                                    introducir los valores de los limites.-->
+                                <!--Lista referente a la cantidad de filas [por ahora lista_10]-->
                                 {% for elem in lista_10 %}
                                     <tr>
                                         <th class="col-sm-2">
@@ -206,10 +211,9 @@
                                                 <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPositivo(event)"/>
                                             </div>
                                         </th>
-                                        <!--Aqui se coloca la lista referente a la cantidad de columnas-->
+                                        <!--Lista referente a la cantidad de columnas [por ahora lista_10]-->
                                         {% for elem in lista_10 %}
                                             <td class="col-sm-1" > 
-                                                <!--ver como poner un id unico a traves de los dos ciclos-->
                                                 <input class="form-control input-sm" id="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" name="limite-{{ forloop.parentloop.counter }}-{{ forloop.counter }}" type="text" placeholder="Lím" onKeyPress="return numeroEnteroPositivo(event)"/>
                                             </td>
                                         {% endfor %}
@@ -219,6 +223,8 @@
                         </table>
                     </div>
                     </br>
+                    <!--Aca se especifica el factor de muestreo por el que sera multiplicado cada elemento 
+                        limite de la matriz anterior.-->
                     <div class="form-group" id="factor-matriz" name="factor-matriz">
                         <div class="form-group" id="fac" name="fac">  
                             <label class="col-sm-3 control-label"> Factor de Muestreo: </label>
@@ -229,7 +235,7 @@
                         </div> 
                     </div>
                     </br>
-                    <!--Boton continuar para verificar que la consulta sea una consulta valida.
+                    <!--Boton continuar para verificar que la consulta sea una consulta valida y realizarla.
                         Es importate resaltar que algunas de las combinaciones posibles para generar
                         una consulta, pueden no tener sentido alguno y aun asi, ser validas.-->
                     <div id="boton-continuar" align="center">
@@ -244,8 +250,8 @@
             <!--Manejo de scripts que permiten las funcionalidades javascript, jquery y ajax.-->
             <script>
 
+                // Funcion que despliega los componentes multiselect.
                 function aplicarMultiselect(elemento) {
-                    $()
                     $(elemento).multiselect({
                         maxHeight: '200',
                         nonSelectedText: 'Ninguno seleccioando',
@@ -254,18 +260,15 @@
                     });
                 }
 
+                // Originalmente todos los elementos de la clase lista son de tipo multiselect.
                 aplicarMultiselect('.lista');
 
-                //$('select#dim-matriz').on('change', activarMatriz);
-
-                //function activarMatriz(){
-                //    $('div#matriz').attr('hidden', false);
-                //}
-
+                // Al seleccionar una condicion para las columnas o filas, se activa dicha opcion en la cabecera
+                // de todas las columnas o filas, segun sea el caso.
                 $('select#elems-cols').on('change', activarOpcionesCols);
-
                 $('select#elems-fils').on('change', activarOpcionesFils);
 
+                // Funcion que activa la cabecera de las columnas.
                 function activarOpcionesCols(){
                     $('div.elems-cols').attr('hidden', true);
                     var ops = $('#elems-cols').val();
@@ -276,6 +279,7 @@
                     }  
                 }
 
+                // Funcion que activa la cabecera de las filas.
                 function activarOpcionesFils(){
                     $('div.elems-fils').attr('hidden', true);
                     var op = $('#elems-fils').val();
@@ -291,8 +295,8 @@
                 }
 
                 // Se ejecuta cuando se cree tener todos los parametros para realizar la consulta.
-                // Verifica si la consulta sera factible, y en dado caso mostrara el boton para ejecutarla,
-                // o manda una alerta con algun mensaje de error. 
+                // Verifica si la consulta sera factible, y en dado caso procedera a ejecutarla,
+                // o manda una alerta con algun mensaje de error, en caso de no ser factible. 
                 $('#continuar').on('click', function() {
                     var op = $('select#elems_muestreo').val();
                     if (op == "") {
@@ -312,7 +316,6 @@
                         }
                     }
                 });
-
 
                 // Obtiene todos los Municipios de un Estado especifico.
                 function obtenerMunicipios2(){

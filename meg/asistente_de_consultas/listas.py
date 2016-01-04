@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Las siguientes listas contienen elementos de la forma: (elem1,(elem2,elem3)), 
-# donde elem1 es el nombre del atributo que se le presentara al usuario, 
-# elem2 es el nombre de la tabla en postgresql y elem3 el nombre del atributo
-# en postgresql. 
-
-
 # La lista lista_demografica contiene los elementos mostrables correspondientes a las tablas 
 # centro, parroquia, municipio y estado.
 lista_demografica = [("Edo Id",["estado","id"]),("Estado",["estado","nombre"]),
@@ -42,10 +36,7 @@ lista_contactos = [("Celular 1",["celular as c1","c1.numero","c1","1"]),("Celula
                   ]
 
 
-# La lista lista_attos retorna una lista que devuelve tuplas, en donde los primeros elementos
-# son los nombres visibles de los atributos que puede escoger el usuario y los segundos elementos 
-# son a su vez tuplas, que representan el nombre de la tabla y el nombre del 
-# atributo (o funcion) tal cual como aparecen (o se ejecutan) a nivel de base de datos.
+# La lista lista_attos contiene todos los elementos mostrables de las tres listas anteriores.
 lista_attos = lista_demografica + lista_personas + lista_contactos
 
 
@@ -70,55 +61,25 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                   ]
 
 
-# La lista lista_agrupados_select contiene todos los posibles campos por los cuales
+# La lista lista_agrupados_select contiene todos los elementos mostrables sobre
 # los cuales el usuario puede agrupar una consulta con GROUP BY.
 lista_agrupados_select = [("Estado",["estado","nombre"]),("Municipio",["municipio","nombre"]),
                           ("Parroquia",["parroquia","nombre"]),("Circuitos 15",["centro","circuitos_15"]),
                           ("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
                           ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
-                          ("Estrato",["persona","estrato"]),("IPP",["persona","ipp"]),
+                          ("Estrato",["persona","estrato"]),("IPP",["persona","ipp"]),("ISEI",["persona","isei"]),
                           ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
                          ]
 
 
-# La lista lista_elems_muestreo contiene todos los elementos mostrables sobre los cuales
+# La lista lista_muestreo_select contiene todos los elementos mostrables sobre los cuales
 # se puede realizar una generacion de muestras.
-lista_muestreo = lista_contactos[0:6]
-
 lista_muestreo_select = lista_demografica[0:9] + lista_demografica[13:15] + lista_personas
 
-# La lista lista_indicadores contiene los datos de la tabla caracteristicas_socioeconomicas.
-# Representa algunas caracteristicas socioeconomicas de un grupo de personas.
-# AUN NO EN USO Y LE FALTAN MODIFICACIONES
-lista_indicadores = [("Hijos",("caracteristicas_socioeconomicas","hijos")),("Profesion",("caracteristicas_socioeconomicas","profesion")),
-                     ("Oficio",("caracteristicas_socioeconomicas","oficio")),("Trabajo",("caracteristicas_socioeconomicas","trabajo")),
-                     ("Familiares",("caracteristicas_socioeconomicas","familiares")),("Info Bancaria",("caracteristicas_socioeconomicas","info_bancaria")),
-                     ("NSE",("caracteristicas_socioeconomicas","nse")),("Tarjeta",("caracteristicas_socioeconomicas","tarjeta")),
-                     ("Empresa",("caracteristicas_socioeconomicas","empresa")),("Cuenta",("caracteristicas_socioeconomicas","cuenta")),
-                     ("Dólares",("caracteristicas_socioeconomicas","dolares")),("Votantes",("caracteristicas_socioeconomicas","votantes")),
-                     ("Tendencia",("caracteristicas_socioeconomicas","tendencia")),("Politico",("caracteristicas_socioeconomicas","politico")),
-                     ("Abstención",("caracteristicas_socioeconomicas","abstencion")),("Mision",("caracteristicas_socioeconomicas","mision")),
-                     ("Jubilado",("caracteristicas_socioeconomicas","jubilado")),("Inversionista",("caracteristicas_socioeconomicas","inversionista")),
-                     ("Inmueble",("caracteristicas_socioeconomicas","inmueble")),("Vehiculo",("caracteristicas_socioeconomicas","vehiculo")),
-                     ("Marca",("caracteristicas_socioeconomicas","marca")),("Cable",("caracteristicas_socioeconomicas","cable")),
-                     ("Viaja",("caracteristicas_socioeconomicas","viaja")),("Seguro",("caracteristicas_socioeconomicas","seguro")),
-                     ("Deportista",("caracteristicas_socioeconomicas","deportista")),("Club",("caracteristicas_socioeconomicas","club")),
-                     ("GSE",("caracteristicas_socioeconomicas","gse"))
-                    ]
 
+# La lista lista_muestreo contiene todos los elementos sobre los cuales se puede sacar muestras.
+lista_muestreo = lista_contactos[0:6]
 
-# La lista lista_sector_privado contiene los datos de las tablas empresa, producto y transaccion.
-# Representa los datos de adquision de productos o servicios en algunas empresas
-# por parte de algunas personas. 
-# AUN NO EN USO Y LE FALTAN MODIFICACIONES
-lista_sector_privado = [("Empresa Id",("empresa","id")),("Empresa",("empresa","nombre")),
-                        ("Producto Id",("producto","id")),("Producto",("producto","nombre")),
-                        ("Categoria Id",("producto","id_categoria")),("Categoria",("producto","categoria")),
-                        ("Departamento",("producto","departamento")),("Linea",("producto","linea")),
-                        ("Seccion",("producto","seccion")),("Sucursal",("transaccion","sucursal")),
-                        ("Fecha de Adquisicion",("transaccion","fecha")),("Cantidad Adquirida",("transaccion","cantidad")),
-                        ("Precio",("transaccion","precio"))
-                       ]
 
 # La lista lista_join contiene todos los posibles join que puede haber en la base de datos. 
 # Desde una tabla origen hasta una tabla destino.
@@ -177,32 +138,36 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
                     ]
 
 
+# Las listas lista_attos_matriz_cols y lista_attos_matriz_fils contienen subconjuntos
+# de la lista anterior que son necesarios para las condiciones de creacion de la matriz.
 lista_attos_matriz_cols = lista_attos_where[9:15] 
 lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[9:15] 
 
-# Lista de posibles Nacionalidades
+
+# Lista de posibles Nacionalidades.
 lista_nacionalidades = ['V','E']
 
-# Lista de posibles Sexos
+# Lista de posibles Sexos.
 lista_sexo = ['F','M']
 
-# Lista de posibles Estratos
+# Lista de posibles Estratos.
 lista_estratos = ['A','B','C','D','E']
 
-# Lista de posibles Estados Civiles
+# Lista de posibles Estados Civiles.
 lista_edos_civiles = [1,2,3,4,5,6,7,8]
 
-# Lista de posibles IPP's
+# Lista de posibles IPP's.
 lista_ipps = [0,1,2,3,4,5,6,7,8,9]
 
 
-
+# Listas de pruebas para la dimension de la matriz.
 lista_3 = ['1','2','3']
 lista_5 = ['1','2','3','4','5']
 lista_10 = ['1','2','3','4','5','6','7','8','9','10']
 lista_25 = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
 
 
+# Lista de posibles dimensiones precalculadas de la matriz. 
 lista_matrices = [("3 x 3", lista_3, lista_3), ("5 x 3", lista_5, lista_3), ("5 x 5", lista_5, lista_5),
                   ("10 x 5", lista_10, lista_5), ("10 x 10", lista_10, lista_10), ("25 x 10", lista_25, lista_10) 
                  ]         

@@ -56,12 +56,12 @@ ul.checkbox li {
     width:12.3em;
 } 
 
+/* multiselect */
 .multiselect .dropdown-toggle .btn .btn-default {
     width: 150px; 
 }
 
-/* Consultas.html */
-/* tabla con los resultados */
+/* tabla con los resultados y tabla para la matriz de muestreo */
 table {
     width:100%;
 }
@@ -82,7 +82,7 @@ table tr:nth-child(even) {
 }
 
 table tr:nth-child(odd) {
-    background-color:#eeeeee;
+    background-color: #eeeeee;
     color: black;
 }
 

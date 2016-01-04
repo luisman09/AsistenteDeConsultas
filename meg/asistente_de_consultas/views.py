@@ -16,12 +16,11 @@ from .listas import *
 # Variables globales.
 attos_select = []           # Lista de elementos que seran mostrados en el SELECT.
 conds_where = []            # Lista de elementos que seran condicionados en el WHERE.
-consulta_final = ""         # String que guarda la consulta final cuando se ejecuta
+consulta_final = ""         # String que guarda la consulta final cuando se ejecuta.
 resultados_consulta = []    # Lista que guarda todos los resultados de la consulta.
-
-attos_muestreo = []
-consulta_final_muestras = ""         # String que guarda la consulta final cuando se ejecuta
-resultados_consulta_muestras = []    # Lista que guarda todos los resultados de la consulta.
+attos_muestreo = []         # Lista que guarda los elementos a mostrar junto con el elemento de muestreo.
+consulta_final_muestras = ""         # String que guarda la consulta final de muestreo cuando se ejecuta.
+resultados_consulta_muestras = []    # Lista que guarda todos los resultados de la consulta de muestreo.
 
 
 # La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
@@ -31,7 +30,7 @@ def buscarElementoIndice(a, lista, indice):
             return elem[indice]
 
 
-# La funcion buscarElementoCompleto devuelve el valor del diccionario completo del diccionario
+# La funcion buscarElementoCompleto devuelve el valor del diccionario completo.
 # que contiene como clave a la clave dada. 
 def buscarElementoCompleto(a, lista):
     for elem in lista:
@@ -39,12 +38,9 @@ def buscarElementoCompleto(a, lista):
             return elem
 
 
-# ME FALTA DOCUMENTAR Y MEJORAR DE ACA PARA ARRIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA OJOOOOOOOOOOOOOOOOOOOOO
-
-
-# La funcion encontrarOD devuelve una lista de origenes y destinos que seran tomados
-# para encontrar los joins de la consulta principal.
-# OJOOOOOOOOOOOOOOO DE MOMENTO ESTA ES LA FUNCION QUE ESTA CABLEADAAAAAAA.
+# La funcion encontrarOD recibe una lista de las tablas necesarias para la consulta,
+# y devuelve una lista de origenes y destinos que seran tomados para encontrar 
+# los joins de la consulta principal.
 def encontrarOD(t):
     x = False
     contacto = []
@@ -115,6 +111,8 @@ def encontrarOD(t):
     return origen_destino
     
 
+# La funcion buscarJoin recibe un origen, un destino y procede buscar a ver si existe 
+# un join entre esos elementos en la lista lista. 
 def buscarJoin(origen,destino,lista):
 
     for elem in lista:
@@ -123,44 +121,23 @@ def buscarJoin(origen,destino,lista):
     return "No existe el elemento"
 
 
-# La funcion encontrarJoins busca a traves de otra consulta en la base de datos los join 
-# necesarios para realizar la consulta, dados los atributos seleccionados por el usuario.
-# Esa consulta se ejecuta a traves de un cursor y a nivel de la base de datos.
+# La funcion encontrarJoins recibe una lista de las tablas necesarias para la consulta, 
+# y busca los join necesarios entre esas tablas para realizar la consulta.
 def encontrarJoins(t):
 
     contacto = []
     origen_destino = encontrarOD(t)
     from_joins = ""
     where_joins = ""
-
     for elem in t:
         if elem:
             if from_joins == "":
                 from_joins = elem
             else:
                 from_joins = from_joins + ", " + elem
-
-
     lista = lista_join
     for elem in origen_destino:
-
         condicion = buscarJoin(elem[0],elem[1],lista)
-
-        #consulta = """WITH RECURSIVE joins(origen, destino, joins_where, tablas_from) AS (
-        #                SELECT origen, destino, '' || arco, origen || ', ' || destino 
-        #                FROM grafo 
-        #              UNION ALL 
-        #                SELECT j.origen, g.destino, 
-        #                       g.arco || ' AND ' || j.joins_where, tablas_from || ', ' || g.destino 
-        #                FROM joins j, grafo g 
-        #                WHERE j.destino = g.origen
-        #              ) SELECT joins_where, tablas_from
-        #                FROM joins 
-        #                WHERE origen = '""" + elem[0] + "' and destino = '" + elem[1] + "' LIMIT 1;"
-        #c = connection.cursor()
-        #c.execute(consulta)
-        #resultados_consulta = c.fetchall()
-
         # Si solo es necesaria una hilera de joins. Ej: estado-persona
         if where_joins == "":
             where_joins = condicion
@@ -172,11 +149,11 @@ def encontrarJoins(t):
 
 
 # La funcion agregarCondiciones devuelve un String con todas las condiciones (del WHERE)
-# que se indicaron a traves de la interfaz.
+# que se indicaron a traves de la interfaz. Lo hace a traves del tipo de la condicion.
 def agregarCondiciones(attos_where):
+
     where_items = []
     where_items_2 = ""
-
     for elem in attos_where:
         tipo = elem[0]
         if tipo == "dependiente":
@@ -287,9 +264,10 @@ def agregarCondiciones(attos_where):
             where_items_2 = where_items_2 + " AND " + elem
     return where_items_2
 
-# La funcion crearConsulta crea la consulta que sera ejecutada a nivel de la base de datos
-# a partir de los elementos escogidos por el usuario a traves del formulario.
-# Recibe los atributos a mostrar 
+
+# La funcion crearConsulta crea la consulta en forma de STRING, que sera ejecutada a nivel de la
+# base de datos a partir de los elementos escogidos por el usuario a traves del formulario.
+# Recibe los atributos a mostrar, y tambien, si los hay, las condiciones, el agrupado y el limite.
 def crearConsulta(attos_select, attos_where, agrupado, limite):
 
     select_items, from_items, where_items, group_by_items = "", "", "", ""
@@ -302,6 +280,8 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
         attos_select = agrupado + attos_select;
         lista = lista_agrupados_select + [buscarElementoCompleto(agrupado[0],lista_agrupados)]
 
+    # Se va formando la consulta en las clausulas SELECT y GROUP BY.
+    # Tambien se van agregando las tablas correspondientes para el FROM. 
     for elem in attos_select:
         x = buscarElementoIndice(elem, lista, 1)
         if select_items == "":
@@ -338,20 +318,16 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
                 tablas.append(x[0])
     if group_by_items:
         group_by_items = " GROUP BY " + group_by_items + " ORDER BY " + group_by_items
-    #else:
-    #    group_by_items = " ORDER BY " + select_items
     # Se busca las condiciones del WHERE (no joins) de la consulta y se continua 
     # agregando a la lista de tablas, mas tablas participantes en la consulta
     # (solo en caso de ser necesario).
     condiciones = agregarCondiciones(attos_where)
-
     if condiciones_contacto:
         for elem in condiciones_contacto:
             if condiciones == "":
                 condiciones = elem[0]
             else:
                 condiciones = condiciones + " AND " + elem[0]
-
     for elem in attos_where:
         for tabla_atto in elem[1:]:
             tabla = tabla_atto[0][0]
@@ -359,14 +335,13 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
                 if e:
                     if tabla not in tablas:
                         if tabla:
-                            tablas.append(tabla)                # Agrego las tablas que no se agregaron por los campos seleccionados.
+                            tablas.append(tabla)     # Agrego las tablas que no se agregaron por los campos a mostrar.
 
     # Agregar tablas intermedias, en caso de ser necesarias:
     if ('celular as c1' in tablas) or ('celular as c2' in tablas) or ('celular as c5' in tablas) or ('email as e1' in tablas) or ('email as e2' in tablas) or ('email as e5' in tablas) or ('fijo as f2' in tablas) or ('fijo as f4' in tablas) or ('fijo as f5' in tablas) or ('fijo' in tablas):
         if ('estado' in tablas) or ('centro' in tablas):
             if not 'persona' in tablas:
                 tablas.append('persona')
-
     if 'estado' in tablas:
         if ('persona' in tablas) or ('centro' in tablas) or ('parroquia' in tablas):
             if not 'municipio' in tablas:
@@ -389,15 +364,11 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
             if not 'centro' in tablas:
                 tablas.append('centro')
 
-
-    # Se crean las partes FROM y WHERE (joins y condiciones) de la consulta
-    # Cuando la consulta es sobre una sola tabla de la base de datos.
-
+    # Se crean las partes FROM y WHERE (joins y condiciones) de la consulta.
     if len(tablas) == 1:
         from_items = tablas[0]
         if condiciones:
             where_items = " WHERE (" + condiciones + ")"
-    # Cuando la consulta requiere mas de una tabla de la base de datos.
     else:
         joins = encontrarJoins(tablas)
 
@@ -406,7 +377,8 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
             where_items = " WHERE " + joins[1] + " AND (" + condiciones + ")"
         else:
             where_items = " WHERE " + joins[1]
-    # Se crea la consulta completa
+    # Se crea la consulta completa y se toma en cuenta si hay o no numeros fijos, ya que ellos implican
+    # que la consulta agregue un DISTINCT.
     hay_fijos = ""
     if 'fijo as f2' in tablas:
         hay_fijos = 'f2.numero'
@@ -428,9 +400,6 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
     else:
         consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
     return consulta
-
-
-# ME FALTA DOCUMENTAR Y MEJORAR DE ACA PARA ARRIBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA OJOOOOOOOOOOOOOOOOOOOOO
 
 
 # La funcion obtenerCOndicionesWhere obtiene la lista de los atributos que seran 
@@ -482,8 +451,7 @@ def ejecutarConsulta(consulta, esQueryDirecto):
 
 
 # La funcion consultas tiene dos funciones en particular:
-# 1- recibir todos los request introducidos por el usuario a traves del formulario
-#    (ya sea mediante el uso del asistente o a traves de un query directo),
+# 1- recibir todos los request introducidos por el usuario a traves del formulario,
 #    formular la consulta y mostrar la primera pagina de los resultados. 
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas(request):
@@ -523,10 +491,9 @@ def consultas(request):
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
-# La funcion consultas tiene dos funciones en particular:
-# 1- recibir todos los request introducidos por el usuario a traves del formulario
-#    (ya sea mediante el uso del asistente o a traves de un query directo),
-#    formular la consulta y mostrar la primera pagina de los resultados. 
+# La funcion consultas_queries tiene dos funciones en particular:
+# 1- recibir el request introducido por el usuario a traves del query
+#    directo y mostrar la primera pagina de los resultados. 
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_queries(request):
 
@@ -699,10 +666,9 @@ class MuestrasView(generic.ListView):
         return context
 
 
-# La funcion consultas tiene dos funciones en particular:
+# La funcion consultas_muestras tiene dos funciones en particular:
 # 1- recibir todos los request introducidos por el usuario a traves del formulario
-#    (ya sea mediante el uso del asistente o a traves de un query directo),
-#    formular la consulta y mostrar la primera pagina de los resultados. 
+#    de muestras, formular la consulta y mostrar la primera pagina de los resultados. 
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_muestras(request):
 
@@ -729,7 +695,6 @@ def consultas_muestras(request):
         for elem in elem_cols:
             if elem != '':
                 cols.append(buscarElementoCompleto(elem,lista_attos_where))
-
         #print fils
         #print cols
 
@@ -753,13 +718,11 @@ def consultas_muestras(request):
                         for v in valores:
                             if v != '':
                                 multis.append(v)
-                print multis
                 if multis:
                     casos.append([tabla_atto] + multis)
             if casos:
                 lista_fils.append([fils[1]]+casos)
-
-        print lista_fils
+        #print lista_fils
 
         lista_cols = []
         for elem in lista_10:
@@ -783,15 +746,13 @@ def consultas_muestras(request):
                         for v in valores:
                             if v != '':
                                 multis.append(v)
-                    print multis
                     if multis:
                         casos.append([tabla_atto] + multis)
                 if casos:
                     casos_final.append([elemento[1]]+casos)
             if casos_final:
                 lista_cols.append(casos_final)
-
-        print lista_cols 
+        #print lista_cols 
 
         lista_matriz = []
         for fil in lista_fils:
@@ -799,7 +760,6 @@ def consultas_muestras(request):
             for col in lista_cols:
                 casos.append([fil] + col)
             lista_matriz.append(casos)
-        
         #print lista_matriz
 
         matriz_factores = []
@@ -811,7 +771,6 @@ def consultas_muestras(request):
                 fila.append(lim)
             if fila:
                 matriz_factores.append(fila)
-        
         #print matriz_factores
 
         matriz = []
@@ -819,7 +778,6 @@ def consultas_muestras(request):
         while i < len(lista_matriz):
             matriz.append(zip (lista_matriz[i],matriz_factores[i]))
             i+=1
-        
         #print matriz
 
         consulta_list = []
@@ -841,7 +799,6 @@ def consultas_muestras(request):
         consulta = consulta+";"
         consulta_final_muestras = consulta
         resultados_consulta_muestras = ejecutarConsulta(consulta_final_muestras, False)
-
 
     # Paginacion.
     paginator = Paginator(resultados_consulta_muestras, 10) # Muestra 10 elementos por pagina.

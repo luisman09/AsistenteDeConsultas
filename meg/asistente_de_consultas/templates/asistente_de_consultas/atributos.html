@@ -4,7 +4,7 @@
 {% endcomment %}
 
 {% block titulo %} 
-    Atributos
+    Consultas
 {% endblock %}
 
 {% block encabezado %}
@@ -33,7 +33,7 @@
                     A traves de las partes 1 y 2, se maneja la clausula FROM y el manejo de los JOIN.
                 -parte-3: Dar un orden si se desea a los resultados esperados, con el manejo de la clausula ORDER BY. [AUN NO ESTA IMPLEMENTADO]
                 -parte-4: Permitir ingresar un limite, con el manejo de la clausula LIMIT.
-                Las partes 2, 3 y 4 son las mismas, la unica que varia es la parte 1.
+                Las partes 2, 3 y 4 seran las mismas, la unica que varia es la parte 1.
             -->
             <!--Parte 1: Consulta Simple.-->
             <div class="partes" id="parte_1-simple" hidden="true">
@@ -53,8 +53,8 @@
             <!--Parte 1: Consulta con Agrupados.-->
             <div class="partes" id="parte_1-agrupados" hidden="true">
                 <h3 align="center"> Selecciona los agregados a mostrar </h3>
-                <!--Lista desplegable que permite seleccionar un agrupado, 
-                    seguida de una caja de checkbox que te permite escoger los atributos para agrupar.-->
+                <!--Caja de checkbox que te permite escoger los atributos para mostrar seguida de
+                    una lista desplegable que permite seleccionar un agrupado.-->
                 <div id="consulta-agrupados">
                     <fieldset id="ag" class="group-checkbox"> 
                         <ul class="checkbox"> 
@@ -98,7 +98,7 @@
                 </br></br>
                 <!--Select dependiente de 4 niveles para hallar ubicaciones (Edo-Mun-Parr-Centros).
                     Al llegar a nivel de centros, se puede escoger mas de un elemento.
-                    Se pueden agregar hasta 10 ubicaciones diferentes, la primera es estatica y 
+                    Se pueden agregar hasta 25 ubicaciones diferentes, la primera es estatica y 
                     de alli en adelante son dinamicas (aparecen si se desea especificar otra ubicacion).-->
                 <div class="form-group" id="ubicacion" name="ubicacion" hidden="true">
                     <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>     
@@ -151,7 +151,7 @@
                 </div> 
                 <!--Select dependiente de 2 niveles para hallar ubicaciones (Edo-Circuito).
                     Para que se haga valida al procesarse, deben estan seleccionados los dos elementos.
-                    Se pueden agregar hasta 10 ubicaciones diferentes, la primera es estatica y 
+                    Se pueden agregar hasta 25 ubicaciones diferentes, la primera es estatica y 
                     de alli en adelante son dinamicas (aparecen si se desea especificar otra ubicacion).-->
                 <div class="form-group" id="ubicacion-circs" name="ubicacion-circs" hidden="true"> 
                     <label class="col-sm-2 control-label"> Ubicación por Circuitos: </label>    
@@ -192,7 +192,7 @@
                 </div> 
 
                 <!--Input simple para buscar centros especificos por su codigo.
-                    Se pueden agregar hasta 10 centros diferentes, el primero es estatico y 
+                    Se pueden agregar hasta 25 centros diferentes, el primero es estatico y 
                     de alli en adelante son dinamicos (aparecen si se desea especificar otro centro).
                     El boton validar te dara un mensaje para comprobar que el centro existe y es valido.-->
                 <div id="centro-esp" name="centro-esp" hidden="true"> 
@@ -218,7 +218,7 @@
                     </div>
                     </br> 
                 </div>
-                <!--Dos campos input para escoger la cantidad de mesas.-->
+                <!--Dos campos input para escoger la cantidad de mesas electorales.-->
                 <div class="form-group" id="cant-mesas" name="cant-mesas" hidden="true"> 
                     <label class="col-sm-2 control-label"> Cantidad de Mesas: </label>
                     <div class="col-sm-2">
@@ -303,7 +303,7 @@
                     <input class="btn btn-sm" id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="button" value="-"/>
                     </br></br>  
                 </div>  
-                <!--Dos campos input para escoger los rangos de edad.-->
+                <!--Dos campos input para escoger el rango de edad.-->
                 <div class="form-group" id="edad" name="edad" hidden="true"> 
                     <label class="col-sm-2 control-label"> Rango de Edad: </label>
                     <div class="col-sm-2">
@@ -357,7 +357,7 @@
                     <input class="btn btn-sm" id="eliminar-estado-civil" name="eliminar-estado-civil" type="button" value="-"/>
                     </br></br>  
                 </div>
-                <!--Select multiple para escoger los indices de preferencia politica.-->
+                <!--Select multiple para escoger los Indices de Preferencia Politica.-->
                 <div class="form-group" id="ipp" name="ipp" hidden="true"> 
                     <label class="col-sm-2 control-label"> Índices de Pref. Política (IPP): </label>
                     <div class="col-sm-2">
@@ -399,9 +399,8 @@
                 </div>  
             </div>
             </br>
-            <!--Boton continuar para verificar que la consulta sea una consulta valida.
-                Es importate resaltar que algunas de las combinaciones posibles para generar
-                una consulta, pueden no tener sentido alguno y aun asi, ser validas.-->
+            <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida
+                y la ejecuta.-->
             <div id="boton-continuar" align="center" hidden="true">
                 <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
             </div>
@@ -409,6 +408,17 @@
 
             <!--Manejo de scripts que permiten las funcionalidades javascript, jquery y ajax.-->
             <script>
+
+                // Funcion que despliega los componentes multiselect.
+                function aplicarMultiselect(elemento) {
+                    $(elemento).multiselect({
+                        maxHeight: '200',
+                        nonSelectedText: 'Ninguno seleccioando',
+                        nSelectedText: ' seleccionados',
+                        allSelectedText: 'Todos seleccionados'
+                    });
+                }
+
                 tipo_consulta = 0 // Variable que indica el tipo de la consulta (0=Simple, 1=Agrupados).
 
                 // Se ejecuta cuando se elige una consulta simple.
@@ -431,29 +441,8 @@
                     activarPartes();
                 });
 
-                /*$('.lista').on('change', function() {
-                    seleccionado = $(this).attr('id');
-                    console.log(seleccionado);
-                    multiple = $(this).attr('multiple');
-                    console.log(multiple);
-                    if (multiple == 'multiple') {
-                        $(seleccionado+' option:first').removeAttr('selected');
-                    }
-                    $(seleccionado).multiselect('refresh');
-                    aplicarMultiselect(seleccionado);
-                });*/
-
-                function aplicarMultiselect(elemento) {
-                    $()
-                    $(elemento).multiselect({
-                        maxHeight: '200',
-                        nonSelectedText: 'Ninguno seleccioando',
-                        nSelectedText: ' seleccionados',
-                        allSelectedText: 'Todos seleccionados'
-                    });
-                }
-
-                // Muestra las otras opciones (condiciones, orden y limites,) para cualquier tipo de consulta.
+                // Muestra las otras opciones (condiciones, orden y limites,) para cualquier tipo de consulta
+                // y permite que todas las listas de la clase lista tomen la forma del componenete multiselect.
                 function activarPartes() {
                     $('div#parte_2').show();
                     $('div#parte_3').show();
@@ -467,7 +456,7 @@
                 $('select#conds').on('change', deshabilitarOpcion);
 
                 // Desabilita la opcion seleccionada y muestra los elementos para agregar 
-                // las condiciones sobre esa opcion.
+                // las condiciones sobre esa opcion. Cuando el elemento es dinamico hay casos particulares.
                 function deshabilitarOpcion() {
                     var op = $('#conds').val();
                     var msj = false;
@@ -543,17 +532,15 @@
                         url: "{% url 'asistente_de_consultas:consultas' %}",
                         type: 'post',                   
                     });
-
                 }
 
                 // Se ejecuta cuando se cree tener todos los parametros para realizar la consulta.
-                // Verifica si la consulta sera factible, y en dado caso mostrara el boton para ejecutarla,
-                // o manda una alerta con algun mensaje de error. 
+                // Verifica si la consulta sera factible, y en dado caso procedera a ejecutarla,
+                // o, si no es factible, mandara una alerta con algun mensaje de error. 
                 $('#continuar').on('click', function() {
                     if (tipo_consulta == 0) {
                         var check = $('.seleccionados').is(':checked');
                         if (check) {
-                            console.log("PASE POR ACAAAAAAAAAAAAAAAAAAAA")
                             var hay_contactos = 0
                             for (i = 30; i < 40; i++) {
                                 contact = $('input#attos'+i).is(':checked');
@@ -649,7 +636,6 @@
                     });
                 });
 
-
                 // Funcion anonima que se ejecuta al iniciar para el manejo dinamico de las Ubicaciones con circuitos.
                 $(function() {
                     var MAX = 24;
@@ -658,7 +644,6 @@
                         $template_ubicircs = $contenedor_ubicircs.children(':first').remove();
 
                     function update() {
-
                         var $hijosContenedor_ubicircs = $contenedor_ubicircs.children();
                         // Desabilita el boton de agregar al llegar a MAX.
                         $agregar_ubicircs.prop('disabled', $hijosContenedor_ubicircs.length >= MAX);

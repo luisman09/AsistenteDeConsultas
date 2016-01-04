@@ -4,7 +4,7 @@
 {% endcomment %}
 
 {% block titulo %} 
-    Consultas
+    Resultados
 {% endblock %}
 
 {% block encabezado %}
@@ -52,11 +52,9 @@
                 {% if resultados_pag.has_previous %}
                     <a href="?page={{ resultados_pag.previous_page_number }}">Anterior</a>
                 {% endif %}
-
                 <span class="current">
                     - Página {{ resultados_pag.number }} de {{ resultados_pag.paginator.num_pages }}. -
                 </span>
-
                 {% if resultados_pag.has_next %}
                     <a href="?page={{ resultados_pag.next_page_number }}">Siguiente</a>
                 {% endif %}

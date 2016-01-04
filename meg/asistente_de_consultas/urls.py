@@ -17,8 +17,6 @@ urlpatterns = [
     url(r'^buscar_centro/$', login_required(views.BuscarCentroAjaxView.as_view()), name='buscar_centro'),
     url(r'^limpiar_globales/$', login_required(views.limpiarGlobales), name='limpiar_globales'),
     url(r'^exportar_csv/$', login_required(views.exportar_csv), name='exportar_csv'),
-    #url(r'^generar_matriz/$', login_required(views.GenerarMatrizAjaxView.as_view()), name='generar_matriz'),
-
 ]
 
 
