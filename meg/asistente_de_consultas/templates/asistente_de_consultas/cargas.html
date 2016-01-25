@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Cargas
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
+    | <a class="limpiarGlobales" href="{% url "homepage" %}"> Volver Al Inicio </a>
+{% endblock %}
+
+{% block contenido %}
+
+    <div class="box" id="box">
+        <form id="cargas-form" action="{% url 'asistente_de_consultas:consultas_cargas' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="partes" id="parte_1-simple">
+                <h3 align="center"> Selecciona los atributos a mostrar </h3>
+                <!--Caja de checkbox con todos los posibles atributos seleccionables para mostrar.-->
+                <fieldset class="group-checkbox"> 
+                    <ul class="checkbox"> 
+                    {% for elem in attos_select %}
+                        <li>
+                            <input class="seleccionados" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
+                            <label for="attos{{ forloop.counter }}"> {{ elem.0 }} </label>
+                        </li>
+                    {% endfor %}
+                    </ul> 
+                </fieldset>
+            </div>
+            </br>
+            <div align="center">
+
+                <p>Ingresa el archivo que contiene la lista de cédulas de identidad que deseas cruzar</p>
+                <input class="btn btn-primary" id="csv_file" name="csv_file" type="file" accept=".csv"/>
+                <small> El archivo debe estar en formato .csv y debe tener una única columna (con encabezado) </small>
+                </br>
+                <small> referente al número de cédula de los electores. La nacionalidad siempre sera 'V'. </small>
+            </div>
+            </br>
+            <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida
+                y la ejecuta.-->
+            <div id="boton-continuar" align="center">
+                <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
+            </div>
+
+            <script>
+
+                $('#continuar').on('click', function() {
+                    var filename = $('#csv_file').val().split('\\').pop();
+                    var extension = filename.split('.').pop();
+                    console.log(extension)
+                    if (extension != 'csv') {
+                        alert("Se debe cargar un archivo y este debe estar en formato CSV");
+                    } else {
+                        var check = $('.seleccionados').is(':checked');
+                        if (check) {
+                            $('#cargas-form').submit();
+                        } else {
+                            alert('Se debe seleccionar por lo menos un atributo a mostrar.');
+                        }
+                    }
+                });
+
+            </script>
+        </form>
+    </div>
+
+{% endblock %}

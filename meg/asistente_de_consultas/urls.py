@@ -10,6 +10,8 @@ urlpatterns = [
     url(r'^consultas_queries/$', login_required(views.consultas_queries), name='consultas_queries'),
     url(r'^muestras/$', login_required(views.MuestrasView.as_view()), name='muestras'),
     url(r'^consultas_muestras/$', login_required(views.consultas_muestras), name='consultas_muestras'),
+    url(r'^cargas/$', login_required(views.CargasView.as_view()), name='cargas'),
+    url(r'^consultas_cargas/$', login_required(views.consultas_cargas), name='consultas_cargas'),
     url(r'^busqueda_ajax/$', login_required(views.BusquedaAjaxView.as_view()), name='busqueda_ajax'),
     url(r'^busqueda_ajax2/$', login_required(views.BusquedaAjax2View.as_view()), name='busqueda_ajax2'),
     url(r'^busqueda_ajax3/$', login_required(views.BusquedaAjax3View.as_view()), name='busqueda_ajax3'),
@@ -17,6 +19,7 @@ urlpatterns = [
     url(r'^buscar_centro/$', login_required(views.BuscarCentroAjaxView.as_view()), name='buscar_centro'),
     url(r'^limpiar_globales/$', login_required(views.limpiarGlobales), name='limpiar_globales'),
     url(r'^exportar_csv/$', login_required(views.exportar_csv), name='exportar_csv'),
+
 ]
 
 

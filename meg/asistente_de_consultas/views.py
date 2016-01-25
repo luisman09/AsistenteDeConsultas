@@ -9,6 +9,7 @@ from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import csv
 import json
+import codecs # Utilizada para la lectura del csv
 from .models import *
 from .listas import *
 
@@ -157,7 +158,7 @@ def agregarCondiciones(attos_where):
     where_items_2 = ""
     for elem in attos_where:
         tipo = elem[0]
-        if tipo == "dependiente":
+        if tipo == "dependiente": # Ubicacion demografica. 
             i = 4
             parrs, muns, edos = [], [], []
             disj_or = ""
@@ -212,7 +213,7 @@ def agregarCondiciones(attos_where):
                 i -= 1
             if disj_or:
                 where_items.append("(" + disj_or + ")")
-        elif tipo == "multiple":
+        elif tipo == "multiple": # estrato, estado civil, ipp, etc.
             disj_or = ""
             for e in elem[1][1:]:
                 if e:
@@ -221,34 +222,34 @@ def agregarCondiciones(attos_where):
                     else:
                         disj_or = disj_or + " OR " "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
             where_items.append("(" + disj_or + ")")
-        elif tipo == "simple":
+        elif tipo == "simple":  # sexo, etc.
             if len(elem[1]) == 2:
                 if elem[1][1]:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + elem[1][1] + ")")
-        elif tipo == "rango":
+        elif tipo == "rango": # edad e isei de la persona.
             mini, maxi, minimo_abs, maximo_abs = elem[1][1], elem[2][1], '0', '1000000'
             if ((not mini) and maxi):
                 mini = minimo_abs
             if (mini and (not maxi)):
                 maxi = maximo_abs
             if (mini and maxi):
-                if not elem[1][0][0]: # caso funcion edad
+                if not elem[1][0][0]: # caso funcion edad.
                     where_items.append("(" + elem[1][0][1] + " BETWEEN " + mini + " AND " + maxi + ")")
                 else:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " BETWEEN " + mini + " AND " + maxi + ")")
-        elif tipo == "doble": 
+        elif tipo == "doble": # Cedula de identidad.
             if len(elem[1]) == 2: 
                 if elem[1][1]:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + elem[1][1] + ")")
             if len(elem[2]) == 2: 
                 if elem[2][1]:
                     where_items.append("(" + elem[2][0][0] + "." + elem[2][0][1] + " = " + elem[2][1] + ")")
-        elif tipo == "cuadruple": 
+        elif tipo == "cuadruple": # Nombre de la persona.
             for i in range(1,5):
                 if len(elem[i]) == 2:  
                     if elem[i][1]:
                         where_items.append("(" + elem[i][0][0] + "." + elem[i][0][1] + " = '" + elem[i][1] + "')")
-        elif tipo == "dependiente2":
+        elif tipo == "dependiente2": # Ubicacion por circuitos.
             disj_or = ""
             for e, c in zip(elem[1][1:], elem[2][1:]): 
                 if (e and c):
@@ -451,79 +452,6 @@ def ejecutarConsulta(consulta, esQueryDirecto):
     return resultados
 
 
-# La funcion consultas tiene dos funciones en particular:
-# 1- recibir todos los request introducidos por el usuario a traves del formulario,
-#    formular la consulta y mostrar la primera pagina de los resultados. 
-# 2- simplemente navegar por las paginas de los resultados.
-def consultas(request):
-
-    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
-    resultados_pag = []
-
-    es_muestra = 0
-
-    page = request.GET.get('page')
-    if not page:
-        # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
-        attos_select = request.POST.getlist('attos')
-        # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
-        agrupado = request.POST.getlist('agrupados')
-        if not attos_select:
-            attos_select = request.POST.getlist('ag_attos')
-        # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
-        elems_where = request.POST.getlist('deshabilitadas[]')
-        attos_where = obtenerCondicionesWhere(request, elems_where)
-        # Se obtiene el valor del limite, si existe.
-        limite = request.POST.getlist('limite')
-        consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
-        resultados_consulta = ejecutarConsulta(consulta_final, False)
-        # Si hay un agrupado se agrega a los atributos a mostrar
-        if agrupado[0]:
-            attos_select = agrupado + attos_select
-        print attos_where
-
-    # Paginacion.
-    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
-    try:
-        resultados_pag = paginator.page(page)
-    except PageNotAnInteger:
-        resultados_pag = paginator.page(1)
-    except EmptyPage:
-        resultados_pag = paginator.page(paginator.num_pages)
-    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
-    return render(request, 'asistente_de_consultas/consultas.html', context)
-
-
-# La funcion consultas_queries tiene dos funciones en particular:
-# 1- recibir el request introducido por el usuario a traves del query
-#    directo y mostrar la primera pagina de los resultados. 
-# 2- simplemente navegar por las paginas de los resultados.
-def consultas_queries(request):
-
-    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
-    resultados_pag = []
-
-    es_muestra = 0
-
-    page = request.GET.get('page')
-    if not page:
-        # Se obtiene el query directo.
-        query = request.POST.get('query')
-        consulta_final = query
-        resultados_consulta = ejecutarConsulta(consulta_final, True)
-
-    # Paginacion.
-    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
-    try:
-        resultados_pag = paginator.page(page)
-    except PageNotAnInteger:
-        resultados_pag = paginator.page(1)
-    except EmptyPage:
-        resultados_pag = paginator.page(paginator.num_pages)
-    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
-    return render(request, 'asistente_de_consultas/consultas.html', context)
-
-
 # La funcion limpiarGlobales reinicia las variables globales que se utilizaron para hacer
 # la consulta anterior con el asistente. 
 def limpiarGlobales(request):
@@ -561,36 +489,6 @@ def exportar_csv(request):
             row.append(e)
         writer.writerow([unicode(s).encode("utf-8") for s in row])
     return response
-
-
-# La clase AtributosView muestra el formulario completo para hacer una consulta usando
-# al asistente. Requiere pasar todos los contextos y listas necesarias al html.
-class AtributosView(generic.ListView):
-    template_name = 'asistente_de_consultas/atributos.html'
-    context_object_name = 'attos_select'
-    queryset = lista_attos
-
-    def get_context_data(self, **kwargs):
-        context = super(AtributosView, self).get_context_data(**kwargs)
-        context['attos_where'] = lista_attos_where
-        context['agrupados'] = lista_agrupados
-        context['agrupados_select'] = lista_agrupados_select
-        context['estados'] = Estado.objects.order_by('nombre')
-        context['municipios'] = Municipio.objects.order_by('nombre')
-        context['parroquias'] = Parroquia.objects.order_by('nombre')
-        context['nacionalidades'] = lista_nacionalidades
-        context['sexo'] = lista_sexo
-        context['estratos'] = lista_estratos
-        context['edos_civiles'] = lista_edos_civiles
-        context['ipps'] = lista_ipps
-        return context
-
-
-# La clase QueriesView muestra el formulario completo para hacer una consulta directa
-# desde la interfaz. Requiere el contexto query.
-class QueriesView(generic.TemplateView):
-    template_name = 'asistente_de_consultas/queries.html'
-    context_object_name = 'query'
 
 
 # La clase BusquedaAjaxView busca el estado seleccionado y devuelve sus municipios.
@@ -652,7 +550,113 @@ class BuscarCentroAjaxView(generic.TemplateView):
         return HttpResponse(data, content_type='application/json')
 
 
+# La clase AtributosView muestra el formulario completo para hacer una consulta (simple o 
+# con agrupado) usando al asistente. Requiere pasar todos los contextos y listas necesarias al html.
+# Esta ligada al uso de la funcion consultas.
+class AtributosView(generic.ListView):
+    template_name = 'asistente_de_consultas/atributos.html'
+    context_object_name = 'attos_select'
+    queryset = lista_attos
+
+    def get_context_data(self, **kwargs):
+        context = super(AtributosView, self).get_context_data(**kwargs)
+        context['attos_where'] = lista_attos_where
+        context['agrupados'] = lista_agrupados
+        context['agrupados_select'] = lista_agrupados_select
+        context['estados'] = Estado.objects.order_by('nombre')
+        context['municipios'] = Municipio.objects.order_by('nombre')
+        context['parroquias'] = Parroquia.objects.order_by('nombre')
+        context['nacionalidades'] = lista_nacionalidades
+        context['sexo'] = lista_sexo
+        context['estratos'] = lista_estratos
+        context['edos_civiles'] = lista_edos_civiles
+        context['ipps'] = lista_ipps
+        return context
+
+
+# La funcion consultas tiene dos funciones en particular:
+# 1- recibir todos los request introducidos por el usuario a traves del formulario,
+#    formular la consulta y mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
+def consultas(request):
+
+    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
+    resultados_pag = []
+
+    es_muestra = 0
+
+    page = request.GET.get('page')
+    if not page:
+        # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
+        attos_select = request.POST.getlist('attos')
+        # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
+        agrupado = request.POST.getlist('agrupados')
+        if not attos_select:
+            attos_select = request.POST.getlist('ag_attos')
+        # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
+        elems_where = request.POST.getlist('deshabilitadas[]')
+        attos_where = obtenerCondicionesWhere(request, elems_where)
+        # Se obtiene el valor del limite, si existe.
+        limite = request.POST.getlist('limite')
+        consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+        resultados_consulta = ejecutarConsulta(consulta_final, False)
+        # Si hay un agrupado se agrega a los atributos a mostrar
+        if agrupado[0]:
+            attos_select = agrupado + attos_select
+        #print attos_where
+
+    # Paginacion.
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
+    try:
+        resultados_pag = paginator.page(page)
+    except PageNotAnInteger:
+        resultados_pag = paginator.page(1)
+    except EmptyPage:
+        resultados_pag = paginator.page(paginator.num_pages)
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    return render(request, 'asistente_de_consultas/consultas.html', context)
+
+
+# La clase QueriesView muestra el formulario completo para hacer una consulta directa
+# desde la interfaz. Requiere el contexto query.
+# Esta ligada al uso de la funcion consultas_queries.
+class QueriesView(generic.TemplateView):
+    template_name = 'asistente_de_consultas/queries.html'
+    context_object_name = 'query'
+
+
+# La funcion consultas_queries tiene dos funciones en particular:
+# 1- recibir el request introducido por el usuario a traves del query
+#    directo y mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
+def consultas_queries(request):
+
+    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
+    resultados_pag = []
+
+    es_muestra = 0
+
+    page = request.GET.get('page')
+    if not page:
+        # Se obtiene el query directo.
+        query = request.POST.get('query')
+        consulta_final = query
+        resultados_consulta = ejecutarConsulta(consulta_final, True)
+
+    # Paginacion.
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
+    try:
+        resultados_pag = paginator.page(page)
+    except PageNotAnInteger:
+        resultados_pag = paginator.page(1)
+    except EmptyPage:
+        resultados_pag = paginator.page(paginator.num_pages)
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    return render(request, 'asistente_de_consultas/consultas.html', context)
+
+
 # La clase MuestrasView es la clase principal para el manejo de la generacion de muestras.
+# Esta ligada al uso de la funcion consultas_muestras.
 class MuestrasView(generic.ListView):
     template_name = 'asistente_de_consultas/muestras.html'
     context_object_name = 'muestreo'
@@ -826,7 +830,64 @@ def consultas_muestras(request):
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
+# La clase CargasView muestra el formulario para permitir el cruce de cedulas desde un archivo .csv.
+# Esta ligada al uso de la funcion consultas_cargas.
+class CargasView(generic.ListView):
+    template_name = 'asistente_de_consultas/cargas.html'
+    context_object_name = 'attos_select'
+    queryset = lista_attos
+
+    def get_context_data(self, **kwargs):
+        context = super(CargasView, self).get_context_data(**kwargs)
+        return context
 
 
+# La funcion consultas_cargas tiene dos funciones en particular:
+# 1- recibir el request introducido por el usuario a traves del formulario
+#    que contiene los elementos a mostrar y el archivo con cedulas para hacer el cruce
+#    para luego mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
+def consultas_cargas(request):
 
+    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra, archivo
+    resultados_pag = []
 
+    es_muestra = 0
+
+    page = request.GET.get('page')
+    if not page:
+        # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
+        attos_select = request.POST.getlist('attos')
+        # Para la lectura del archivo CSV
+        if request.POST and request.FILES:
+            csvfile = request.FILES['csv_file']
+            csvfile.open()
+            reader = csv.reader(codecs.EncodedFile(csvfile, "utf-8"))
+            cedulas = " persona.nac = 'V' AND persona.ci IN ("
+            for index,row in enumerate(reader):
+                if index == 1:
+                    cedulas = cedulas + row[0]
+                elif index > 1:
+                    cedulas = cedulas + ',' + row[0]
+            cedulas = cedulas + ');'
+            print cedulas
+
+        consulta = crearConsulta(attos_select, [], [u''], [u''])
+        print consulta
+        if 'WHERE' not in consulta:
+            consulta_final = consulta[:-1] + ' WHERE' + cedulas
+        else:
+            consulta_final = consulta[:-1] + ' AND' + cedulas
+        print consulta_final
+        resultados_consulta = ejecutarConsulta(consulta_final, False)
+
+    # Paginacion.
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
+    try:
+        resultados_pag = paginator.page(page)
+    except PageNotAnInteger:
+        resultados_pag = paginator.page(1)
+    except EmptyPage:
+        resultados_pag = paginator.page(paginator.num_pages)
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    return render(request, 'asistente_de_consultas/consultas.html', context)
