@@ -15,19 +15,27 @@
 {% endblock %}
 
 {% block contenido %}
-
+    {% load staticfiles %}
     <div id="box" class="box">
 
-        <div align="right">
-            <a href="{% url 'homepage' %}">
-                <input class="limpiarGlobales btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
-            </a>
-            <a href="{% url 'asistente_de_consultas:exportar_csv' %}">
-                <input class="btn btn-primary" id="descargar-resultados" name="descargar-resultados" type="button" value="Descargar en formato CSV"/>
-            </a>
-        </div>
+        <div class="row">
+            <div class="col-sm-6" align="left">
+                <a href="{% url 'homepage' %}">
+                    <input class="limpiarGlobales btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
+                </a>
+                </br></br>
+                <p>Los resultados de su consulta son: </p>
+            </div>
+            <div class="col-sm-6" align="right">
+                <a href="{% url 'asistente_de_consultas:exportar_csv' %}">
+                    <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'asistente_de_consultas/images/csv.png' %}" alt="Submit" width="64" height="64"/>
+                </a>
+                <a href="{% url 'asistente_de_consultas:exportar_xls' %}">
+                    <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'asistente_de_consultas/images/xls.png' %}" alt="Submit" width="64" height="64"/>
+                </a>
+            </div>
 
-        <p>Los resultados de su consulta son: </p>
+        </div>
         <table class="table table-stripped table-bordered" id="t01">
             <thead>
                 <tr>

@@ -8,6 +8,7 @@ from django.db import connection
 from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import csv
+import xlwt
 import json
 import codecs # Utilizada para la lectura del csv
 from .models import *
@@ -491,6 +492,46 @@ def exportar_csv(request):
     return response
 
 
+# La funcion exportar_xls permite la descarga de un archivo excel (xlsx) desde el asistente de consultas
+# con los resultados de haber ejecutado alguna consulta.
+def exportar_xls(request):
+
+    if es_muestra == 0:
+        cabecera = attos_select
+        resultados = resultados_consulta
+    else:
+        cabecera = attos_muestreo
+        resultados = resultados_consulta_muestras
+
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="consulta.xlsx"'
+
+    workbook = xlwt.Workbook()
+    worksheet = workbook.add_sheet("consulta")
+
+    num_fil = 0
+    num_col = 0
+    for elem in cabecera:
+        worksheet.write(num_fil,num_col,unicode(elem).encode("utf-8"))
+        num_col = num_col + 1
+    num_fil = 1
+    num_col = 0
+    for elem in resultados:
+        for e in elem:
+            if isinstance(e, basestring):
+                worksheet.write(num_fil,num_col,e)
+            else:
+                worksheet.write(num_fil,num_col,unicode(e).encode("utf-8"))
+            num_col = num_col + 1
+        num_fil = num_fil + 1
+        num_col = 0
+
+    workbook.save(response)
+
+    return response
+
+
+
 # La clase BusquedaAjaxView busca el estado seleccionado y devuelve sus municipios.
 class BusquedaAjaxView(generic.TemplateView):
     
@@ -870,15 +911,15 @@ def consultas_cargas(request):
                 elif index > 1:
                     cedulas = cedulas + ',' + row[0]
             cedulas = cedulas + ');'
-            print cedulas
+            #print cedulas
 
         consulta = crearConsulta(attos_select, [], [u''], [u''])
-        print consulta
+        #print consulta
         if 'WHERE' not in consulta:
             consulta_final = consulta[:-1] + ' WHERE' + cedulas
         else:
             consulta_final = consulta[:-1] + ' AND' + cedulas
-        print consulta_final
+        #print consulta_final
         resultados_consulta = ejecutarConsulta(consulta_final, False)
 
     # Paginacion.
