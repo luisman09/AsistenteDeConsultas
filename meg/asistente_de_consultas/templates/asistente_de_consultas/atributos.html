@@ -383,6 +383,20 @@
                     <input class="btn btn-sm" id="eliminar-isei" name="eliminar-isei" type="button" value="-"/>
                     </br></br>  
                 </div> 
+                <!--Select multiple para escoger las etiquetas score.-->
+                <div class="form-group" id="etiqueta-score" name="etiqueta-score" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Etiquetas Score: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="etiquetas-score" name="etiquetas-score" multiple>
+                            <option value="" selected> Etiqueta </option>
+                            {% for etiqueta in etiquetas_score %}
+                                <option value="'{{ etiqueta }}'"> {{ etiqueta }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-etiqueta-score" name="eliminar-etiqueta-score" type="button" value="-"/>
+                    </br></br>  
+                </div>
             </div>
             <!--Parte 3.-->
             <!--<div class="partes" hidden="true">

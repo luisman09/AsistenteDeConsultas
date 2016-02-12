@@ -85,6 +85,8 @@ class Persona(models.Model):
     estrato = models.CharField(max_length=1, blank=True, null=True)
     isei = models.FloatField(blank=True, null=True)
     id = models.IntegerField(primary_key=True)
+    score = models.FloatField(blank=True, null=True)
+    etiqueta_score = models.CharField(max_length=64)
 
     def __unicode__(self):
         return self.nac + "-" + str(self.ci) + " " + self.nombre1 + " " + self.apellido1

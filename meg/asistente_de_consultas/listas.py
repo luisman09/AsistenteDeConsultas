@@ -2,36 +2,56 @@
 
 # La lista lista_demografica contiene los elementos mostrables correspondientes a las tablas 
 # centro, parroquia, municipio y estado.
-lista_demografica = [("Edo Id",["estado","id"]),("Estado",["estado","nombre"]),
-                     ("Mun Id",["municipio","id - (id_edo*100)"]),("Municipio",["municipio","nombre"]),
-                     ("Parr Id",["parroquia","id - (id_mun*100)"]),("Parroquia",["parroquia","nombre"]),
-                     ("Centro Id",["centro","id"]),("Centro",["centro","nombre"]),
-                     ("Direccion Centro",["centro","direccion"]),("# Mesas",["centro","mesas"]),
-                     ("# Electores",["centro","electores"]),("# Venezolanos",["centro","venezolanos"]),
-                     ("# Extranjeros",["centro","extranjeros"]),("Circuitos 15",["centro","circuitos_15"]),
-                     ("Focal",["centro","focal"]),("Latitud",["centro","latitud"]),
+lista_demografica = [#("Edo Id",["estado","id"]),
+                     ("Estado",["estado","nombre"]),
+                     #("Mun Id",["municipio","id - (id_edo*100)"]),
+                     ("Municipio",["municipio","nombre"]),
+                     #("Parr Id",["parroquia","id - (id_mun*100)"]),
+                     ("Parroquia",["parroquia","nombre"]),
+                     ("Centro Id",["centro","id"]),
+                     ("Centro",["centro","nombre"]),
+                     ("Direccion Centro",["centro","direccion"]),
+                     #("# Mesas",["centro","mesas"]),
+                     #("# Electores",["centro","electores"]),
+                     #("# Venezolanos",["centro","venezolanos"]),
+                     #("# Extranjeros",["centro","extranjeros"]),
+                     ("Circuitos 15",["centro","circuitos_15"]),
+                     #("Focal",["centro","focal"]),
+                     ("Latitud",["centro","latitud"]),
                      ("Longitud",["centro","longitud"])
                     ]
 
 
 # La lista lista_personas contiene todos los elementos mostrables correspondientes a los
 # datos personales de cada una de las personas de la bd.
-lista_personas = [("Nacionalidad",["persona","nac"]),("Cedula",["persona","ci"]),
-                  ("Primer Nombre",["persona","nombre1"]),("Segundo Nombre",["persona","nombre2"]),
-                  ("Primer Apellido",["persona","apellido1"]),("Segundo Apellido",["persona","apellido2"]),
-                  ("Fecha Nacimiento",["persona","fecha_nac"]),("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
-                  ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
-                  ("Estrato",["persona","estrato"]),("ISEI",["persona","isei"]),
-                  ("IPP",["persona","ipp"])
+lista_personas = [("Nacionalidad",["persona","nac"]),
+                  ("Cedula",["persona","ci"]),
+                  ("Primer Nombre",["persona","nombre1"]),
+                  ("Segundo Nombre",["persona","nombre2"]),
+                  ("Primer Apellido",["persona","apellido1"]),
+                  ("Segundo Apellido",["persona","apellido2"]),
+                  ("Fecha Nacimiento",["persona","fecha_nac"]),
+                  ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
+                  ("Sexo",["persona","sexo"]),
+                  ("Estado Civil",["persona","ecivil"]),
+                  ("Estrato",["persona","estrato"]),
+                  ("ISEI",["persona","isei"]),
+                  ("IPP",["persona","ipp"]),
+                  ("Score",["persona","score"]),
+                  ("Etiqueta Score", ["persona", "etiqueta_score"])
                  ]
 
 
 # La lista lista_contactos contiene todos los elementos mostrables referentes a los datos
 # de contacto de las personas.
-lista_contactos = [("Celular 1",["celular as c1","c1.numero","c1","1"]),("Celular 2",["celular as c2","c2.numero","c2","2"]),
-                   ("Celular 3",["celular as c5","c5.numero","c5","5"]),("Email 1",["email as e1","e1.direccion","e1","1"]),
-                   ("Email 2",["email as e2","e2.direccion","e2","2"]),("Email 3",["email as e5","e5.direccion","e5","5"]),
-                   ("Telefono Fijo 1",["fijo as f2","f2.numero","f2","2"]),("Telefono Fijo 2",["fijo as f4","f4.numero","f4","4"]),
+lista_contactos = [("Celular 1",["celular as c1","c1.numero","c1","1"]),
+                   ("Celular 2",["celular as c2","c2.numero","c2","2"]),
+                   ("Celular 3",["celular as c5","c5.numero","c5","5"]),
+                   ("Email 1",["email as e1","e1.direccion","e1","1"]),
+                   ("Email 2",["email as e2","e2.direccion","e2","2"]),
+                   ("Email 3",["email as e5","e5.direccion","e5","5"]),
+                   ("Telefono Fijo 1",["fijo as f2","f2.numero","f2","2"]),
+                   ("Telefono Fijo 2",["fijo as f4","f4.numero","f4","4"]),
                    ("Telefono Fijo 3",["fijo as f5","f5.numero","f5","5"])
                   ]
 
@@ -46,11 +66,11 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                    ("Cantidad de Municipios",["municipio","count(municipio.id)","f"]),
                    ("Cantidad de Parroquias",["parroquia","count(parroquia.id)","f"]),
                    ("Cantidad de Centros",["centro","count(centro.id)","f"]),
-                   ("Cantidad de Electores (Centro)", ["centro","sum(centro.electores)","f"]),
-                   ("Cantidad de Elecs Venezolanos",["centro","sum(centro.venezolanos)","f"]),
-                   ("Cantidad de Elecs Extranjeros",["centro","sum(centro.extranjeros)","f"]),
-                   ("Cantidad de Mesas Electorales",["centro","sum(centro.mesas)","f"]),
-                   ("Cantidad de Personas",["persona","count(distinct (persona.nac, persona.ci))","f"]),
+                   #("Cantidad de Electores (Centro)", ["centro","sum(centro.electores)","f"]),
+                   #("Cantidad de Elecs Venezolanos",["centro","sum(centro.venezolanos)","f"]),
+                   #("Cantidad de Elecs Extranjeros",["centro","sum(centro.extranjeros)","f"]),
+                   #("Cantidad de Mesas Electorales",["centro","sum(centro.mesas)","f"]),
+                   ("Cantidad de Personas (Electores)",["persona","count(distinct (persona.nac, persona.ci))","f"]),
                    ("Cantidad de Celulares Tipo 1",["celular as c1","count(c1.numero)","c1","1"]),
                    ("Cantidad de Celulares Tipo 2",["celular as c2","count(c2.numero)","c2","2"]),
                    ("Cantidad de Celulares Tipo 3",["celular as c3","count(c3.numero)","c3","3"]),
@@ -63,19 +83,26 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
 
 # La lista lista_agrupados_select contiene todos los elementos mostrables sobre
 # los cuales el usuario puede agrupar una consulta con GROUP BY.
-lista_agrupados_select = [("Estado",["estado","nombre"]),("Municipio",["municipio","nombre"]),
-                          ("Parroquia",["parroquia","nombre"]),("Circuitos 15",["centro","circuitos_15"]),
-                          ("Centro",["centro","id"]),("Nacionalidad",["persona","nac"]),
-                          ("Sexo",["persona","sexo"]),("Estado Civil",["persona","ecivil"]),
-                          ("Estrato",["persona","estrato"]),("IPP",["persona","ipp"]),("ISEI",["persona","isei"]),
+lista_agrupados_select = [("Estado",["estado","nombre"]),
+                          ("Municipio",["municipio","nombre"]),
+                          ("Parroquia",["parroquia","nombre"]),
+                          ("Circuitos 15",["centro","circuitos_15"]),
+                          ("Centro",["centro","id"]),
+                          ("Nacionalidad",["persona","nac"]),
+                          ("Sexo",["persona","sexo"]),
                           ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
+                          ("Estado Civil",["persona","ecivil"]),
+                          ("Estrato",["persona","estrato"]),
+                          ("IPP",["persona","ipp"]),
+                          ("ISEI",["persona","isei"]),
+                          ("Etiqueta Score",["persona","etiqueta_score"])
                          ]
 
 
 # La lista lista_muestreo_select contiene todos los elementos mostrables sobre los cuales
 # se puede realizar una generacion de muestras.
-lista_muestreo_select = lista_demografica[0:9] + lista_demografica[13:15] + lista_personas
-
+#lista_muestreo_select = lista_demografica[0:9] + lista_demografica[13:15] + lista_personas
+lista_muestreo_select = lista_demografica[0:7] + lista_personas
 
 # La lista lista_muestreo contiene todos los elementos sobre los cuales se puede sacar muestras.
 lista_muestreo = lista_contactos[0:6]
@@ -121,10 +148,10 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
                                                  ("ctros",("centro","id"))], "Ubicación (Edo-Mun-Parr-Centro)", "Edo-Mun-Parr"],
                      ["ubicacion-circs","dependiente2",[("edos-circs",("estado","id")),("circs",("centro","circuitos_15"))], "Ubicación (Edo-Circuito)", "Edo-Circuito"],
                      ["centro-esp","multiple",[("centro-id",("centro","id"))],"Centro Específico"],
-                     ["cant-mesas","rango",[("min-mesas",("centro","mesas")),("max-mesas",("centro","mesas"))], "Cantidad de Mesas Electorales"],
-                     ["cant-elects","rango",[("min-elects",("centro","electores")),("max-elects",("centro","electores"))], "Cantidad de Electores (Centro)"],
-                     ["cant-venez","rango",[("min-venez",("centro","venezolanos")),("max-venez",("centro","venezolanos"))], "Cantidad de Elects Venezolanos"],
-                     ["cant-extr","rango",[("min-extr",("centro","extranjeros")),("max-extr",("centro","extranjeros"))], "Cantidad de Elects Extranjeros"],
+                     #["cant-mesas","rango",[("min-mesas",("centro","mesas")),("max-mesas",("centro","mesas"))], "Cantidad de Mesas Electorales"],
+                     #["cant-elects","rango",[("min-elects",("centro","electores")),("max-elects",("centro","electores"))], "Cantidad de Electores (Centro)"],
+                     #["cant-venez","rango",[("min-venez",("centro","venezolanos")),("max-venez",("centro","venezolanos"))], "Cantidad de Elects Venezolanos"],
+                     #["cant-extr","rango",[("min-extr",("centro","extranjeros")),("max-extr",("centro","extranjeros"))], "Cantidad de Elects Extranjeros"],
                      ["cedula-esp","doble",[("nac",("persona","nac")),("ci",("persona","ci"))], "Cédula de Identidad"],
                      ["nombre-completo","cuadruple",[("primer-nombre",("persona","nombre1")),("segundo-nombre",("persona","nombre2")),
                                                      ("primer-apellido",("persona","apellido1")),("segundo-apellido",("persona","apellido2"))], "Nombre Completo (Persona)"],
@@ -135,13 +162,16 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ["estado-civil","multiple",[("estados-civiles",("persona","ecivil"))], "Estado Civil", "E. Civil"],
                      ["ipp","multiple",[("ipps",("persona","ipp"))], "Índice de Preferencia Política (IPP)", "IPP"],
                      ["isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))], "Índice Socioeconómico Inferido (ISEI)", "ISEI"],
+                     ["etiqueta-score","multiple",[("etiquetas-score",("persona","etiqueta_score"))], "Etiqueta Score", "Etq. Score"]
                     ]
 
 
 # Las listas lista_attos_matriz_cols y lista_attos_matriz_fils contienen subconjuntos
 # de la lista anterior que son necesarios para las condiciones de creacion de la matriz.
-lista_attos_matriz_cols = lista_attos_where[9:15] 
-lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[9:15] 
+#lista_attos_matriz_cols = lista_attos_where[9:15] 
+lista_attos_matriz_cols = lista_attos_where[5:12] 
+#lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[9:15] 
+lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[5:12]
 
 
 # Lista de posibles Nacionalidades.
@@ -158,6 +188,9 @@ lista_edos_civiles = [1,2,3,4,5,6,7,8]
 
 # Lista de posibles IPP's.
 lista_ipps = [0,1,2,3,4,5,6,7,8,9]
+
+# Lista de posibles Etiquetas Score
+lista_etq_score = ['CHAVISTA', 'CHAVISTA LIGHT', 'OPOSITOR LIGHT', 'OPOSITOR']
 
 
 # Listas de pruebas para la dimension de la matriz.

@@ -504,7 +504,7 @@ def exportar_xls(request):
         resultados = resultados_consulta_muestras
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="consulta.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="consulta.xls"'
 
     workbook = xlwt.Workbook()
     worksheet = workbook.add_sheet("consulta")
@@ -529,7 +529,6 @@ def exportar_xls(request):
     workbook.save(response)
 
     return response
-
 
 
 # La clase BusquedaAjaxView busca el estado seleccionado y devuelve sus municipios.
@@ -612,6 +611,7 @@ class AtributosView(generic.ListView):
         context['estratos'] = lista_estratos
         context['edos_civiles'] = lista_edos_civiles
         context['ipps'] = lista_ipps
+        context['etiquetas_score'] = lista_etq_score
         return context
 
 
@@ -720,6 +720,7 @@ class MuestrasView(generic.ListView):
         context['estratos'] = lista_estratos
         context['edos_civiles'] = lista_edos_civiles
         context['ipps'] = lista_ipps
+        context['etiquetas_score'] = lista_etq_score
         return context
 
 

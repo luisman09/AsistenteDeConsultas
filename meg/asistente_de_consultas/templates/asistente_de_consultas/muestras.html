@@ -127,6 +127,16 @@
                                             <div class="elems-cols elems-cols-isei" hidden="true">
                                                 <input class="form-control input-sm" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPositivo(event)"/>
                                                 <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPositivo(event)"/>
+                                                </br>
+                                            </div>
+                                            <div class="elems-cols elems-cols-etiqueta-score" hidden="true">
+                                                <select class="lista" id="etiquetas-score-{{ forloop.counter }}" name="etiquetas-score-{{ forloop.counter }}" multiple>
+                                                    <option value="" selected> Etiqueta </option>
+                                                    {% for etiqueta in etiquetas_score %}
+                                                        <option value="'{{ etiqueta }}'"> {{ etiqueta }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
                                             </div>
                                         </th>
                                     {% endfor %}
@@ -209,6 +219,14 @@
                                             <div class="elems-fils elems-fils-isei" hidden="true">
                                                 <input class="form-control input-sm" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPositivo(event)"/>
                                                 <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPositivo(event)"/>
+                                            </div>
+                                            <div class="elems-fils elems-fils-etiqueta-score" hidden="true">
+                                                <select class="lista" id="etiquetas-score-{{ forloop.counter }}" name="etiquetas-score-{{ forloop.counter }}" multiple>
+                                                    <option value="" selected> Etiqueta </option>
+                                                    {% for etiqueta in etiquetas_score %}
+                                                        <option value="'{{ etiqueta }}'"> {{ etiqueta }} </option>
+                                                    {% endfor %}
+                                                </select>
                                             </div>
                                         </th>
                                         <!--Lista referente a la cantidad de columnas [por ahora lista_10]-->
