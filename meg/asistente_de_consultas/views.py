@@ -477,6 +477,10 @@ def exportar_csv(request):
         cabecera = attos_muestreo
         resultados = resultados_consulta_muestras
 
+    # Aqui obtengo el nombre del usuario que realiza la consulta.
+    user = request.user.get_username()
+    print "El usuario " + user + " descargo los resultados en formato CSV"
+
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
     writer = csv.writer(response)
@@ -502,6 +506,10 @@ def exportar_xls(request):
     else:
         cabecera = attos_muestreo
         resultados = resultados_consulta_muestras
+
+    # Aqui obtengo el nombre del usuario que realiza la consulta.
+    user = request.user.get_username()
+    print "El usuario " + user + " descargo los resultados en formato XLS"
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="consulta.xls"'
@@ -625,6 +633,10 @@ def consultas(request):
     resultados_pag = []
 
     es_muestra = 0
+
+    # Aqui obtengo el nombre del usuario que realiza la consulta.
+    user = request.user.get_username()
+    print user
 
     page = request.GET.get('page')
     if not page:
