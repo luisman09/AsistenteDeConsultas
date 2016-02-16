@@ -129,6 +129,11 @@
                                                 <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPositivo(event)"/>
                                                 </br>
                                             </div>
+                                            <div class="elems-cols elems-cols-score" hidden="true">
+                                                <input class="form-control input-sm" id="min-score-{{ forloop.counter }}" name="min-score-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPosNeg(event)"/>
+                                                <input class="form-control input-sm" id="max-score-{{ forloop.counter }}" name="max-score-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPosNeg(event)"/>
+                                                </br>
+                                            </div>
                                             <div class="elems-cols elems-cols-etiqueta-score" hidden="true">
                                                 <select class="lista" id="etiquetas-score-{{ forloop.counter }}" name="etiquetas-score-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> Etiqueta </option>
@@ -219,6 +224,10 @@
                                             <div class="elems-fils elems-fils-isei" hidden="true">
                                                 <input class="form-control input-sm" id="min-isei-{{ forloop.counter }}" name="min-isei-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPositivo(event)"/>
                                                 <input class="form-control input-sm" id="max-isei-{{ forloop.counter }}" name="max-isei-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPositivo(event)"/>
+                                            </div>
+                                            <div class="elems-fils elems-fils-score" hidden="true">
+                                                <input class="form-control input-sm" id="min-score-{{ forloop.counter }}" name="min-score-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPosNeg(event)"/>
+                                                <input class="form-control input-sm" id="max-score-{{ forloop.counter }}" name="max-score-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPosNeg(event)"/>
                                             </div>
                                             <div class="elems-fils elems-fils-etiqueta-score" hidden="true">
                                                 <select class="lista" id="etiquetas-score-{{ forloop.counter }}" name="etiquetas-score-{{ forloop.counter }}" multiple>

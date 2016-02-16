@@ -383,6 +383,18 @@
                     <input class="btn btn-sm" id="eliminar-isei" name="eliminar-isei" type="button" value="-"/>
                     </br></br>  
                 </div> 
+                <!--Dos campos input para escoger el rango del Score.-->
+                <div class="form-group" id="score" name="score" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Rango del Score: </label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="min-score" name="min-score" type="text" placeholder="Mínimo" onKeyPress="return numeroRealPosNeg(event)"/>
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="max-score" name="max-score" type="text" placeholder="Máximo" onKeyPress="return numeroRealPosNeg(event)"/>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-score" name="eliminar-score" type="button" value="-"/>
+                    </br></br>  
+                </div> 
                 <!--Select multiple para escoger las etiquetas score.-->
                 <div class="form-group" id="etiqueta-score" name="etiqueta-score" hidden="true"> 
                     <label class="col-sm-2 control-label"> Etiquetas Score: </label>

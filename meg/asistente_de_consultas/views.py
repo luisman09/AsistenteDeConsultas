@@ -10,7 +10,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import csv
 import xlwt
 import json
+import time
 import codecs # Utilizada para la lectura del csv
+import os, sys
 from .models import *
 from .listas import *
 
@@ -227,8 +229,8 @@ def agregarCondiciones(attos_where):
             if len(elem[1]) == 2:
                 if elem[1][1]:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + elem[1][1] + ")")
-        elif tipo == "rango": # edad e isei de la persona.
-            mini, maxi, minimo_abs, maximo_abs = elem[1][1], elem[2][1], '0', '1000000'
+        elif tipo == "rango": # edad, isei y score de la persona.
+            mini, maxi, minimo_abs, maximo_abs = elem[1][1], elem[2][1], '-1000000', '1000000'
             if ((not mini) and maxi):
                 mini = minimo_abs
             if (mini and (not maxi)):
@@ -438,12 +440,39 @@ def obtenerCondicionesWhere(request, elems_where):
     return attos_where
 
 
+# La funcion escribirRegisto escribe en un archivo txt del servidor, las consultas realizadas 
+# por el usuario, con el objetivo de poder comprobar consultas erroneas o el mal uso de los datos.
+# Los archivos se encuentran en la carpeta: home/administrador/Documentos/Logs_Users_ADC_MEG/
+def escribirRegistro(consulta, user, formato_descarga):
+
+    mes = time.strftime("%B")
+    anio = time.strftime("%Y")
+    path = "/home/administrador/Documentos/Logs_Users_ADC_MEG/" + user
+    try:
+        os.stat(path)
+    except:
+        os.mkdir(path, 0777)
+    nombre_archivo = path + "/" + user + "_" + anio + "_" + mes + ".txt"
+    archivo = open(nombre_archivo, 'a')
+    archivo.write(time.strftime("\nDia: %d, Hora %I:%M %p \n"))
+    if not formato_descarga:
+        archivo.write(consulta + "\n")
+    else:
+        archivo.write("La consulta previa fue descargada en formato " + formato_descarga + "\n")
+    archivo.close()
+
+
+
+
 # La funcion ejecutarConsulta ejecuta la consulta prediseñada en la base de datos
 # a traves de un cursor. Si la consulta viene por un query directo, se agregan los 
 # nombres de las columnas como cabeceras de tabla de los resultados que se obtendran.
-def ejecutarConsulta(consulta, esQueryDirecto):
+def ejecutarConsulta(consulta, esQueryDirecto, user):
 
-    print consulta
+    if user:
+        escribirRegistro(consulta, user, '')
+        print consulta
+
     cursor = connection.cursor()
     cursor.execute(consulta)
     if esQueryDirecto:
@@ -477,9 +506,7 @@ def exportar_csv(request):
         cabecera = attos_muestreo
         resultados = resultados_consulta_muestras
 
-    # Aqui obtengo el nombre del usuario que realiza la consulta.
-    user = request.user.get_username()
-    print "El usuario " + user + " descargo los resultados en formato CSV"
+    escribirRegistro('', request.user.get_username(), 'CSV')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
@@ -507,9 +534,7 @@ def exportar_xls(request):
         cabecera = attos_muestreo
         resultados = resultados_consulta_muestras
 
-    # Aqui obtengo el nombre del usuario que realiza la consulta.
-    user = request.user.get_username()
-    print "El usuario " + user + " descargo los resultados en formato XLS"
+    escribirRegistro('', request.user.get_username(), 'XLS')
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="consulta.xls"'
@@ -578,7 +603,7 @@ class BusquedaAjax4View(generic.TemplateView):
                       FROM estado e, municipio m, parroquia p, centro c
                       WHERE e.id = m.id_edo AND m.id = p.id_mun AND
                             p.id = c.id_parr AND e.id = """ + x + ";"            
-        data = ejecutarConsulta(consulta, False)
+        data = ejecutarConsulta(consulta, False, '')
         circuitos = []
         for elem in data:
             if elem[0]:
@@ -634,10 +659,6 @@ def consultas(request):
 
     es_muestra = 0
 
-    # Aqui obtengo el nombre del usuario que realiza la consulta.
-    user = request.user.get_username()
-    print user
-
     page = request.GET.get('page')
     if not page:
         # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
@@ -652,7 +673,7 @@ def consultas(request):
         # Se obtiene el valor del limite, si existe.
         limite = request.POST.getlist('limite')
         consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
-        resultados_consulta = ejecutarConsulta(consulta_final, False)
+        resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
         # Si hay un agrupado se agrega a los atributos a mostrar
         if agrupado[0]:
             attos_select = agrupado + attos_select
@@ -694,7 +715,7 @@ def consultas_queries(request):
         # Se obtiene el query directo.
         query = request.POST.get('query')
         consulta_final = query
-        resultados_consulta = ejecutarConsulta(consulta_final, True)
+        resultados_consulta = ejecutarConsulta(consulta_final, True, request.user.get_username())
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
@@ -870,7 +891,7 @@ def consultas_muestras(request):
                 consulta = consulta + " UNION " + "("+elem+")"
         consulta = consulta+";"
         consulta_final_muestras = consulta
-        resultados_consulta_muestras = ejecutarConsulta(consulta_final_muestras, False)
+        resultados_consulta_muestras = ejecutarConsulta(consulta_final_muestras, False, request.user.get_username())
 
     # Paginacion.
     paginator = Paginator(resultados_consulta_muestras, 10) # Muestra 10 elementos por pagina.
@@ -933,7 +954,7 @@ def consultas_cargas(request):
         else:
             consulta_final = consulta[:-1] + ' AND' + cedulas
         #print consulta_final
-        resultados_consulta = ejecutarConsulta(consulta_final, False)
+        resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.

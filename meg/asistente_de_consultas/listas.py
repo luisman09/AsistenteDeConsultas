@@ -94,7 +94,6 @@ lista_agrupados_select = [("Estado",["estado","nombre"]),
                           ("Estado Civil",["persona","ecivil"]),
                           ("Estrato",["persona","estrato"]),
                           ("IPP",["persona","ipp"]),
-                          ("ISEI",["persona","isei"]),
                           ("Etiqueta Score",["persona","etiqueta_score"])
                          ]
 
@@ -162,6 +161,7 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ["estado-civil","multiple",[("estados-civiles",("persona","ecivil"))], "Estado Civil", "E. Civil"],
                      ["ipp","multiple",[("ipps",("persona","ipp"))], "Índice de Preferencia Política (IPP)", "IPP"],
                      ["isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))], "Índice Socioeconómico Inferido (ISEI)", "ISEI"],
+                     ["score","rango",[("min-score",("persona","score")),("max-score",("persona","score"))], "Score", "Score"],
                      ["etiqueta-score","multiple",[("etiquetas-score",("persona","etiqueta_score"))], "Etiqueta Score", "Etq. Score"]
                     ]
 
@@ -169,9 +169,9 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
 # Las listas lista_attos_matriz_cols y lista_attos_matriz_fils contienen subconjuntos
 # de la lista anterior que son necesarios para las condiciones de creacion de la matriz.
 #lista_attos_matriz_cols = lista_attos_where[9:15] 
-lista_attos_matriz_cols = lista_attos_where[5:12] 
+lista_attos_matriz_cols = lista_attos_where[5:13] 
 #lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[9:15] 
-lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[5:12]
+lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[5:13]
 
 
 # Lista de posibles Nacionalidades.

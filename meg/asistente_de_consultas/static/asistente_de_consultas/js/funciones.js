@@ -12,6 +12,12 @@ function numeroRealPositivo(e){
     return (key >= 48 && key <= 57) || (key == 46) || (key == 8)
 }
 
+// Solo permite ingresar numeros, punto (.), negativo (-) y backspace en el input.
+function numeroRealPosNeg(e){
+    var key = window.Event ? e.which : e.keyCode
+    return (key >= 48 && key <= 57) || (key == 46) || (key == 45) || (key == 8)
+}
+
 // Solo permite ingresar letras (incluida la ñ), espacio y backspace en el input.
 function soloLetras(e){
     var key = window.Event ? e.which : e.keyCode

@@ -30,9 +30,11 @@
                 <a href="{% url 'asistente_de_consultas:exportar_csv' %}">
                     <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'asistente_de_consultas/images/csv.png' %}" alt="Submit" width="64" height="64"/>
                 </a>
+                {% if resultados_pag.paginator.num_pages < 6553 %}
                 <a href="{% url 'asistente_de_consultas:exportar_xls' %}">
                     <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'asistente_de_consultas/images/xls.png' %}" alt="Submit" width="64" height="64"/>
                 </a>
+                {% endif %}
             </div>
 
         </div>
