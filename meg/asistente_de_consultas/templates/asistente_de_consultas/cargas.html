@@ -26,8 +26,13 @@
                     <ul class="checkbox"> 
                     {% for elem in attos_select %}
                         <li>
-                            <input class="seleccionados" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
-                            <label for="attos{{ forloop.counter }}"> {{ elem.0 }} </label>
+                            {% if elem.0 = "Cedula" %}
+                                <input class="seleccionados" id="attos-cedula" name="attos" type="checkbox" value="{{ elem.0 }}" checked disabled="true" />
+                                <label for="attos{{ forloop.counter }}"> {{ elem.0 }} </label>
+                            {% else %}
+                                <input class="seleccionados" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
+                                <label for="attos{{ forloop.counter }}"> {{ elem.0 }} </label>
+                            {% endif %}
                         </li>
                     {% endfor %}
                     </ul> 
@@ -60,6 +65,7 @@
                     } else {
                         var check = $('.seleccionados').is(':checked');
                         if (check) {
+                            $('#attos-cedula').attr('disabled',false);
                             $('#cargas-form').submit();
                         } else {
                             alert('Se debe seleccionar por lo menos un atributo a mostrar.');

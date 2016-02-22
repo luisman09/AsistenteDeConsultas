@@ -24,7 +24,7 @@
                     <input class="limpiarGlobales btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
                 </a>
                 </br></br>
-                <p>Los resultados de su consulta son: </p>
+                <p>La consulta arroja  <strong style="font-size:15px">{{ total_rows }}</strong>  elementos:</p>
             </div>
             <div class="col-sm-6" align="right">
                 <a href="{% url 'asistente_de_consultas:exportar_csv' %}">

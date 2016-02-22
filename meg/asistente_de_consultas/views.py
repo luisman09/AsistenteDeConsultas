@@ -22,10 +22,6 @@ attos_select = []           # Lista de elementos que seran mostrados en el SELEC
 conds_where = []            # Lista de elementos que seran condicionados en el WHERE.
 consulta_final = ""         # String que guarda la consulta final cuando se ejecuta.
 resultados_consulta = []    # Lista que guarda todos los resultados de la consulta.
-attos_muestreo = []         # Lista que guarda los elementos a mostrar junto con el elemento de muestreo.
-consulta_final_muestras = ""         # String que guarda la consulta final de muestreo cuando se ejecuta.
-resultados_consulta_muestras = []    # Lista que guarda todos los resultados de la consulta de muestreo.
-es_muestra = 0
 
 
 # La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
@@ -462,8 +458,6 @@ def escribirRegistro(consulta, user, formato_descarga):
     archivo.close()
 
 
-
-
 # La funcion ejecutarConsulta ejecuta la consulta prediseñada en la base de datos
 # a traves de un cursor. Si la consulta viene por un query directo, se agregan los 
 # nombres de las columnas como cabeceras de tabla de los resultados que se obtendran.
@@ -499,12 +493,8 @@ def limpiarGlobales(request):
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_csv(request):
 
-    if es_muestra == 0:
-        cabecera = attos_select
-        resultados = resultados_consulta
-    else:
-        cabecera = attos_muestreo
-        resultados = resultados_consulta_muestras
+    cabecera = attos_select
+    resultados = resultados_consulta
 
     escribirRegistro('', request.user.get_username(), 'CSV')
 
@@ -527,12 +517,8 @@ def exportar_csv(request):
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_xls(request):
 
-    if es_muestra == 0:
-        cabecera = attos_select
-        resultados = resultados_consulta
-    else:
-        cabecera = attos_muestreo
-        resultados = resultados_consulta_muestras
+    cabecera = attos_select
+    resultados = resultados_consulta
 
     escribirRegistro('', request.user.get_username(), 'XLS')
 
@@ -654,10 +640,8 @@ class AtributosView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas(request):
 
-    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
+    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
-    es_muestra = 0
 
     page = request.GET.get('page')
     if not page:
@@ -687,7 +671,7 @@ def consultas(request):
         resultados_pag = paginator.page(1)
     except EmptyPage:
         resultados_pag = paginator.page(paginator.num_pages)
-    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag, 'total_rows': len(resultados_consulta)}
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
@@ -705,10 +689,8 @@ class QueriesView(generic.TemplateView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_queries(request):
 
-    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra
+    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
-    es_muestra = 0
 
     page = request.GET.get('page')
     if not page:
@@ -725,7 +707,7 @@ def consultas_queries(request):
         resultados_pag = paginator.page(1)
     except EmptyPage:
         resultados_pag = paginator.page(paginator.num_pages)
-    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag, 'total_rows': len(resultados_consulta)}
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
@@ -763,19 +745,17 @@ class MuestrasView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_muestras(request):
 
-    global consulta_final_muestras, resultados_consulta_muestras, attos_muestreo, es_muestra
+    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
-    es_muestra = 1
 
     page = request.GET.get('page')
     if not page: 
 
         # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
         elem_muestreo = request.POST.getlist('elems_muestreo')
-        attos_muestreo = request.POST.getlist('mst_attos')
-        attos_muestreo = elem_muestreo + attos_muestreo
-        #print attos_muestreo
+        attos_select = request.POST.getlist('mst_attos')
+        attos_select = elem_muestreo + attos_select
+        #print attos_select
         factor = request.POST.getlist('factor')
         #print factor
         elem_cols = request.POST.getlist('elems-cols')
@@ -878,7 +858,7 @@ def consultas_muestras(request):
             for lim in limits:
                 if lim[1][0]:
                     limit = int(lim[1][0])*int(factor[0])
-                    c = crearConsulta(attos_muestreo, lim[0], [''], [str(limit)])
+                    c = crearConsulta(attos_select, lim[0], [''], [str(limit)])
                     c1 = c[:-1].partition('LIMIT')
                     c2 = c1[0] + "ORDER BY random() " + c1[1] + c1[2]
                     consulta_list.append(c2) 
@@ -890,18 +870,18 @@ def consultas_muestras(request):
             else:
                 consulta = consulta + " UNION " + "("+elem+")"
         consulta = consulta+";"
-        consulta_final_muestras = consulta
-        resultados_consulta_muestras = ejecutarConsulta(consulta_final_muestras, False, request.user.get_username())
+        consulta_final = consulta
+        resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
 
     # Paginacion.
-    paginator = Paginator(resultados_consulta_muestras, 10) # Muestra 10 elementos por pagina.
+    paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
     try:
         resultados_pag = paginator.page(page)
     except PageNotAnInteger:
         resultados_pag = paginator.page(1)
     except EmptyPage:
         resultados_pag = paginator.page(paginator.num_pages)
-    context = {'atributos': attos_muestreo, 'resultados_pag': resultados_pag}
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag, 'total_rows': len(resultados_consulta)}
     return render(request, 'asistente_de_consultas/consultas.html', context)
 
 
@@ -924,10 +904,8 @@ class CargasView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_cargas(request):
 
-    global consulta_final, resultados_consulta, conds_where, attos_select, es_muestra, archivo
+    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
-    es_muestra = 0
 
     page = request.GET.get('page')
     if not page:
@@ -964,5 +942,5 @@ def consultas_cargas(request):
         resultados_pag = paginator.page(1)
     except EmptyPage:
         resultados_pag = paginator.page(paginator.num_pages)
-    context = {'atributos': attos_select, 'resultados_pag': resultados_pag}
+    context = {'atributos': attos_select, 'resultados_pag': resultados_pag ,'total_rows': len(resultados_consulta)}
     return render(request, 'asistente_de_consultas/consultas.html', context)
