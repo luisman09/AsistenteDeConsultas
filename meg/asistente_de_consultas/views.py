@@ -465,7 +465,7 @@ def ejecutarConsulta(consulta, esQueryDirecto, user):
 
     if user:
         escribirRegistro(consulta, user, '')
-        print consulta
+        print user + " ejecuto la consulta: " + consulta
 
     cursor = connection.cursor()
     cursor.execute(consulta)
