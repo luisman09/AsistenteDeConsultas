@@ -36,11 +36,10 @@
             <a href="{% url "asistente_de_consultas:cargas" %}">
                 <input class="btn btn-primary" type="button" value="Cruzar cédulas a partir de un archivo"/>
             </a>
-
+            </br></br>
             {% if user.is_superuser %}
-                </br></br>
                 <a href="{% url "admin:index" %}">
-                    <input class="btn btn-primary" type="button" value="Administrar Datos, Usuarios y Grupos"/>
+                    <input class="btn btn-primary" type="button" value="Administrar usuarios y grupos"/>
                 </a>
             {% endif %}
 

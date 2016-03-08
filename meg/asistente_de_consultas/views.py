@@ -44,32 +44,8 @@ def buscarElementoCompleto(a, lista):
 # los joins de la consulta principal.
 def encontrarOD(t):
     x = False
-    contacto = []
     origen_destino = []
     tablas = t
-    if 'celular as c1' in t:
-        contacto.append('celular as c1')
-    if 'celular as c2' in t:
-        contacto.append('celular as c2')
-    if 'celular as c5' in t:
-        contacto.append('celular as c5')
-    if 'email as e1' in t:
-        contacto.append('email as e1')
-    if 'email as e2' in t:
-        contacto.append('email as e2')
-    if 'email as e5' in t:
-        contacto.append('email as e5')
-    if 'fijo as f2' in t:
-        contacto.append('fijo as f2')
-    if 'fijo as f4' in t:
-        contacto.append('fijo as f4')
-    if 'fijo as f5' in t:
-        contacto.append('fijo as f5')
-    if 'fijo' in t:
-        contacto.append('fijo')
-    for elem in contacto:
-        if 'persona' in t:
-            origen_destino.append((elem, 'persona'))
     if 'persona' in t:
         if 'estado' in t:
             x = True
@@ -126,7 +102,6 @@ def buscarJoin(origen,destino,lista):
 # y busca los join necesarios entre esas tablas para realizar la consulta.
 def encontrarJoins(t):
 
-    contacto = []
     origen_destino = encontrarOD(t)
     from_joins = ""
     where_joins = ""
@@ -273,7 +248,7 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
 
     select_items, from_items, where_items, group_by_items = "", "", "", ""
     condiciones, limit = "", ""
-    condiciones_contacto, tablas = [], []
+    tablas = []
     lista = lista_attos
     # Si hay agrupado, entonces la lista cambia de lista_attos a lista_agrupados y ademas
     # agrega al agrupado a los atributos seleccionados
@@ -288,21 +263,13 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
         if select_items == "":
 
             if len(x) >= 3:  
-                if x[2] == "f":             # Es una funcion, por ejem Edad.
-                    select_items = x[1]
-                else:                       # Es una prioridad de algun dato de contacto.
-                    select_items = x[1]
-                    condiciones_contacto.append(["(" + x[2] + ".prioridad = " + x[3] + ")",x[0]])
+                select_items = x[1]
             else:
                 select_items = x[0] + "." + x[1]
             tablas.append(x[0])
         else:
             if len(x) >= 3:
-                if x[2] == "f":             # Es una funcion, por ejem Edad.
-                    select_items = select_items + ", " + x[1]
-                else:                       # Es una prioridad de algun dato de contacto.
-                    select_items = select_items + ", " + x[1]
-                    condiciones_contacto.append(["(" + x[2] + ".prioridad = " + x[3] + ")",x[0]])
+                select_items = select_items + ", " + x[1]
                 if agrupado[0]:
                     if group_by_items == "":
                         group_by_items = x[1]
@@ -323,12 +290,6 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
     # agregando a la lista de tablas, mas tablas participantes en la consulta
     # (solo en caso de ser necesario).
     condiciones = agregarCondiciones(attos_where)
-    if condiciones_contacto:
-        for elem in condiciones_contacto:
-            if condiciones == "":
-                condiciones = elem[0]
-            else:
-                condiciones = condiciones + " AND " + elem[0]
     for elem in attos_where:
         for tabla_atto in elem[1:]:
             tabla = tabla_atto[0][0]
@@ -339,10 +300,6 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
                             tablas.append(tabla)     # Agrego las tablas que no se agregaron por los campos a mostrar.
 
     # Agregar tablas intermedias, en caso de ser necesarias:
-    if ('celular as c1' in tablas) or ('celular as c2' in tablas) or ('celular as c5' in tablas) or ('email as e1' in tablas) or ('email as e2' in tablas) or ('email as e5' in tablas) or ('fijo as f2' in tablas) or ('fijo as f4' in tablas) or ('fijo as f5' in tablas) or ('fijo' in tablas):
-        if ('estado' in tablas) or ('centro' in tablas):
-            if not 'persona' in tablas:
-                tablas.append('persona')
     if 'estado' in tablas:
         if ('persona' in tablas) or ('centro' in tablas) or ('parroquia' in tablas):
             if not 'municipio' in tablas:
@@ -378,28 +335,10 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
             where_items = " WHERE " + joins[1] + " AND (" + condiciones + ")"
         else:
             where_items = " WHERE " + joins[1]
-    # Se crea la consulta completa y se toma en cuenta si hay o no numeros fijos, ya que ellos implican
-    # que la consulta agregue un DISTINCT.
-    hay_fijos = ""
-    if 'fijo as f2' in tablas:
-        hay_fijos = 'f2.numero'
-    if 'fijo as f4' in tablas:
-        if not hay_fijos:
-            hay_fijos = 'f4.numero'
-        else:
-            hay_fijos = hay_fijos + ', f4.numero'
-    if 'fijo as f5' in tablas:
-        if not hay_fijos:
-            hay_fijos = 'f5.numero'
-        else:
-            hay_fijos = hay_fijos + ', f5.numero'
-    
     if limite[0]:
         limit = " LIMIT " + limite[0];
-    if hay_fijos:
-        consulta = "SELECT DISTINCT ON (" + hay_fijos + ") " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
-    else:
-        consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
+    # Se crea la consulta completa
+    consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
     return consulta
 
 
@@ -495,7 +434,6 @@ def exportar_csv(request):
 
     cabecera = attos_select
     resultados = resultados_consulta
-
     escribirRegistro('', request.user.get_username(), 'CSV')
 
     response = HttpResponse(content_type='text/csv')
@@ -519,7 +457,6 @@ def exportar_xls(request):
 
     cabecera = attos_select
     resultados = resultados_consulta
-
     escribirRegistro('', request.user.get_username(), 'XLS')
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
@@ -645,18 +582,47 @@ def consultas(request):
 
     page = request.GET.get('page')
     if not page:
+        no_null= ''
         # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
         attos_select = request.POST.getlist('attos')
         # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
         agrupado = request.POST.getlist('agrupados')
         if not attos_select:
             attos_select = request.POST.getlist('ag_attos')
+        else: # La consulta es simple por lo tanto puede tener restricciones de nulidad en datos de c
+            celular_null = request.POST.getlist('celular-null')
+            email_null = request.POST.getlist('email-null')
+            fijo_null = request.POST.getlist('fijo-null')
+            if celular_null:
+                no_null = 'persona.celular_prioritario IS NOT NULL'
+            if email_null:
+                if not no_null:
+                    no_null = 'persona.email_prioritario IS NOT NULL'
+                else:
+                    no_null = no_null + ' AND persona.email_prioritario IS NOT NULL'
+            if fijo_null:
+                if not no_null:
+                    no_null = 'persona.fijo_prioritario IS NOT NULL'
+                else:
+                    no_null = no_null + ' AND persona.fijo_prioritario IS NOT NULL'
         # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
         elems_where = request.POST.getlist('deshabilitadas[]')
         attos_where = obtenerCondicionesWhere(request, elems_where)
         # Se obtiene el valor del limite, si existe.
         limite = request.POST.getlist('limite')
         consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+        if no_null:
+            if 'GROUP BY' not in consulta_final:
+                if 'WHERE' not in consulta_final:
+                    if 'LIMIT' not in consulta_final:
+                        c = consulta_final.partition(';')
+                        consulta_final = c[0] + ' WHERE ' + no_null + c[1]
+                    else:
+                        c = consulta_final.partition('LIMIT')
+                        consulta_final = c[0] + 'WHERE ' + no_null + ' ' + c[1] + c[2]
+                else:
+                    c = consulta_final.partition('WHERE')
+                    consulta_final = c[0] + c[1] + ' ' + no_null + ' AND' + c[2]
         resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
         # Si hay un agrupado se agrega a los atributos a mostrar
         if agrupado[0]:
@@ -723,11 +689,7 @@ class MuestrasView(generic.ListView):
         context['muestreo_select'] = lista_muestreo_select
         context['attos_matriz_cols'] = lista_attos_matriz_cols
         context['attos_matriz_fils'] = lista_attos_matriz_fils
-        context['lista_matrices'] = lista_matrices
-        context['lista_3'] = lista_3
-        context['lista_5'] = lista_5
         context['lista_10'] = lista_10
-        context['lista_25'] = lista_25
         context['estados'] = Estado.objects.order_by('nombre')
         context['municipios'] = Municipio.objects.order_by('nombre')
         context['parroquias'] = Parroquia.objects.order_by('nombre')
@@ -755,6 +717,7 @@ def consultas_muestras(request):
         elem_muestreo = request.POST.getlist('elems_muestreo')
         attos_select = request.POST.getlist('mst_attos')
         attos_select = elem_muestreo + attos_select
+        print elem_muestreo
         #print attos_select
         factor = request.POST.getlist('factor')
         #print factor
@@ -836,9 +799,9 @@ def consultas_muestras(request):
         #print lista_matriz
 
         matriz_factores = []
-        for fil in lista_25[0:len(lista_fils)]:
+        for fil in lista_10[0:len(lista_fils)]:
             fila = []
-            for col in lista_25[0:len(lista_cols)]:
+            for col in lista_10[0:len(lista_cols)]:
                 val = 'limite-'+fil+'-'+col
                 lim = request.POST.getlist(val)
                 fila.append(lim)
@@ -858,9 +821,12 @@ def consultas_muestras(request):
             for lim in limits:
                 if lim[1][0]:
                     limit = int(lim[1][0])*int(factor[0])
+                    z = buscarElementoIndice(elem_muestreo[0], lista_muestreo, 1)
+                    z1 = z[0] + '.' + z[1]
+                    no_null = 'AND ' + z1 + ' IS NOT NULL '
                     c = crearConsulta(attos_select, lim[0], [''], [str(limit)])
                     c1 = c[:-1].partition('LIMIT')
-                    c2 = c1[0] + "ORDER BY random() " + c1[1] + c1[2]
+                    c2 = c1[0] + no_null + "ORDER BY random() " + c1[1] + c1[2]
                     consulta_list.append(c2) 
 
         consulta = ""

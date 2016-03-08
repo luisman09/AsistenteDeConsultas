@@ -49,6 +49,19 @@
                     {% endfor %}
                     </ul> 
                 </fieldset>
+                </br>
+                <div id="celular-null-div" align="center" hidden="true">
+                    <input id="celular-null" name="celular-null" type="checkbox" value="celular-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen Telefonos Celulares Nulos </label>
+                </div>
+                <div id="email-null-div" align="center" hidden="true">
+                    <input id="email-null" name="email-null" type="checkbox" value="email-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen Correos Electronicos Nulos </label>
+                </div>
+                <div id="fijo-null-div" align="center" hidden="true">
+                    <input id="fijo-null" name="fijo-null" type="checkbox" value="fijo-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen Telefonos Fijos Nulos </label>
+                </div>
             </div>
             <!--Parte 1: Consulta con Agrupados.-->
             <div class="partes" id="parte_1-agrupados" hidden="true">
@@ -478,6 +491,34 @@
                     aplicarMultiselect('.lista');
                 }
 
+                $('input#attos25').on('change', function() {
+                    var check = $('input#attos25').is(':checked');
+                    if (check) {
+                        $('div#celular-null-div').show();
+                    } else {
+                        $('div#celular-null-div').hide();
+                    }
+                });
+
+                $('input#attos26').on('change', function() {
+                    var check = $('input#attos26').is(':checked');
+                    if (check) {
+                        $('div#email-null-div').show();
+                    } else {
+                        $('div#email-null-div').hide();
+                    }
+                });
+
+                $('input#attos27').on('change', function() {
+                    var check = $('input#attos27').is(':checked');
+                    if (check) {
+                        $('div#fijo-null-div').show();
+                    } else {
+                        $('div#fijo-null-div').hide();
+                    }
+                });
+
+
                 // Se ejecuta cada vez que se elige una opcion para condicionar la consulta.
                 $('select#conds').on('change', deshabilitarOpcion);
 
@@ -567,17 +608,17 @@
                     if (tipo_consulta == 0) {
                         var check = $('.seleccionados').is(':checked');
                         if (check) {
-                            var hay_contactos = 0
-                            for (i = 30; i < 40; i++) {
-                                contact = $('input#attos'+i).is(':checked');
-                                if (contact) {
-                                    hay_contactos++
-                                }
-                            }
-                            console.log(hay_contactos)
-                            if (hay_contactos >= 2) {
-                                alert('SE PROCEDERÁ A EJECUTAR LA CONSULTA, sin embargo al escoger datos de tipo contacto (Celulares, Emails o Telefonos Fijos), esta consulta devolverá los resultados en los que todos los datos de contacto seleccionados sean no nulos.');
-                            }
+                            //var hay_contactos = 0
+                            //for (i = 30; i < 40; i++) {
+                            //    contact = $('input#attos'+i).is(':checked');
+                            //    if (contact) {
+                            //        hay_contactos++
+                            //    }
+                            //}
+                            //console.log(hay_contactos)
+                            //if (hay_contactos >= 2) {
+                            //    alert('SE PROCEDERÁ A EJECUTAR LA CONSULTA, sin embargo al escoger datos de tipo contacto (Celulares, Emails o Telefonos Fijos), esta consulta devolverá los resultados en los que todos los datos de contacto seleccionados sean no nulos.');
+                            //}
                             $('#atributos-form').submit();
                         } else {
                             alert('Se debe seleccionar por lo menos un atributo a mostrar.');

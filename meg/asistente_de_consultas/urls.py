@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^limpiar_globales/$', login_required(views.limpiarGlobales), name='limpiar_globales'),
     url(r'^exportar_csv/$', login_required(views.exportar_csv), name='exportar_csv'),
     url(r'^exportar_xls/$', login_required(views.exportar_xls), name='exportar_xls'),
-
 ]
 
 
