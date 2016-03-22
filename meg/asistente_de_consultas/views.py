@@ -533,7 +533,7 @@ class BusquedaAjax4View(generic.TemplateView):
                 circuitos.append(elem[0])
         circuitos.sort()
         return JsonResponse(circuitos, safe=False)
-
+        
 
 # La clase BuscarCentroAjaxView busca y verifica que el centro exista en la base de datos.
 class BuscarCentroAjaxView(generic.TemplateView):
@@ -910,3 +910,73 @@ def consultas_cargas(request):
         resultados_pag = paginator.page(paginator.num_pages)
     context = {'atributos': attos_select, 'resultados_pag': resultados_pag ,'total_rows': len(resultados_consulta)}
     return render(request, 'asistente_de_consultas/consultas.html', context)
+
+
+# La clase CargasView muestra el formulario para permitir el cruce de cedulas desde un archivo .csv.
+# Esta ligada al uso de la funcion consultas_cargas.
+class MapasView(generic.ListView):
+    template_name = 'asistente_de_consultas/mapas.html'
+    queryset = lista_attos
+
+    def get_context_data(self, **kwargs):
+        context = super(MapasView, self).get_context_data(**kwargs)
+        context['estados'] = Estado.objects.order_by('nombre')
+        context['municipios'] = Municipio.objects.order_by('nombre')
+        context['parroquias'] = Parroquia.objects.order_by('nombre')
+        return context
+
+
+# La funcion consultas_cargas tiene dos funciones en particular:
+# 1- recibir el request introducido por el usuario a traves del formulario
+#    que contiene los elementos a mostrar y el archivo con cedulas para hacer el cruce
+#    para luego mostrar la primera pagina de los resultados. 
+# 2- simplemente navegar por las paginas de los resultados.
+def consultas_mapas(request):
+
+    edo = request.POST.getlist('edos')
+    mun = request.POST.getlist('muns')
+    parr = request.POST.getlist('parrs')
+    ctros = request.POST.getlist('ctros')
+
+    cond = ""
+    if ctros[0] or len(ctros) > 1:
+        for c in ctros:
+            if c:
+                if cond == "":
+                    cond = cond + c
+                else:
+                    cond = cond + ',' + c
+        cond = 'c.id in (' + cond + ')'
+    elif parr[0]:
+        cond = 'pa.id = ' + parr[0]
+    elif mun[0]:
+        cond = 'm.id = ' + mun[0]
+    else:
+        cond = 'e.id = ' + edo[0]
+
+    consulta = "select distinct on (id) latitud, longitud, score_dominante, id, centro, cant from (select count(p.ci) as cant, c.id, c.nombre as centro, c.latitud, c.longitud, p.etiqueta_score as score_dominante from estado e, municipio m, parroquia pa, centro c, persona p where e.id = m.id_edo and m.id = pa.id_mun and pa.id = c.id_parr and c.id = p.id_centro and p.nac = 'V' and latitud is not null and longitud is not null and " + cond + " group by c.id, c.nombre, c.latitud, c.longitud, p.etiqueta_score order by id, cant desc) as x;"
+
+    resultados = ejecutarConsulta(consulta, False, request.user.get_username())
+
+    print consulta
+    print resultados
+
+    coords = []
+    datos = []
+    for elem in resultados:
+        coords.append([float(elem[0]),float(elem[1])])
+        datos.append([json.dumps(elem[2]),elem[3],json.dumps(elem[4]),int(elem[5])])
+
+    #coords = [[10.3468,-66.9927],[10.3490,-66.99459839],[10.346,-66.98609924]]
+
+    val = 0.0003
+    centro = [0,0]
+    coordenadas = []
+    for c in coords:
+        coordenadas.append([[c[0]-val,c[1]+val],[c[0]+val,c[1]+val],[c[0]+val,c[1]-val],[c[0]-val,c[1]-val]])
+        centro[0] = centro[0]+c[0]
+        centro[1] = centro[1]+c[1]
+    centro[0] = centro[0]/len(coords)
+    centro[1] = centro[1]/len(coords)
+    context = {'coords': coords, 'coordenadas': coordenadas, 'centro': centro, 'datos': datos}
+    return render(request, 'asistente_de_consultas/consultas_mapas.html', context)

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Mapas
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
+    | <a href="{% url "homepage" %}"> Volver Al Inicio </a>
+{% endblock %}
+
+{% block contenido %}
+
+    <div class="box" id="box">
+        <form id="mapas-form" action="{% url 'asistente_de_consultas:consultas_mapas' %}" method="post">
+            {% csrf_token %}
+
+            <!--Select dependiente de 4 niveles para hallar ubicaciones (Edo-Mun-Parr-Centros).
+                Al llegar a nivel de centros, se puede escoger mas de un elemento.-->
+            <div class="form-group" id="ubicacion" name="ubicacion">
+                <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>     
+                <div id="dinamico-ubicacion">
+                    <div class="col-sm-9">
+                        <select class="lista" id="edos" name="edos">
+                            <option value="" selected> Estado </option>
+                            {% for estado in estados %}
+                                {% if estado.id != 99 %}
+                                    <option value="{{ estado.id }}"> {{ estado.nombre }} </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <select class="lista" id="muns" name="muns">
+                            <option value="" selected> Municipio </option>
+                        </select>
+                        <select class="lista" id="parrs" name="parrs">
+                            <option value="" selected> Parroquia </option>
+                        </select>
+                        <select class="lista" id="ctros" name="ctros" multiple>
+                            <option value="" selected> Centros </option>
+                        </select>
+                    </div>
+                </div>
+                </br>
+            </div>
+            </br></br>
+
+            <div id="boton-continuar" align="center">
+                <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
+            </div>
+
+            <script>
+
+                // Funcion que despliega los componentes multiselect.
+                function aplicarMultiselect(elemento) {
+                    $(elemento).multiselect({
+                        maxHeight: '200',
+                        nonSelectedText: 'Ninguno seleccioando',
+                        nSelectedText: ' seleccionados',
+                        allSelectedText: 'Todos seleccionados'
+                    });
+                }
+
+                aplicarMultiselect('.lista');
+
+                $('select#edos').on('change', obtenerPrimerosMunicipios);
+                $('select#muns').on('change', obtenerPrimerasParroquias);
+                $('select#parrs').on('change', obtenerPrimerosCentros);
+
+                // Obtiene todos los municipios del primer estado especificado (el que no es dinamico).
+                function obtenerPrimerosMunicipios() {
+                    var edo = $(this).val();
+                    obtenerMunicipios(edo,'muns','parrs','ctros');
+                }
+
+                // Obtiene todas las parroquias del primer municipio especificado (el que no es dinamico).
+                function obtenerPrimerasParroquias() {
+                    var mun = $(this).val();
+                    obtenerParroquias(mun,'parrs','ctros');
+                }
+
+                // Obtiene todos los centros de la primera parroquia especificada (la que no es dinamica).
+                function obtenerPrimerosCentros() {
+                    var parr = $(this).val();
+                    obtenerCentros(parr,'ctros');
+                }                
+
+                // Obtiene todos los Municipios de un Estado especifico.
+                function obtenerMunicipios(edo,id_muns,id_parrs,id_ctros){
+                    $.ajax({
+                        data: {'edo': edo},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Municipio </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                            }
+                            var options2 = '<option value="" selected> Parroquia </option>'
+                            var options3 = '<option value="" selected> Centros </option>'
+                            $('select#'+id_muns).html(options);
+                            aplicarMultiselect('select#'+id_muns);
+                            $('select#'+id_muns).multiselect('rebuild');
+                            $('select#'+id_parrs).html(options2);
+                            aplicarMultiselect('select#'+id_parrs);
+                            $('select#'+id_parrs).multiselect('rebuild');
+                            $('select#'+id_ctros).html(options3);
+                            aplicarMultiselect('select#'+id_ctros);
+                            $('select#'+id_ctros).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                // Obtiene todas las Parroquias de un Municipio especifico.
+                function obtenerParroquias(mun,id_parrs,id_ctros){
+                    $.ajax({
+                        data: {'mun': mun},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax2' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Parroquia </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
+                            }
+                            var options2 = '<option value="" selected> Centros </option>'
+                            $('select#'+id_parrs).html(options);
+                            aplicarMultiselect('select#'+id_parrs);
+                            $('select#'+id_parrs).multiselect('rebuild');
+                            $('select#'+id_ctros).html(options2);
+                            aplicarMultiselect('select#'+id_ctros);
+                            $('select#'+id_ctros).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                // Obtiene todas los Centros de una Parroquia especifica.
+                function obtenerCentros(parr,id_ctros){
+                    $.ajax({
+                        data: {'parr': parr},
+                        url: "{% url 'asistente_de_consultas:busqueda_ajax3' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Centros </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].pk + '">' + data[i].pk + '</option>';
+                            }
+                            $('select#'+id_ctros).html(options);
+                            aplicarMultiselect('select#'+id_ctros);
+                            $('select#'+id_ctros).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                $('#continuar').on('click', function(){
+                    if ($('#edos').val() == "") {
+                        alert("Se debe especificar al menos el Estado.");
+                    } else {
+                        $('#mapas-form').submit();
+                    }
+                });
+
+            </script>
+
+        </form>
+    </div>
+
+{% endblock %}

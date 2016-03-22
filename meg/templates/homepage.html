@@ -37,6 +37,9 @@
                 <input class="btn btn-primary" type="button" value="Cruzar cédulas a partir de un archivo"/>
             </a>
             </br></br>
+            <a href="{% url "asistente_de_consultas:mapas" %}">
+                <input class="btn btn-primary" type="button" value="Visualizar mapas de coordenadas"/>
+            </a>
             {% if user.is_superuser %}
                 <a href="{% url "admin:index" %}">
                     <input class="btn btn-primary" type="button" value="Administrar usuarios y grupos"/>

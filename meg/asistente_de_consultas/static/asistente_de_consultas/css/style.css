@@ -94,5 +94,14 @@ table th    {
 
 table#t02 th.crossed
 {
-    background-image: linear-gradient(to bottom left,  transparent calc(50% - 1px), #dddddd, transparent calc(50% + 1px)); 
+    background-image: linear-gradient(to bottom left, transparent calc(50% - 1px), #dddddd, transparent calc(50% + 1px)); 
+}
+
+/* tamaño de los mapas */
+#map {
+    width: 900px;
+    height: 350px;
+    border: solid;
+    border-width: 1px;
+    border-color: black;
 }

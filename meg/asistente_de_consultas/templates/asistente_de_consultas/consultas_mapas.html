@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Mapas
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
+    | <a href="{% url "homepage" %}"> Volver Al Inicio </a>
+{% endblock %}
+
+{% block contenido %}
+
+    <div class="box" id="box">
+        <input class="coordenadas" id="coordenadas" hidden="true" value="{{coordenadas}}">
+        <input class="coords" id="coords" hidden="true" value="{{coords}}">
+        <input class="centro" id="centro" hidden="true" value="{{centro}}">
+        <input class="datos" id="datos" hidden="true" value="{{datos}}">
+        <div align="center">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script>
+
+        var path0 = $('#coords').val()
+        var marks = JSON.parse(path0)
+        var path = $('#coordenadas').val();
+        var marcas = JSON.parse("[" + path + "]");
+        var centro = $('#centro').val();
+        var cent = JSON.parse(centro);
+        var datos = $('#datos').val();
+        var datos_mid = datos.replace(/'/g,'');
+        var datos_final = JSON.parse(datos_mid)
+        var icons = []
+
+        for (i = 0; i < datos_final.length; i++) { 
+            if (datos_final[i][0] == 'OPOSITOR') {
+                icons[i] = 'http://gmaps-samples.googlecode.com/svn/trunk/markers/blue/blank.png'
+            } else if (datos_final[i][0] == 'CHAVISTA') {
+                icons[i] = 'http://gmaps-samples.googlecode.com/svn/trunk/markers/red/blank.png'
+            } else if (datos_final[i][0] == 'OPOSITOR LIGHT') {
+                icons[i] = 'http://gmaps-samples.googlecode.com/svn/trunk/markers/green/blank.png'
+            } else {
+                icons[i] = 'http://gmaps-samples.googlecode.com/svn/trunk/markers/orange/blank.png'
+            }
+        }
+
+        var map = new GMaps({
+            div: '#map',
+            lat: cent[0],
+            lng: cent[1]
+        });
+
+        for (i = 0; i < marks.length; i++) { 
+            map.addMarker({
+                lat: marks[i][0],
+                lng: marks[i][1],
+                title: 'Centro: ' + datos_final[i][1] + ', ' + datos_final[i][2] + '\nElectores dominantes: ' + datos_final[i][0] + ' en cantidad de: ' + datos_final[i][3],
+                icon: icons[i],
+            });
+        }
+
+            /* este funciona pero es totalmente estático */
+            /* url = GMaps.staticMapURL({
+                size: [610, 300],
+                lat: cent[0],
+                lng: cent[1],
+                markers: [
+                    {lat: marks[0][0], lng: marks[0][1], color: colores[0]},
+                    {lat: marks[1][0], lng: marks[1][1], color: colores[1]},
+                    {lat: marks[2][0], lng: marks[2][1], color: colores[2]},
+                    {lat: marks[3][0], lng: marks[3][1], color: colores[3]},
+                    {lat: marks[4][0], lng: marks[4][1], color: colores[4]},
+                    {lat: marks[5][0], lng: marks[5][1], color: colores[5]},
+                    {lat: marks[6][0], lng: marks[6][1], color: colores[6]},
+                    {lat: marks[7][0], lng: marks[7][1], color: colores[7]},
+                    {lat: marks[8][0], lng: marks[8][1], color: colores[8]},
+                    {lat: marks[9][0], lng: marks[9][1], color: colores[9]},
+                    {lat: marks[10][0], lng: marks[10][1], color: colores[10]},
+                    {lat: marks[11][0], lng: marks[11][1], color: colores[11]},
+                    {lat: marks[12][0], lng: marks[12][1], color: colores[12]},
+                    {lat: marks[13][0], lng: marks[13][1], color: colores[13]},
+                    {lat: marks[14][0], lng: marks[14][1], color: colores[14]},
+                    {lat: marks[15][0], lng: marks[15][1], color: colores[15]},
+                    {lat: marks[16][0], lng: marks[16][1], color: colores[16]},
+                    {lat: marks[17][0], lng: marks[17][1], color: colores[17]}
+                ]
+            });
+
+            $('<img/>').attr('src', url)
+              .appendTo('#map');*/
+
+    </script>
+
+{% endblock %}
