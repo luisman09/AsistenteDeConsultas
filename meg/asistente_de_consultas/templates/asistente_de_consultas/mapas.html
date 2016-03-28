@@ -55,16 +55,6 @@
 
             <script>
 
-                // Funcion que despliega los componentes multiselect.
-                function aplicarMultiselect(elemento) {
-                    $(elemento).multiselect({
-                        maxHeight: '200',
-                        nonSelectedText: 'Ninguno seleccioando',
-                        nSelectedText: ' seleccionados',
-                        allSelectedText: 'Todos seleccionados'
-                    });
-                }
-
                 aplicarMultiselect('.lista');
 
                 $('select#edos').on('change', obtenerPrimerosMunicipios);

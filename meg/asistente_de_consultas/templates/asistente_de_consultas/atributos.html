@@ -448,23 +448,13 @@
             <!--Manejo de scripts que permiten las funcionalidades javascript, jquery y ajax.-->
             <script>
 
-                // Funcion que despliega los componentes multiselect.
-                function aplicarMultiselect(elemento) {
-                    $(elemento).multiselect({
-                        maxHeight: '200',
-                        nonSelectedText: 'Ninguno seleccioando',
-                        nSelectedText: ' seleccionados',
-                        allSelectedText: 'Todos seleccionados'
-                    });
-                }
-
-                tipo_consulta = 0 // Variable que indica el tipo de la consulta (0=Simple, 1=Agrupados).
+                tipo_consulta = 0; // Variable que indica el tipo de la consulta (0=Simple, 1=Agrupados).
 
                 // Se ejecuta cuando se elige una consulta simple.
                 // Muestra las partes necesarias para crear una consulta simple.
                 $('#consulta-simple').on('click', function() {
-                    $('#consulta-simple').hide()
-                    $('#consulta-agrupados').hide()
+                    $('#consulta-simple').hide();
+                    $('#consulta-agrupados').hide();
                     $('div#parte_1-simple').show();
                     activarPartes();
                 });
@@ -476,7 +466,7 @@
                     $('#consulta-simple').hide();
                     $('div#parte_1-agrupados').show();
                     aplicarMultiselect('#agrupados');
-                    tipo_consulta = 1
+                    tipo_consulta = 1;
                     activarPartes();
                 });
 

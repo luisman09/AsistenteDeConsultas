@@ -29,3 +29,14 @@ function aMayusculas(obj,id){
     obj = obj.toUpperCase();
     document.getElementById(id).value = obj;
 }
+
+
+                // Funcion que despliega los componentes multiselect.
+                function aplicarMultiselect(elemento) {
+                    $(elemento).multiselect({
+                        maxHeight: '200',
+                        nonSelectedText: 'Ninguno seleccioando',
+                        nSelectedText: ' seleccionados',
+                        allSelectedText: 'Todos seleccionados'
+                    });
+                }
