@@ -89,8 +89,8 @@ table#t02 th.crossed
 
 /* tamaño de los mapas */
 #map {
-    width: 900px;
-    height: 350px;
+    width: 95%;
+    height: 400px;
     border: solid;
     border-width: 1px;
     border-color: black;

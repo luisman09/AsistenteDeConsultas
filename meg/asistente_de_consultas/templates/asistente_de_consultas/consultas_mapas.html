@@ -16,7 +16,7 @@
 
 {% block contenido %}
 
-    <div class="box" id="box">
+    
         <input class="coordenadas" id="coordenadas" hidden="true" value="{{coordenadas}}">
         <input class="coords" id="coords" hidden="true" value="{{coords}}">
         <input class="centro" id="centro" hidden="true" value="{{centro}}">
@@ -24,7 +24,6 @@
         <div align="center">
             <div id="map"></div>
         </div>
-    </div>
 
     <script>
 
@@ -65,7 +64,7 @@
                 icon: icons[i],
             });
         }
-        
+
     </script>
 
 {% endblock %}
