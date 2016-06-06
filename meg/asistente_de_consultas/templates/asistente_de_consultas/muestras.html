@@ -143,6 +143,15 @@
                                                 </select>
                                                 </br></br>
                                             </div>
+                                            <div class="elems-cols elems-cols-operadora" hidden="true">
+                                                <select class="lista" id="operadoras-{{ forloop.counter }}" name="operadoras-{{ forloop.counter }}" multiple>
+                                                    <option value="" selected> Operadora </option>
+                                                    {% for operadora in operadoras %}
+                                                        <option value="'{{ operadora }}'"> {{ operadora }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
+                                            </div>
                                         </th>
                                     {% endfor %}
                                 </tr>
@@ -234,6 +243,14 @@
                                                     <option value="" selected> Etiqueta </option>
                                                     {% for etiqueta in etiquetas_score %}
                                                         <option value="'{{ etiqueta }}'"> {{ etiqueta }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils elems-fils-operadora" hidden="true">
+                                                <select class="lista" id="operadoras-{{ forloop.counter }}" name="operadoras-{{ forloop.counter }}" multiple>
+                                                    <option value="" selected> Operadora </option>
+                                                    {% for operadora in operadoras %}
+                                                        <option value="'{{ operadora }}'"> {{ operadora }} </option>
                                                     {% endfor %}
                                                 </select>
                                             </div>

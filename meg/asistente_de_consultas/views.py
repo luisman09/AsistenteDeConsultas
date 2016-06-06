@@ -192,9 +192,15 @@ def agregarCondiciones(attos_where):
             for e in elem[1][1:]:
                 if e:
                     if disj_or == "":
-                        disj_or = "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
+                        if not elem[1][0][0]: # caso funcion operadora.
+                            disj_or = "(" + elem[1][0][1] + " = " + e + ")"
+                        else:
+                            disj_or = "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
                     else:
-                        disj_or = disj_or + " OR " "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
+                        if not elem[1][0][0]: # caso funcion operadora.
+                            disj_or = disj_or + " OR " "(" + elem[1][0][1] + " = " + e + ")"
+                        else:
+                            disj_or = disj_or + " OR " "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
             where_items.append("(" + disj_or + ")")
         elif tipo == "simple":  # sexo, etc.
             if len(elem[1]) == 2:
@@ -533,7 +539,7 @@ class BusquedaAjax4View(generic.TemplateView):
                 circuitos.append(elem[0])
         circuitos.sort()
         return JsonResponse(circuitos, safe=False)
-        
+
 
 # La clase BuscarCentroAjaxView busca y verifica que el centro exista en la base de datos.
 class BuscarCentroAjaxView(generic.TemplateView):
@@ -568,6 +574,7 @@ class AtributosView(generic.ListView):
         context['edos_civiles'] = lista_edos_civiles
         context['ipps'] = lista_ipps
         context['etiquetas_score'] = lista_etq_score
+        context['operadoras'] = lista_operadoras
         return context
 
 
@@ -698,6 +705,7 @@ class MuestrasView(generic.ListView):
         context['edos_civiles'] = lista_edos_civiles
         context['ipps'] = lista_ipps
         context['etiquetas_score'] = lista_etq_score
+        context['operadoras'] = lista_operadoras
         return context
 
 

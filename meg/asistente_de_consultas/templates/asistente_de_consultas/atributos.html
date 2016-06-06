@@ -422,6 +422,20 @@
                     <input class="btn btn-sm" id="eliminar-etiqueta-score" name="eliminar-etiqueta-score" type="button" value="-"/>
                     </br></br>  
                 </div>
+                <!--Select multiple para escoger las operadoras.-->
+                <div class="form-group" id="operadora" name="operadora" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Operadoras: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="operadoras" name="operadoras" multiple>
+                            <option value="" selected> Operadora </option>
+                            {% for etiqueta in operadoras %}
+                                <option value="'{{ etiqueta }}'"> {{ etiqueta }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-operadora" name="eliminar-operadora" type="button" value="-"/>
+                    </br></br>  
+                </div>
             </div>
             <!--Parte 3.-->
             <!--<div class="partes" hidden="true">
