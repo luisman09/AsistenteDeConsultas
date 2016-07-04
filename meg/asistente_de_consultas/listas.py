@@ -34,7 +34,8 @@ lista_personas = [("Nacionalidad",["persona","nac"]),
                   ("Etiqueta Score", ["persona", "etiqueta_score"]),
                   ("Telefono Celular", ["persona", "celular_prioritario"]),
                   ("Correo Electronico", ["persona", "email_prioritario"]),
-                  ("Telefono Fijo", ["persona", "fijo_prioritario"])
+                  ("Telefono Fijo", ["persona", "fijo_prioritario"]),
+                  ("Validacion", ["persona", "validacion"])
                  ]
 
 
@@ -123,7 +124,8 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ["isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))], "Índice Socioeconómico Inferido (ISEI)", "ISEI"],
                      ["score","rango",[("min-score",("persona","score")),("max-score",("persona","score"))], "Score", "Score"],
                      ["etiqueta-score","multiple",[("etiquetas-score",("persona","etiqueta_score"))], "Etiqueta Score", "Etq. Score"],
-                     ["operadora","multiple",[("operadoras",("","substring(celular_prioritario::text,1,3)::integer"))], "Operadora", "Operadora"]
+                     ["operadora","multiple",[("operadoras",("","substring(celular_prioritario::text,1,3)::integer"))], "Operadora", "Operadora"],
+                     ["validacion","simple",[("validaciones",("persona","validacion"))], "Validacion", "Validacion"]
                     ]
 
 
@@ -153,6 +155,9 @@ lista_etq_score = ['CHAVISTA', 'CHAVISTA LIGHT', 'OPOSITOR LIGHT', 'OPOSITOR']
 
 # Lista de operadoras
 lista_operadoras = [412,414,424,416,426]
+
+# Lista validacion
+lista_validacion = [0,1]
 
 # Listas de pruebas para la dimension de la matriz.
 #lista_3 = ['1','2','3']

@@ -575,6 +575,7 @@ class AtributosView(generic.ListView):
         context['ipps'] = lista_ipps
         context['etiquetas_score'] = lista_etq_score
         context['operadoras'] = lista_operadoras
+        context['validacion'] = lista_validacion
         return context
 
 

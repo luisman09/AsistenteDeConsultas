@@ -436,6 +436,20 @@
                     <input class="btn btn-sm" id="eliminar-operadora" name="eliminar-operadora" type="button" value="-"/>
                     </br></br>  
                 </div>
+                <!--Select simple para escoger si el elector fue validado o no.-->
+                <div class="form-group" id="validacion" name="validacion" hidden="true">  
+                    <label class="col-sm-2 control-label"> Validación: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="validaciones" name="validaciones">
+                            <option value="" selected> Validación </option>
+                            {% for val in validacion %}
+                                <option value="'{{ val }}'"> {{ val }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-validacion" name="eliminar-validacion" type="button" value="-"/>
+                    </br></br>  
+                </div>  
             </div>
             <!--Parte 3.-->
             <!--<div class="partes" hidden="true">
