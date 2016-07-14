@@ -32,10 +32,10 @@ lista_personas = [("Nacionalidad",["persona","nac"]),
                   ("IPP",["persona","ipp"]),
                   ("Score",["persona","score"]),
                   ("Etiqueta Score", ["persona", "etiqueta_score"]),
+                  ("Validacion", ["persona", "validacion"]),
                   ("Telefono Celular", ["persona", "celular_prioritario"]),
                   ("Correo Electronico", ["persona", "email_prioritario"]),
-                  ("Telefono Fijo", ["persona", "fijo_prioritario"]),
-                  ("Validacion", ["persona", "validacion"])
+                  ("Telefono Fijo", ["persona", "fijo_prioritario"])
                  ]
 
 
