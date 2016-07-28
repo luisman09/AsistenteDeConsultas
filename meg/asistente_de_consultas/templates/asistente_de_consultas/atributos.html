@@ -421,6 +421,32 @@
                     </div>
                     <input class="btn btn-sm" id="eliminar-etiqueta-score" name="eliminar-etiqueta-score" type="button" value="-"/>
                     </br></br>  
+                </div> 
+                <!--Dos campos input para escoger el rango del Score RR.-->
+                <div class="form-group" id="score-rr" name="score-rr" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Rango del Score RR: </label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="min-score-rr" name="min-score-rr" type="text" placeholder="Mínimo" onKeyPress="return numeroRealPosNeg(event)"/>
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="max-score-rr" name="max-score-rr" type="text" placeholder="Máximo" onKeyPress="return numeroRealPosNeg(event)"/>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-score-rr" name="eliminar-score-rr" type="button" value="-"/>
+                    </br></br>  
+                </div> 
+                <!--Select multiple para escoger las etiquetas score RR.-->
+                <div class="form-group" id="etiqueta-score-rr" name="etiqueta-score-rr" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Etiquetas Score RR: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="etiquetas-score-rr" name="etiquetas-score-rr" multiple>
+                            <option value="" selected> Etiqueta </option>
+                            {% for etiqueta_rr in etiquetas_score_rr %}
+                                <option value="'{{ etiqueta_rr }}'"> {{ etiqueta_rr }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-etiqueta-score-rr" name="eliminar-etiqueta-score-rr" type="button" value="-"/>
+                    </br></br>  
                 </div>
                 <!--Select multiple para escoger las operadoras.-->
                 <div class="form-group" id="operadora" name="operadora" hidden="true"> 
@@ -509,8 +535,8 @@
                     aplicarMultiselect('.lista');
                 }
 
-                $('input#attos26').on('change', function() {
-                    var check = $('input#attos26').is(':checked');
+                $('input#attos28').on('change', function() {
+                    var check = $('input#attos28').is(':checked');
                     if (check) {
                         $('div#celular-null-div').show();
                     } else {
@@ -518,8 +544,8 @@
                     }
                 });
 
-                $('input#attos27').on('change', function() {
-                    var check = $('input#attos27').is(':checked');
+                $('input#attos29').on('change', function() {
+                    var check = $('input#attos29').is(':checked');
                     if (check) {
                         $('div#email-null-div').show();
                     } else {
@@ -527,8 +553,8 @@
                     }
                 });
 
-                $('input#attos28').on('change', function() {
-                    var check = $('input#attos28').is(':checked');
+                $('input#attos30').on('change', function() {
+                    var check = $('input#attos30').is(':checked');
                     if (check) {
                         $('div#fijo-null-div').show();
                     } else {

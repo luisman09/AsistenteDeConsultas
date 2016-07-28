@@ -295,6 +295,7 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
     # Se busca las condiciones del WHERE (no joins) de la consulta y se continua 
     # agregando a la lista de tablas, mas tablas participantes en la consulta
     # (solo en caso de ser necesario).
+    print attos_where
     condiciones = agregarCondiciones(attos_where)
     for elem in attos_where:
         for tabla_atto in elem[1:]:
@@ -574,6 +575,7 @@ class AtributosView(generic.ListView):
         context['edos_civiles'] = lista_edos_civiles
         context['ipps'] = lista_ipps
         context['etiquetas_score'] = lista_etq_score
+        context['etiquetas_score_rr'] = lista_etq_score_rr
         context['operadoras'] = lista_operadoras
         context['validacion'] = lista_validacion
         return context
@@ -706,6 +708,7 @@ class MuestrasView(generic.ListView):
         context['edos_civiles'] = lista_edos_civiles
         context['ipps'] = lista_ipps
         context['etiquetas_score'] = lista_etq_score
+        context['etiquetas_score_rr'] = lista_etq_score_rr
         context['operadoras'] = lista_operadoras
         return context
 

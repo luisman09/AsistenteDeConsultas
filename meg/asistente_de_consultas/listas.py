@@ -32,6 +32,8 @@ lista_personas = [("Nacionalidad",["persona","nac"]),
                   ("IPP",["persona","ipp"]),
                   ("Score",["persona","score"]),
                   ("Etiqueta Score", ["persona", "etiqueta_score"]),
+                  ("Score_rr",["persona","score_rr"]),
+                  ("Etiqueta_score_rr",["persona","etiqueta_score_rr"]),
                   ("Validacion", ["persona", "validacion"]),
                   ("Telefono Celular", ["persona", "celular_prioritario"]),
                   ("Correo Electronico", ["persona", "email_prioritario"]),
@@ -69,7 +71,8 @@ lista_agrupados_select = [("Estado",["estado","nombre"]),
                           ("Estado Civil",["persona","ecivil"]),
                           ("Estrato",["persona","estrato"]),
                           ("IPP",["persona","ipp"]),
-                          ("Etiqueta Score",["persona","etiqueta_score"])
+                          ("Etiqueta Score",["persona","etiqueta_score"]),
+                          ("Etiqueta Score RR",["persona","etiqueta_score_rr"])
                          ]
 
 
@@ -124,6 +127,8 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
                      ["isei","rango",[("min-isei",("persona","isei")),("max-isei",("persona","isei"))], "Índice Socioeconómico Inferido (ISEI)", "ISEI"],
                      ["score","rango",[("min-score",("persona","score")),("max-score",("persona","score"))], "Score", "Score"],
                      ["etiqueta-score","multiple",[("etiquetas-score",("persona","etiqueta_score"))], "Etiqueta Score", "Etq. Score"],
+                     ["score-rr","rango",[("min-score-rr",("persona","score_rr")),("max-score-rr",("persona","score_rr"))], "Score RR", "Score RR"],
+                     ["etiqueta-score-rr","multiple",[("etiquetas-score-rr",("persona","etiqueta_score_rr"))], "Etiqueta Score RR", "Etq. Score RR"],
                      ["operadora","multiple",[("operadoras",("","substring(celular_prioritario::text,1,3)::integer"))], "Operadora", "Operadora"],
                      ["validacion","simple",[("validaciones",("persona","validacion"))], "Validacion", "Validacion"]
                     ]
@@ -131,8 +136,8 @@ lista_attos_where = [["ubicacion","dependiente",[("edos",("estado","id")),("muns
 
 # Las listas lista_attos_matriz_cols y lista_attos_matriz_fils contienen subconjuntos
 # de la lista anterior que son necesarios para las condiciones de creacion de la matriz.
-lista_attos_matriz_cols = lista_attos_where[5:14] 
-lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[5:14]
+lista_attos_matriz_cols = lista_attos_where[5:16] 
+lista_attos_matriz_fils = lista_attos_where[0:2] + lista_attos_where[5:16]
 
 
 # Lista de posibles Nacionalidades.
@@ -152,6 +157,9 @@ lista_ipps = [0,1,2,3,4,5,6,7,8,9]
 
 # Lista de posibles Etiquetas Score
 lista_etq_score = ['CHAVISTA', 'CHAVISTA LIGHT', 'OPOSITOR LIGHT', 'OPOSITOR']
+
+# Lista de posibles Etiquetas Score RR
+lista_etq_score_rr = ['FIRMANTES', 'GEMELOS', 'HERMANOS', 'PRIMOS', 'OTROS AZULES', 'NO AZULES']
 
 # Lista de operadoras
 lista_operadoras = [412,414,424,416,426]

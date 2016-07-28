@@ -143,6 +143,20 @@
                                                 </select>
                                                 </br></br>
                                             </div>
+                                            <div class="elems-cols elems-cols-score-rr" hidden="true">
+                                                <input class="form-control input-sm" id="min-score-rr-{{ forloop.counter }}" name="min-score-rr-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPosNeg(event)"/>
+                                                <input class="form-control input-sm" id="max-score-rr-{{ forloop.counter }}" name="max-score-rr-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPosNeg(event)"/>
+                                                </br>
+                                            </div>
+                                            <div class="elems-cols elems-cols-etiqueta-score-rr" hidden="true">
+                                                <select class="lista" id="etiquetas-score-rr-{{ forloop.counter }}" name="etiquetas-score-rr-{{ forloop.counter }}" multiple>
+                                                    <option value="" selected> Etiqueta </option>
+                                                    {% for etiqueta_rr in etiquetas_score_rr %}
+                                                        <option value="'{{ etiqueta_rr }}'"> {{ etiqueta_rr }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                                </br></br>
+                                            </div>
                                             <div class="elems-cols elems-cols-operadora" hidden="true">
                                                 <select class="lista" id="operadoras-{{ forloop.counter }}" name="operadoras-{{ forloop.counter }}" multiple>
                                                     <option value="" selected> Operadora </option>
@@ -243,6 +257,18 @@
                                                     <option value="" selected> Etiqueta </option>
                                                     {% for etiqueta in etiquetas_score %}
                                                         <option value="'{{ etiqueta }}'"> {{ etiqueta }} </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="elems-fils elems-fils-score-rr" hidden="true">
+                                                <input class="form-control input-sm" id="min-score-rr-{{ forloop.counter }}" name="min-score-rr-{{ forloop.counter }}" type="text" placeholder="Mín" onKeyPress="return numeroRealPosNeg(event)"/>
+                                                <input class="form-control input-sm" id="max-score-rr-{{ forloop.counter }}" name="max-score-rr-{{ forloop.counter }}" type="text" placeholder="Máx" onKeyPress="return numeroRealPosNeg(event)"/>
+                                            </div>
+                                            <div class="elems-fils elems-fils-etiqueta-score-rr" hidden="true">
+                                                <select class="lista" id="etiquetas-score-rr-{{ forloop.counter }}" name="etiquetas-score-rr-{{ forloop.counter }}" multiple>
+                                                    <option value="" selected> Etiqueta </option>
+                                                    {% for etiqueta_rr in etiquetas_score_rr %}
+                                                        <option value="'{{ etiqueta_rr }}'"> {{ etiqueta_rr }} </option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
