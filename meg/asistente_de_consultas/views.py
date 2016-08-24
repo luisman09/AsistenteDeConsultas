@@ -17,13 +17,6 @@ from .models import *
 from .listas import *
 
 
-# Variables globales.
-attos_select = []           # Lista de elementos que seran mostrados en el SELECT.
-conds_where = []            # Lista de elementos que seran condicionados en el WHERE.
-consulta_final = ""         # String que guarda la consulta final cuando se ejecuta.
-resultados_consulta = []    # Lista que guarda todos los resultados de la consulta.
-
-
 # La funcion buscarElementoIndice devuelve el valor del diccionario correspondiente al indice. 
 def buscarElementoIndice(a, lista, indice):
     for elem in lista:
@@ -98,8 +91,8 @@ def buscarJoin(origen,destino,lista):
     return "No existe el elemento"
 
 
-# La funcion encontrarJoins recibe una lista de las tablas necesarias para la consulta, 
-# y busca los join necesarios entre esas tablas para realizar la consulta.
+# La funcion encontrarJoins recibe una lista de las tablas para la consulta, luego
+# busca y crea los join necesarios entre esas tablas para realizar la consulta.
 def encontrarJoins(t):
 
     origen_destino = encontrarOD(t)
@@ -132,7 +125,7 @@ def agregarCondiciones(attos_where):
     where_items_2 = ""
     for elem in attos_where:
         tipo = elem[0]
-        if tipo == "dependiente": # Ubicacion demografica. 
+        if tipo == "dependiente": # Caso Particular: Ubicacion Demografica. 
             i = 4
             parrs, muns, edos = [], [], []
             disj_or = ""
@@ -187,8 +180,10 @@ def agregarCondiciones(attos_where):
                 i -= 1
             if disj_or:
                 where_items.append("(" + disj_or + ")")
-        elif tipo == "multiple": # estrato, estado civil, ipp, etc.
+        elif tipo == "multiple": # Select Multiple: estrato, estado civil, ipp, operadora, etc.
+                                 # Tambien aplica para el Caso Particular: Centros Especificos.
             disj_or = ""
+            print elem[1]
             for e in elem[1][1:]:
                 if e:
                     if disj_or == "":
@@ -201,12 +196,13 @@ def agregarCondiciones(attos_where):
                             disj_or = disj_or + " OR " "(" + elem[1][0][1] + " = " + e + ")"
                         else:
                             disj_or = disj_or + " OR " "(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + ")"
-            where_items.append("(" + disj_or + ")")
-        elif tipo == "simple":  # sexo, etc.
+            if disj_or:
+                where_items.append("(" + disj_or + ")")
+        elif tipo == "simple":  # Select Simple: sexo, validacion, etc.
             if len(elem[1]) == 2:
                 if elem[1][1]:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + elem[1][1] + ")")
-        elif tipo == "rango": # edad, isei y score de la persona.
+        elif tipo == "rango": # # Dos Input de Tipo Rango: edad, isei, score, score_rr, etc.
             mini, maxi, minimo_abs, maximo_abs = elem[1][1], elem[2][1], '-1000000', '1000000'
             if ((not mini) and maxi):
                 mini = minimo_abs
@@ -217,19 +213,19 @@ def agregarCondiciones(attos_where):
                     where_items.append("(" + elem[1][0][1] + " BETWEEN " + mini + " AND " + maxi + ")")
                 else:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " BETWEEN " + mini + " AND " + maxi + ")")
-        elif tipo == "doble": # Cedula de identidad.
+        elif tipo == "doble": # Caso Particular: Nacionalidad y Cedula de Identidad.
             if len(elem[1]) == 2: 
                 if elem[1][1]:
                     where_items.append("(" + elem[1][0][0] + "." + elem[1][0][1] + " = " + elem[1][1] + ")")
             if len(elem[2]) == 2: 
                 if elem[2][1]:
                     where_items.append("(" + elem[2][0][0] + "." + elem[2][0][1] + " = " + elem[2][1] + ")")
-        elif tipo == "cuadruple": # Nombre de la persona.
+        elif tipo == "cuadruple": # Caso Particular: Nombres y Apellidos.
             for i in range(1,5):
                 if len(elem[i]) == 2:  
                     if elem[i][1]:
                         where_items.append("(" + elem[i][0][0] + "." + elem[i][0][1] + " = '" + elem[i][1] + "')")
-        elif tipo == "dependiente2": # Ubicacion por circuitos.
+        elif tipo == "dependiente2": # Caso Particular: Ubicacion por Circuitos.
             disj_or = ""
             for e, c in zip(elem[1][1:], elem[2][1:]): 
                 if (e and c):
@@ -239,6 +235,7 @@ def agregarCondiciones(attos_where):
                         disj_or = disj_or + " OR (" + elem[1][0][0] + "." + elem[1][0][1] + " = " + e + " AND " + elem[2][0][0] + "." + elem[2][0][1] + " = " + c + ")"
             if disj_or:
                 where_items.append("(" + disj_or + ")") 
+    # Union de todos los casos. 
     for elem in where_items:
         if where_items_2 == "":
             where_items_2 = elem
@@ -250,17 +247,20 @@ def agregarCondiciones(attos_where):
 # La funcion crearConsulta crea la consulta en forma de STRING, que sera ejecutada a nivel de la
 # base de datos a partir de los elementos escogidos por el usuario a traves del formulario.
 # Recibe los atributos a mostrar, y tambien, si los hay, las condiciones, el agrupado y el limite.
-def crearConsulta(attos_select, attos_where, agrupado, limite):
+def crearConsulta(attos_select, attos_where, agrupado, orden, limite):
 
-    select_items, from_items, where_items, group_by_items = "", "", "", ""
+    select_items, from_items, where_items = "", "", ""
+    group_by_items, order_by_items, elem_agr_ord = "", "", ""
     condiciones, limit = "", ""
     tablas = []
     lista = lista_attos
     # Si hay agrupado, entonces la lista cambia de lista_attos a lista_agrupados y ademas
     # agrega al agrupado a los atributos seleccionados
     if agrupado[0]:
-        attos_select = agrupado + attos_select;
-        lista = lista_agrupados_select + [buscarElementoCompleto(agrupado[0],lista_agrupados)]
+        attos_select = agrupado + attos_select
+        elem_agr = buscarElementoCompleto(agrupado[0],lista_agrupados)
+        elem_agr_ord = elem_agr[1][1]
+        lista = lista_agrupados_select + [elem_agr]
 
     # Se va formando la consulta en las clausulas SELECT y GROUP BY.
     # Tambien se van agregando las tablas correspondientes para el FROM. 
@@ -291,20 +291,20 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
             if x[0] not in tablas:
                 tablas.append(x[0])
     if group_by_items:
-        group_by_items = " GROUP BY " + group_by_items + " ORDER BY " + group_by_items
+        group_by_items = " GROUP BY " + group_by_items 
     # Se busca las condiciones del WHERE (no joins) de la consulta y se continua 
     # agregando a la lista de tablas, mas tablas participantes en la consulta
     # (solo en caso de ser necesario).
-    print attos_where
     condiciones = agregarCondiciones(attos_where)
     for elem in attos_where:
         for tabla_atto in elem[1:]:
             tabla = tabla_atto[0][0]
             for e in tabla_atto[1:]:
                 if e:
+                    # Agrego las tablas que no se agregaron por los campos a mostrar.
                     if tabla not in tablas:
                         if tabla:
-                            tablas.append(tabla)     # Agrego las tablas que no se agregaron por los campos a mostrar.
+                            tablas.append(tabla)   
 
     # Agregar tablas intermedias, en caso de ser necesarias:
     if 'estado' in tablas:
@@ -342,10 +342,20 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
             where_items = " WHERE " + joins[1] + " AND (" + condiciones + ")"
         else:
             where_items = " WHERE " + joins[1]
+    # Se agrega el orden y/o el limite, si los hay.
+    if orden:
+        if ("'3'" in orden):
+            order_by_items = " ORDER BY random()"
+        elif ("'1'" in orden):
+            order_by_items = " ORDER BY " + elem_agr_ord + " DESC" 
+        elif ("'2'" in orden):
+            order_by_items = " ORDER BY " + elem_agr_ord
+        print orden
+        print order_by_items
     if limite[0]:
         limit = " LIMIT " + limite[0];
-    # Se crea la consulta completa
-    consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + limit +";"
+    # Se crea la consulta completa.
+    consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + order_by_items + limit +";"
     return consulta
 
 
@@ -353,17 +363,10 @@ def crearConsulta(attos_select, attos_where, agrupado, limite):
 # condicionados y sus valores introducidos por el usuario mediante el formulario.
 def obtenerCondicionesWhere(request, elems_where):
 
-    # El ultimo elems_where que se recibe en consultas es el del boton final, en ese caso
-    # la lista de condiciones se recibe vacia, por lo cual, nos debemos quedar con el penultimo
-    # elems_where recibido que tendria todos las opciones que se quieren condicionar.
-    # Se reciben tantos elems_where como cambios en la lista de condiciones haya. por ello
-    # con cada cambio recibido se elimina la lista de condiciones anterior.
-    global conds_where
-    if elems_where:
-        del conds_where[:]
-        for elem in elems_where:
-            x = buscarElementoCompleto(elem,lista_attos_where)
-            conds_where.append(x)
+    conds_where = []
+    for elem in elems_where:
+        x = buscarElementoCompleto(elem,lista_attos_where)
+        conds_where.append(x)
     # attos_where agrega los valores introducidos a las condiciones establecidas en conds_where.
     attos_where = []
     for atto in conds_where:
@@ -385,6 +388,8 @@ def obtenerCondicionesWhere(request, elems_where):
 # La funcion escribirRegisto escribe en un archivo txt del servidor, las consultas realizadas 
 # por el usuario, con el objetivo de poder comprobar consultas erroneas o el mal uso de los datos.
 # Los archivos se encuentran en la carpeta: home/administrador/Documentos/Logs_Users_ADC_MEG/
+# Una vez en esa carpeta, abra una caperta por cada usuario, y dentro de cada carpeta de usuario, 
+# archivos txt mensuales con las consultas realizadas y descargadas por el usuario.
 def escribirRegistro(consulta, user, formato_descarga):
 
     mes = time.strftime("%B")
@@ -416,32 +421,24 @@ def ejecutarConsulta(consulta, esQueryDirecto, user):
     cursor = connection.cursor()
     cursor.execute(consulta)
     if esQueryDirecto:
-        global attos_select
         attos_select = [s[0] for s in cursor.description]
     resultados = cursor.fetchall()
+    if esQueryDirecto:
+        return [attos_select, resultados]
     return resultados
-
-
-# La funcion limpiarGlobales reinicia las variables globales que se utilizaron para hacer
-# la consulta anterior con el asistente. 
-def limpiarGlobales(request):
-
-    global conds_where, consulta_final, resultados_consulta, attos_select
-    conds_where = []
-    consulta_final = ""
-    resultados_consulta = []
-    attos_select = []
-    print "Se limpiaron las Globales"
-    return render(request, 'asistente_de_consultas/consultas.html')
     
 
 # La funcion exportar_csv permite la descarga de un archivo csv desde el asistente de consultas
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_csv(request):
 
-    cabecera = attos_select
-    resultados = resultados_consulta
-    escribirRegistro('', request.user.get_username(), 'CSV')
+    usuario = request.user.get_username()
+    sesion_usuario = "sesion_" + usuario
+    sesion_usuario = request.session[sesion_usuario]
+    resultados = sesion_usuario[1]
+    cabecera = sesion_usuario[0]
+
+    escribirRegistro('', usuario, 'CSV')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
@@ -462,9 +459,13 @@ def exportar_csv(request):
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_xls(request):
 
-    cabecera = attos_select
-    resultados = resultados_consulta
-    escribirRegistro('', request.user.get_username(), 'XLS')
+    usuario = request.user.get_username()
+    sesion_usuario = "sesion_" + usuario
+    sesion_usuario = request.session[sesion_usuario]
+    resultados = sesion_usuario[1]
+    cabecera = sesion_usuario[0]
+
+    escribirRegistro('', usuario, 'XLS')
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="consulta.xls"'
@@ -578,6 +579,8 @@ class AtributosView(generic.ListView):
         context['etiquetas_score_rr'] = lista_etq_score_rr
         context['operadoras'] = lista_operadoras
         context['validacion'] = lista_validacion
+        context['orden_simple'] = lista_orden_simple
+        context['orden_agrupados'] = lista_orden_agrupados
         return context
 
 
@@ -587,10 +590,9 @@ class AtributosView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas(request):
 
-    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
     page = request.GET.get('page')
+    usuario = request.user.get_username()
     if not page:
         no_null= ''
         # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
@@ -616,11 +618,12 @@ def consultas(request):
                 else:
                     no_null = no_null + ' AND persona.fijo_prioritario IS NOT NULL'
         # Se obtiene los atributos a condicionar (WHERE) con sus valores del formulario, si existen.
-        elems_where = request.POST.getlist('deshabilitadas[]')
+        elems_where = request.POST.getlist('conds')
         attos_where = obtenerCondicionesWhere(request, elems_where)
-        # Se obtiene el valor del limite, si existe.
+        # Se obtiene el valor del orden y/o del limite, si existen.
+        orden = request.POST.getlist('orden')
         limite = request.POST.getlist('limite')
-        consulta_final = crearConsulta(attos_select, attos_where, agrupado, limite)
+        consulta_final = crearConsulta(attos_select, attos_where, agrupado, orden, limite)
         if no_null:
             if 'GROUP BY' not in consulta_final:
                 if 'WHERE' not in consulta_final:
@@ -633,12 +636,22 @@ def consultas(request):
                 else:
                     c = consulta_final.partition('WHERE')
                     consulta_final = c[0] + c[1] + ' ' + no_null + ' AND' + c[2]
-        resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
+        resultados_consulta = ejecutarConsulta(consulta_final, False, usuario)
         # Si hay un agrupado se agrega a los atributos a mostrar
         if agrupado[0]:
             attos_select = agrupado + attos_select
-        #print attos_where
 
+        # Para el manejo de la sesion y los resultados sin variables globales
+        sesion_usuario = "sesion_" + usuario
+        if sesion_usuario in request.session:
+            del request.session[sesion_usuario]
+        request.session[sesion_usuario] = [attos_select, resultados_consulta]
+        sesion_usuario = request.session[sesion_usuario]
+    else:
+        sesion_usuario = "sesion_" + usuario
+        sesion_usuario = request.session[sesion_usuario]
+        resultados_consulta = sesion_usuario[1]
+        attos_select = sesion_usuario[0]
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
     try:
@@ -665,15 +678,29 @@ class QueriesView(generic.TemplateView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_queries(request):
 
-    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
+    resultados_consulta = []
     page = request.GET.get('page')
+    usuario = request.user.get_username()
     if not page:
-        # Se obtiene el query directo.
         query = request.POST.get('query')
         consulta_final = query
-        resultados_consulta = ejecutarConsulta(consulta_final, True, request.user.get_username())
+        resultados = ejecutarConsulta(consulta_final, True, usuario)
+        print resultados_consulta
+        attos_select = resultados[0]
+        resultados_consulta = resultados[1]
+
+        # Para el manejo de la sesion y los resultados sin variables globales
+        sesion_usuario = "sesion_" + usuario
+        if sesion_usuario in request.session:
+            del request.session[sesion_usuario]
+        request.session[sesion_usuario] = [attos_select, resultados_consulta]
+        sesion_usuario = request.session[sesion_usuario]
+    else:
+        sesion_usuario = "sesion_" + usuario
+        sesion_usuario = request.session[sesion_usuario]
+        resultados_consulta = sesion_usuario[1]
+        attos_select = sesion_usuario[0]
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
@@ -719,17 +746,16 @@ class MuestrasView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_muestras(request):
 
-    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
     page = request.GET.get('page')
+    usuario = request.user.get_username()
     if not page: 
 
         # Se obtiene el agrupado y los campos a agrupar (SELECT), cuando la consulta es por agrupados.
         elem_muestreo = request.POST.getlist('elems_muestreo')
         attos_select = request.POST.getlist('mst_attos')
         attos_select = elem_muestreo + attos_select
-        print elem_muestreo
+        #print elem_muestreo
         #print attos_select
         factor = request.POST.getlist('factor')
         #print factor
@@ -849,7 +875,19 @@ def consultas_muestras(request):
                 consulta = consulta + " UNION " + "("+elem+")"
         consulta = consulta+";"
         consulta_final = consulta
-        resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
+        resultados_consulta = ejecutarConsulta(consulta_final, False, usuario)
+
+        # Para el manejo de la sesion y los resultados sin variables globales
+        sesion_usuario = "sesion_" + usuario
+        if sesion_usuario in request.session:
+            del request.session[sesion_usuario]
+        request.session[sesion_usuario] = [attos_select, resultados_consulta]
+        sesion_usuario = request.session[sesion_usuario]
+    else:
+        sesion_usuario = "sesion_" + usuario
+        sesion_usuario = request.session[sesion_usuario]
+        resultados_consulta = sesion_usuario[1]
+        attos_select = sesion_usuario[0]
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.
@@ -882,9 +920,8 @@ class CargasView(generic.ListView):
 # 2- simplemente navegar por las paginas de los resultados.
 def consultas_cargas(request):
 
-    global consulta_final, resultados_consulta, attos_select
     resultados_pag = []
-
+    usuario = request.user.get_username()
     page = request.GET.get('page')
     if not page:
         # Se obtiene los atributos a mostrar (SELECT), cuando la consulta es simple
@@ -911,6 +948,18 @@ def consultas_cargas(request):
             consulta_final = consulta[:-1] + ' AND' + cedulas
         #print consulta_final
         resultados_consulta = ejecutarConsulta(consulta_final, False, request.user.get_username())
+
+        # Para el manejo de la sesion y los resultados sin variables globales
+        sesion_usuario = "sesion_" + usuario
+        if sesion_usuario in request.session:
+            del request.session[sesion_usuario]
+        request.session[sesion_usuario] = [attos_select, resultados_consulta]
+        sesion_usuario = request.session[sesion_usuario]
+    else:
+        sesion_usuario = "sesion_" + usuario
+        sesion_usuario = request.session[sesion_usuario]
+        resultados_consulta = sesion_usuario[1]
+        attos_select = sesion_usuario[0]
 
     # Paginacion.
     paginator = Paginator(resultados_consulta, 10) # Muestra 10 elementos por pagina.

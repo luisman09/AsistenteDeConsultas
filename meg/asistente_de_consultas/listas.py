@@ -23,7 +23,7 @@ lista_personas = [("Nacionalidad",["persona","nac"]),
                   ("Segundo Nombre",["persona","nombre2"]),
                   ("Primer Apellido",["persona","apellido1"]),
                   ("Segundo Apellido",["persona","apellido2"]),
-                  ("Fecha Nacimiento",["persona","fecha_nac"]),
+                  ("Fecha Nacimiento",["persona","fecha_nac::text"]),
                   ("Edad",["persona","date_part('year',age(persona.fecha_nac))::integer","f"]),
                   ("Sexo",["persona","sexo"]),
                   ("Estado Civil",["persona","ecivil"]),
@@ -32,8 +32,8 @@ lista_personas = [("Nacionalidad",["persona","nac"]),
                   ("IPP",["persona","ipp"]),
                   ("Score",["persona","score"]),
                   ("Etiqueta Score", ["persona", "etiqueta_score"]),
-                  ("Score_rr",["persona","score_rr"]),
-                  ("Etiqueta_score_rr",["persona","etiqueta_score_rr"]),
+                  ("Score RR",["persona","score_rr"]),
+                  ("Etiqueta Score RR",["persona","etiqueta_score_rr"]),
                   ("Validacion", ["persona", "validacion"]),
                   ("Telefono Celular", ["persona", "celular_prioritario"]),
                   ("Correo Electronico", ["persona", "email_prioritario"]),
@@ -51,7 +51,7 @@ lista_agrupados = [("Cantidad de Estados",["estado","count(estado.id)","f"]),
                    ("Cantidad de Municipios",["municipio","count(municipio.id)","f"]),
                    ("Cantidad de Parroquias",["parroquia","count(parroquia.id)","f"]),
                    ("Cantidad de Centros",["centro","count(centro.id)","f"]),
-                   ("Cantidad de Personas (Electores)",["persona","count(distinct (persona.nac, persona.ci))","f"]),
+                   ("Cantidad de Personas (Electores)",["persona","count((persona.nac, persona.ci))","f"]),
                    ("Cantidad de Telefonos Celulares",["persona","count(celular_prioritario)","f"]),
                    ("Cantidad de Correos Electronicos",["persona","count(email_prioritario)","f"]),
                    ("Cantidad de Telefonos Fijos",["persona","count(distinct (fijo_prioritario))","f"])
@@ -74,6 +74,13 @@ lista_agrupados_select = [("Estado",["estado","nombre"]),
                           ("Etiqueta Score",["persona","etiqueta_score"]),
                           ("Etiqueta Score RR",["persona","etiqueta_score_rr"])
                          ]
+
+
+# Las lista_orden contienen las opciones para ordenar los resultados de la consulta 
+lista_orden_simple = [(0,'Sin Especicificar'),(3,'Totalmente Aleatorio')]
+lista_orden_agrupados = [(1,'Campo a Agrupar de Mayor a Menor'),
+                         (2,'Campo a Agrupar de Menor a Mayor'),
+                         (3,'Totalmente Aleatorio')]
 
 
 # La lista lista_muestreo_select contiene todos los elementos mostrables sobre los cuales

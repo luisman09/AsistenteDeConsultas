@@ -19,7 +19,6 @@ urlpatterns = [
     url(r'^busqueda_ajax3/$', login_required(views.BusquedaAjax3View.as_view()), name='busqueda_ajax3'),
     url(r'^busqueda_ajax4/$', login_required(views.BusquedaAjax4View.as_view()), name='busqueda_ajax4'),
     url(r'^buscar_centro/$', login_required(views.BuscarCentroAjaxView.as_view()), name='buscar_centro'),
-    url(r'^limpiar_globales/$', login_required(views.limpiarGlobales), name='limpiar_globales'),
     url(r'^exportar_csv/$', login_required(views.exportar_csv), name='exportar_csv'),
     url(r'^exportar_xls/$', login_required(views.exportar_xls), name='exportar_xls'),
 ]

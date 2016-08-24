@@ -31,12 +31,12 @@ function aMayusculas(obj,id){
 }
 
 
-                // Funcion que despliega los componentes multiselect.
-                function aplicarMultiselect(elemento) {
-                    $(elemento).multiselect({
-                        maxHeight: '200',
-                        nonSelectedText: 'Ninguno seleccioando',
-                        nSelectedText: ' seleccionados',
-                        allSelectedText: 'Todos seleccionados'
-                    });
-                }
+// Funcion que despliega los componentes multiselect.
+function aplicarMultiselect(elemento) {
+    $(elemento).multiselect({
+        maxHeight: '200',
+        nonSelectedText: 'Ninguno seleccioando',
+        nSelectedText: ' seleccionados',
+        allSelectedText: 'Todos seleccionados',
+    });
+}

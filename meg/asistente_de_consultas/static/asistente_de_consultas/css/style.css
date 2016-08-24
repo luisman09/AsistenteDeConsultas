@@ -23,10 +23,21 @@
     font-size: 20px;
 }
 
+/* para agregar espacio horizontal */
+.con-espacio {
+    display: inline;
+    padding-right: 3em;
+}
+
+.con-espacio-1 {
+    display: inline;
+    padding-right: 1em;
+}
+
 /* grupos de checkbox */
 .group-checkbox {
     background-color: white;
-    padding: 15px;
+    padding: 5px;
     border-color: black;
     border-style: solid;
     border-width: 1px;
@@ -34,14 +45,9 @@
 }
 
 ul.checkbox  { 
-    margin: 0; 
-    padding: 0; 
-    margin-left: 20px; 
-    list-style: none; 
 } 
 
 ul.checkbox li { 
-    border: 1px transparent solid; 
     display:inline-block;
     width:12.3em;
 } 
@@ -86,6 +92,24 @@ table#t02 th.crossed
 {
     background-image: linear-gradient(to bottom left, transparent calc(50% - 1px), #dddddd, transparent calc(50% + 1px)); 
 }
+
+/* 
+.btn-elim,
+.btn-elim:hover,
+.btn-elim:active {
+  color: black;
+  background-color: #CD5C5C;
+  border-color: black;
+}
+
+.btn-agr,
+.btn-agr:hover,
+.btn-agr:active {
+  color: black;
+  background-color: #90EE90;
+  border-color: black;
+}
+*/
 
 /* tamaño de los mapas */
 #map {
