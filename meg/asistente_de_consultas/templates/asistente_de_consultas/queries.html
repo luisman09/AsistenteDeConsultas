@@ -19,6 +19,7 @@
     <div class="box" id="box">
         <form id="queries-form" action="{% url 'asistente_de_consultas:consultas_queries' %}" method="post">
             {% csrf_token %}
+            <!--Campo de texto que permite introducir un query, seguido del boton para ejecutarlo.-->
             <div align="center">
                 <label> Introduce tu Query: </label></br></br>
                 <textarea class="form-control" id="query" name="query" rows="10" cols="60"></textarea><br>
@@ -29,6 +30,7 @@
 
             <script>
 
+                // Procede a ejecutar la consulta, o a mostrar alertas en caso de algun error de entrada.
                 $('#continuar').on('click', function(){
                     query = $('#query').val();
                     if (query == "") {

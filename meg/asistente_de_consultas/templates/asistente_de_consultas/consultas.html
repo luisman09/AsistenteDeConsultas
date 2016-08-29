@@ -17,8 +17,8 @@
 {% block contenido %}
     {% load staticfiles %}
     <div id="box" class="box">
-
         <div class="row">
+            <!--Muestra la cantidad total de elementos que arroja la consulta.-->
             <div class="col-sm-8" align="left">
                 <a href="{% url 'homepage' %}">
                     <input class="btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
@@ -26,6 +26,7 @@
                 </br></br>
                 <p>La consulta arroja  <strong style="font-size:15px">{{ total_rows }}</strong>  elementos:</p>
             </div>
+            <!--Muestra los botones para realizar la descarga de los resultados.-->
             <div class="col-sm-4" align="right">
                 <a href="{% url 'asistente_de_consultas:exportar_csv' %}">
                     <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'asistente_de_consultas/images/csv.png' %}" alt="Submit" width="64" height="64"/>
@@ -36,7 +37,7 @@
                 </a>
                 {% endif %}
             </div>
-
+        <!--Muestra los resultados de la consulta. Maximo 10 de ellos. -->
         </div>
         <table class="table table-stripped table-bordered" id="t01">
             <thead>
@@ -56,7 +57,7 @@
                 {% endfor %}
             </tfoot>
         </table>
-
+        <!--Muestra los botones de paginacion de los resultados.-->
         <div class="pagination">
             <span class="step-links">
                 {% if resultados_pag.has_previous %}

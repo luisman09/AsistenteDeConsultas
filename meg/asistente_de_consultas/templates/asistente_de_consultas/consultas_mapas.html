@@ -16,7 +16,7 @@
 
 {% block contenido %}
 
-    
+        <!--Solo muestra el mapa y toma en cuenta unas coordenadas ára ubicar un punto centro del mapa.-->
         <input class="coordenadas" id="coordenadas" hidden="true" value="{{coordenadas}}">
         <input class="coords" id="coords" hidden="true" value="{{coords}}">
         <input class="centro" id="centro" hidden="true" value="{{centro}}">
@@ -38,6 +38,7 @@
         var datos_final = JSON.parse(datos_mid)
         var icons = []
 
+        // Elige las imagenes para los centros de votación a mostrar en el mapa.
         for (i = 0; i < datos_final.length; i++) { 
             if (datos_final[i][0] == 'OPOSITOR') {
                 icons[i] = 'http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|0000FF'
@@ -56,6 +57,7 @@
             lng: cent[1]
         });
 
+        // Pinta el mapa y los centros de votacion en el mapa.
         for (i = 0; i < marks.length; i++) { 
             map.addMarker({
                 lat: marks[i][0],

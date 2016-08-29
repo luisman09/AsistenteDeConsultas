@@ -20,7 +20,7 @@
         <form id="mapas-form" action="{% url 'asistente_de_consultas:consultas_mapas' %}" method="post">
             {% csrf_token %}
 
-            <!--Select dependiente de 4 niveles para hallar ubicaciones (Edo-Mun-Parr-Centros).
+            <!--Lista desplegable dependiente de 4 niveles para hallar ubicaciones (Edo-Mun-Parr-Centros).
                 Al llegar a nivel de centros, se puede escoger mas de un elemento.-->
             <div class="form-group" id="ubicacion" name="ubicacion">
                 <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>     
@@ -57,6 +57,7 @@
 
                 aplicarMultiselect('.lista');
 
+                //Funciones para obtener las entidades dependientes de la entidad previa seleccionada.
                 $('select#edos').on('change', obtenerPrimerosMunicipios);
                 $('select#muns').on('change', obtenerPrimerasParroquias);
                 $('select#parrs').on('change', obtenerPrimerosCentros);
@@ -145,6 +146,7 @@
                     });
                 }
 
+                // Se ejecuta para mostrar el mapa.
                 $('#continuar').on('click', function(){
                     if ($('#edos').val() == "") {
                         alert("Se debe especificar al menos el Estado.");

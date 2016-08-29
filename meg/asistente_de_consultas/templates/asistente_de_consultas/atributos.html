@@ -28,17 +28,22 @@
             </div> 
             <!--A continuacion vendran varios div que realizan funciones especificas cada uno.
                 Para realizar una consulta con el asistente, sea simple o con agrupados, se debe
-                -parte-1: Seleccionar los atributos a mostrar, es decir, los que iran en la clausula del SELECT.
+                -parte-1: 
+                    Seleccionar los atributos a mostrar, es decir, los que iran en la clausula SELECT. 
                     Si la consulta es con agrupados esta parte tambien manejara la clausula GROUP BY.
-                -parte-2: Agregar las condiciones que limitaran la consulta, los que iran en la clausula del WHERE.
+                -parte-2: 
+                    Agregar las condiciones que limitaran la consulta, los que iran en la clausula WHERE.
                     A traves de las partes 1 y 2, se maneja la clausula FROM y el manejo de los JOIN.
-                -parte-3: Dar un orden si se desea a los resultados esperados, con el manejo de la clausula ORDER BY. [AUN NO ESTA IMPLEMENTADO]
-                -parte-4: Permitir ingresar un limite, con el manejo de la clausula LIMIT.
-                Las partes 2, 3 y 4 seran las mismas, la unica que varia es la parte 1.
+                -parte-3: 
+                    Dar un orden a los resultados esperados, con el manejo de la clausula ORDER BY.
+                -parte-4: 
+                    Permitir ingresar un limite, con el manejo de la clausula LIMIT.
+                Las partes 2 y 4 seran las mismas, las unicas que varian son la parte 1 y la parte 3, dependiendo de si la consulta es simple o con agrupados.
             -->
             <!--Parte 1: Consulta Simple.-->
             <div class="partes" id="parte_1-simple" hidden="true">
                 <h3 align="center"> Selecciona los atributos a mostrar </h3>
+                <!--Opciones de selección facil, (para seleccionar varios atributos a la vez).-->
                 <div class="todos-sel" align="center">
                     <input id="todos-sel" name="todos-sel" type="checkbox" value="todos-sel">
                     <label class="con-espacio"> Seleccionar Todos </label>
@@ -52,11 +57,14 @@
                     <ul class="checkbox"> 
                     {% for elem in attos_select %}
                         <li>
+                            <!--Atributos demograficos (Estado, Municipio, Parroquia, Centro).-->
                             {% if forloop.counter <= 9 %} 
                                 <input class="seleccionados dem" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
                             {% else %}
+                                <!--Atributos del elector como persona (Todo menos datos de contacto).-->
                                 {% if forloop.counter <= 27 %}
                                     <input class="seleccionados elec" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
+                                <!--Datos de contacto del elector (Celular, Email y Tlf Fijo)-->
                                 {% else %}
                                     <input class="seleccionados cont" id="attos{{ forloop.counter }}" name="attos" type="checkbox" value="{{ elem.0 }}" />
                                 {% endif %}
@@ -67,6 +75,7 @@
                     </ul> 
                 </fieldset>
                 </br>
+                <!--Checkbox que permiten escoger la opción de no mostrar datos de contacto nulos.-->
                 <div id="celular-null-div" align="center" hidden="true">
                     <input id="celular-null" name="celular-null" type="checkbox" value="celular-null"/>
                     <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen Telefonos Celulares Nulos </label>
@@ -84,7 +93,7 @@
             <div class="partes" id="parte_1-agrupados" hidden="true">
                 <h3 align="center"> Selecciona los agregados a mostrar </h3>
                 <!--Caja de checkbox que te permite escoger los atributos para mostrar seguida de
-                    una lista desplegable que permite seleccionar un agrupado.-->
+                    una lista desplegable que permite seleccionar un elemento agrupado.-->
                 <div id="consulta-agrupados">
                     <fieldset id="ag" class="group-checkbox"> 
                         <ul class="checkbox"> 
@@ -110,13 +119,13 @@
             </br>
             <!--Parte 2.-->
             <!--Cada div de esta parte tiene un boton eliminar "-" para que la opcion seleccionada no sea
-                tomada en cuenta. Algunas tienen un boton "+" para agregar elementos dinamicos extra del mismo tipo,
-                y a su vez cada elemento extra tendra un boton "x" para eliminar unicamente a ese elemento.-->
+                tomada en cuenta. 
+                Algunas tienen un boton "+" para agregar elementos dinamicos extra del mismo tipo, donde cada elemento extra tendra un boton "x" para eliminar unicamente a ese elemento.
+                Un div en particular tiene un boton "validar" para verificar que el campo introducido se encuentre en la base de datos.-->
             <div class="partes" id="parte_2" hidden="true">
                 <h3 align="center"> Selecciona las condiciones o limitantes </h3>
-                <!--Lista desplegable que te permite escoger condiciones para limitar la consulta.
-                    Funciona como una lista simple, pero puede usarse varias veces, ya que trabaja
-                    con habilitar y deshabilitar elementos.-->
+                <!--Lista desplegable de seleccion multiple que te permite escoger condiciones para 
+                    limitar la consulta.-->
                 <div align="center">
                     <select class="lista" id="conds" name="conds" multiple>
                         {% for elem in attos_where %}
@@ -125,8 +134,10 @@
                     </select>
                 </div>
                 </br></br>
-                <!--Select dependiente de 4 niveles para hallar ubicaciones (Edo-Mun-Parr-Centros).
-                    Al llegar a nivel de centros, se puede escoger mas de un elemento.
+                <!--Listas desplegables de 4 niveles dependientes para hallar ubicaciones 
+                    (Estado, Municipio, Parroquia, Centros).
+                    No es necesario especificar los 4 niveles, es decir, si se quiere solo estados, se ignoran el resto de los campos.
+                    Al llegar a nivel de centros, se puede escoger mas de un elemento (multiple).
                     Se pueden agregar hasta 25 ubicaciones diferentes, la primera es estatica y 
                     de alli en adelante son dinamicas (aparecen si se desea especificar otra ubicacion).-->
                 <div class="form-group" id="ubicacion" name="ubicacion" hidden="true">
@@ -179,7 +190,7 @@
                     </div>
                     </br> 
                 </div> 
-                <!--Select dependiente de 2 niveles para hallar ubicaciones (Edo-Circuito).
+                <!--Select dependiente de 2 niveles para hallar ubicaciones (Estado, Circuito).
                     Para que se haga valida al procesarse, deben estan seleccionados los dos elementos.
                     Se pueden agregar hasta 25 ubicaciones diferentes, la primera es estatica y 
                     de alli en adelante son dinamicas (aparecen si se desea especificar otra ubicacion).-->
@@ -223,7 +234,6 @@
                     </div>
                     </br> 
                 </div> 
-
                 <!--Input simple para buscar centros especificos por su codigo.
                     Se pueden agregar hasta 25 centros diferentes, el primero es estatico y 
                     de alli en adelante son dinamicos (aparecen si se desea especificar otro centro).
@@ -251,7 +261,8 @@
                     </div>
                     </br> 
                 </div>
-                <!--Un campo select simple para escoger la nacionalidad y un campo input para introducir la CI.
+                <!--Un campo lista desplegable simple para escoger la nacionalidad y 
+                    un campo de entrada de texto para introducir la CI.
                     Si no se introduce CI, se puede utilizar para filtrar por nacionalidad.-->
                 <div class="form-group" id="cedula-esp" name="cedula-esp" hidden="true">
                     <label class="col-sm-2 control-label"> Cédula de Identidad: </label>
@@ -270,8 +281,8 @@
                         <input class="eliminar btn btn-sm" id="eliminar-cedula-esp" name="eliminar-cedula-esp" type="image" src="{% static 'asistente_de_consultas/images/-.png' %}" OnClick="return false;"/>
                     </div>
                 </div>
-                <!--Cuatro inputs seguidos para indicar los nombres y apellidos de las personas.
-                    La busqueda es exacta, no por LIKE.-->
+                <!--Cuatro campos de entrada de texto seguidos para indicar los nombres y apellidos 
+                    de los electores. La busqueda es exacta, no por LIKE.-->
                 <div class="form-group" id="nombre-completo" name="nombre-completo" hidden="true"> 
                     <label class="col-sm-2 control-label"> Nombre Completo (Persona): </label>
                     <div class="col-sm-2"> 
@@ -290,7 +301,7 @@
                         <input class="eliminar btn btn-sm" id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="image" src="{% static 'asistente_de_consultas/images/-.png' %}" OnClick="return false;"/>
                     </div>
                 </div>  
-                <!--Dos campos input para escoger el rango de edad.-->
+                <!--Dos campos de entrada de texto para escoger el rango de edad.-->
                 <div class="form-group" id="edad" name="edad" hidden="true"> 
                     <label class="col-sm-2 control-label"> Rango de Edad: </label>
                     <div class="col-sm-2">
@@ -303,7 +314,7 @@
                         <input class="eliminar btn btn-sm" id="eliminar-edad" name="eliminar-edad" type="image" src="{% static 'asistente_de_consultas/images/-.png' %}" OnClick="return false;"/>
                     </div>
                 </div> 
-                <!--Select simple para escoger el sexo.-->
+                <!--Lista desplegable simple para escoger el sexo.-->
                 <div class="form-group" id="genero" name="genero" hidden="true">  
                     <label class="col-sm-2 control-label"> Sexo: </label>
                     <div class="col-sm-9">
@@ -318,7 +329,7 @@
                     </div>
                     </br></br>  
                 </div>  
-                <!--Select multiple para escoger los estratos socioeconomicos.-->
+                <!--Lista desplegable multiple para escoger los estratos socioeconomicos.-->
                 <div class="form-group" id="estrato-soc" name="estrato-soc" hidden="true"> 
                     <label class="col-sm-2 control-label"> Estratos Socioeconómicos: </label>
                     <div class="col-sm-9">
@@ -332,7 +343,7 @@
                     </div>
                     </br></br>  
                 </div>
-                <!--Select multiple para escoger los estados civiles.-->
+                <!--Lista desplegable multiple para escoger los estados civiles.-->
                 <div class="form-group" id="estado-civil" name="estado-civil" hidden="true"> 
                     <label class="col-sm-2 control-label"> Estados Civiles: </label>
                     <div class="col-sm-9">
@@ -346,7 +357,7 @@
                     </div>
                     </br></br>  
                 </div>
-                <!--Select multiple para escoger los Indices de Preferencia Politica.-->
+                <!--Lista desplegable multiple para escoger los Indices de Preferencia Politica.-->
                 <div class="form-group" id="ipp" name="ipp" hidden="true"> 
                     <label class="col-sm-2 control-label"> Índices de Pref. Política (IPP): </label>
                     <div class="col-sm-9">
@@ -360,7 +371,8 @@
                     </div>
                     </br></br>  
                 </div>
-                <!--Dos campos input para escoger el rango del Indice SocioEconomico Inferido.-->
+                <!--Dos campos de entrada de texto para escoger el rango del Indice SocioEconomico  
+                    Inferido.-->
                 <div class="form-group" id="isei" name="isei" hidden="true"> 
                     <label class="col-sm-2 control-label"> Rango del ISEI: </label>
                     <div class="col-sm-2">
@@ -373,7 +385,7 @@
                         <input class="eliminar btn btn-sm" id="eliminar-isei" name="eliminar-isei" type="image" src="{% static 'asistente_de_consultas/images/-.png' %}" OnClick="return false;"/>
                     </div>
                 </div> 
-                <!--Dos campos input para escoger el rango del Score.-->
+                <!--Dos campos de entrada de texto para escoger el rango del Score.-->
                 <div class="form-group" id="score" name="score" hidden="true"> 
                     <label class="col-sm-2 control-label"> Rango del Score: </label>
                     <div class="col-sm-2">
@@ -386,7 +398,7 @@
                         <input class="eliminar btn btn-sm" id="eliminar-score" name="eliminar-score" type="image" src="{% static 'asistente_de_consultas/images/-.png' %}" OnClick="return false;"/>
                     </div>
                 </div> 
-                <!--Select multiple para escoger las etiquetas score.-->
+                <!--Lista desplegable multiple para escoger las etiquetas score.-->
                 <div class="form-group" id="etiqueta-score" name="etiqueta-score" hidden="true"> 
                     <label class="col-sm-2 control-label"> Etiquetas Score: </label>
                     <div class="col-sm-9">
@@ -400,7 +412,7 @@
                     </div>
                     </br></br> 
                 </div> 
-                <!--Dos campos input para escoger el rango del Score RR.-->
+                <!--Dos campos de entrada de texto para escoger el rango del Score RR.-->
                 <div class="form-group" id="score-rr" name="score-rr" hidden="true"> 
                     <label class="col-sm-2 control-label"> Rango del Score RR: </label>
                     <div class="col-sm-2">
@@ -413,7 +425,7 @@
                         <input class="eliminar btn btn-sm" id="eliminar-score-rr" name="eliminar-score-rr" type="image" src="{% static 'asistente_de_consultas/images/-.png' %}" OnClick="return false;"/>
                     </div>
                 </div> 
-                <!--Select multiple para escoger las etiquetas score RR.-->
+                <!--Lista desplegable multiple para escoger las etiquetas score RR.-->
                 <div class="form-group" id="etiqueta-score-rr" name="etiqueta-score-rr" hidden="true"> 
                     <label class="col-sm-2 control-label"> Etiquetas Score RR: </label>
                     <div class="col-sm-9">
@@ -427,7 +439,7 @@
                     </div>
                     </br></br> 
                 </div>
-                <!--Select multiple para escoger las operadoras.-->
+                <!--Lista desplegable multiple para escoger las operadoras.-->
                 <div class="form-group" id="operadora" name="operadora" hidden="true"> 
                     <label class="col-sm-2 control-label"> Operadoras: </label>
                     <div class="col-sm-9">
@@ -441,7 +453,7 @@
                     </div> 
                     </br></br>
                 </div>
-                <!--Select simple para escoger si el elector fue validado o no.-->
+                <!--Lista desplegable simple para escoger si el elector fue validado o no.-->
                 <div class="form-group" id="validacion" name="validacion" hidden="true">  
                     <label class="col-sm-2 control-label"> Validación: </label>
                     <div class="col-sm-9">
@@ -459,6 +471,9 @@
             </div>
             </br>
             <!--Parte 3.-->
+            <!--Permite ordenar los elementos de la consulta.
+                Para cada caso se ultiza una lista de ordenes especificos a traves de una Lista desplegable de seleccion simple.
+                -->
             <div class="partes" id="parte_3-simple" hidden="true">
                 <div class="form-group" id="ordenar" name="ordenar">  
                     <label class="col-sm-2 control-label"> Establece un orden: </label>
@@ -488,6 +503,8 @@
                 </div> 
             </div>
             <!--Parte 4.-->
+            <!--Permite indicar el numero de elementos maximos que deseas que te arroje la consulta
+                mendiante una campo de entrada de texto.-->
             <div class="partes" id="parte_4" hidden="true">
                 <div class="form-group" id="lim" name="lim">  
                     <label class="col-sm-2 control-label"> Limita los Resultados: </label>
@@ -498,8 +515,8 @@
                 </div>  
             </div>
             </br>
-            <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida
-                y la ejecuta.-->
+            <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida, y
+                si es valida la ejecuta, si no lanza un mensaje de advertencia sobre lo que falta.-->
             <div id="boton-continuar" align="center" hidden="true">
                 <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
             </div>
@@ -508,6 +525,7 @@
             <!--Manejo de scripts que permiten las funcionalidades javascript, jquery y ajax.-->
             <script>
 
+                // Variable que indica el tipo de la consulta (0=Simple, 1=Agrupados).
                 tipo_consulta = 0; // Variable que indica el tipo de la consulta (0=Simple, 1=Agrupados).
 
                 // Se ejecuta cuando se elige una consulta simple.
@@ -548,6 +566,8 @@
                 // algun dato de tipo contacto en el checkbox de datos a mostrar para la consulta.
                 // Ellas muestran la opcion para que el usuario pueda especificar si en su consulta,
                 // desea mostrar datos de personas que posean o no ese dato de contacto.
+                /* IMPORTANTE: Es importante resaltar que de haber un cambio que afecte la posicion
+                    de estos elementos en la lista de atributos, el numero de attos de estos elementos debera cambiarse. */
                 $('input.cont').on('change', mostrarOpcionNull);
 
                 function mostrarOpcionNull() {
@@ -673,7 +693,7 @@
                 }
 
                 // Al eliminar la opcion, se oculta la opcion que condiciona y se habilita nuevamente 
-                // la opcion para que pueda ser elegida nuevamente. Cuando el elemento es excluyente 
+                // la opcion para que pueda volver a ser elegida. Cuando el elemento es excluyente 
                 // (si se selecciona uno, no se puede seleccionar otro) hay casos particulares.
                 function eliminarOpcion(){
                     var x = $(this).attr("name");

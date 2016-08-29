@@ -26,6 +26,7 @@
                     <ul class="checkbox"> 
                     {% for elem in attos_select %}
                         <li>
+                            <!--La cédula siempre estará seleccionada.-->
                             {% if elem.0 = "Cedula" %}
                                 <input class="seleccionados" id="attos-cedula" name="attos" type="checkbox" value="{{ elem.0 }}" checked disabled="true" />
                                 <label for="attos{{ forloop.counter }}"> {{ elem.0 }} </label>
@@ -40,12 +41,13 @@
             </div>
             </br>
             <div align="center">
-
                 <p>Ingresa el archivo que contiene la lista de cédulas de identidad que deseas cruzar</p>
                 <input class="btn btn-primary" id="csv_file" name="csv_file" type="file" accept=".csv"/>
-                <small> El archivo debe estar en formato .csv y debe tener una única columna (con encabezado) </small>
+                <small> El archivo debe estar en formato .csv, debe tener una única columna (con encabezado) </small>
                 </br>
-                <small> referente al número de cédula de los electores. La nacionalidad siempre sera 'V'. </small>
+                <small> referente al número de cédula de los electores donde la nacionalidad siempre sera 'V'. </small>
+                </br>
+                <small> y no debe sobrepasar la cantidad del millon de datos. </small>
             </div>
             </br>
             <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida
@@ -56,6 +58,7 @@
 
             <script>
 
+                // Se ejecuta cuando se cree tener todo lo necesario para realizar la carga y la consulta.
                 $('#continuar').on('click', function() {
                     var filename = $('#csv_file').val().split('\\').pop();
                     var extension = filename.split('.').pop();

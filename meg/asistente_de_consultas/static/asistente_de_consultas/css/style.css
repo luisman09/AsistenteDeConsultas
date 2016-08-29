@@ -1,4 +1,4 @@
-/* cuerpo de la app */
+/* Cuerpo de la app (Background) */
 .body {
     background: url(../images/bg.jpg) no-repeat center center fixed; 
     -webkit-background-size: cover;
@@ -7,34 +7,35 @@
     background-size: cover;
 }
 
-/* caja principal que guarda todo */
+/* Caja principal que guarda todo (Invisible, pero conserva margenes) */
 .box {
     margin-left: 1cm;
     margin-right: 1cm;
 }
 
-/* partes de las consultas */
+/* Partes de las consultas (Color del texto) */
 .partes {
     color: #333;
 }
 
-/* titulos de las partes */
+/* Titulos de las partes (Tamaño) */
 .partes h3 {
     font-size: 20px;
 }
 
-/* para agregar espacio horizontal */
+/* Para agregar 3 espacios horizontales entre elementos */
 .con-espacio {
     display: inline;
     padding-right: 3em;
 }
 
+/* Para agregar 1 espacio horizontal entre elementos */
 .con-espacio-1 {
     display: inline;
     padding-right: 1em;
 }
 
-/* grupos de checkbox */
+/* Grupo de checkboxes (Color background y estilo del borde) */
 .group-checkbox {
     background-color: white;
     padding: 5px;
@@ -44,74 +45,59 @@
     border-radius: 15px 15px 15px 15px;
 }
 
-ul.checkbox  { 
-} 
-
+/* Checkboxes horizontales (Misma distancia entre elementos) */
 ul.checkbox li { 
     display:inline-block;
     width:12.3em;
 } 
 
-/* multiselect */
+/* Multiselect (Amplitud maxima del despliegue de la lista) */
 .multiselect .dropdown-toggle .btn .btn-default {
     width: 150px; 
 }
 
-/* tabla con los resultados y tabla para la matriz de muestreo */
+/* Tabla con los resultados y tabla para la matriz de muestreo */
+/* (Longitud por defecto) */
 table {
     width:100%;
 }
 
+/* (Bordes y textos de las cabeceras) */
 table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
 }
-
 th, td {
     padding: 3px;
     text-align: left;
 }
 
+/* (Color de texto y background de los elementos pares) */
 table tr:nth-child(even) {
     background-color: #dddddd;
     color: black;
 }
 
+/* (Color de texto y background de los elementos impares) */
 table tr:nth-child(odd) {
     background-color: #eeeeee;
     color: black;
 }
 
-table th    {
+/* (Color, espacio y background de los elementos de la cabecera) */
+table th {
     padding: 5px;
     background-color: #286090;
     color: white;
 }
 
+/* (Linea diagonal del primer elemento de la tabla de muestreo) */
 table#t02 th.crossed
 {
     background-image: linear-gradient(to bottom left, transparent calc(50% - 1px), #dddddd, transparent calc(50% + 1px)); 
 }
 
-/* 
-.btn-elim,
-.btn-elim:hover,
-.btn-elim:active {
-  color: black;
-  background-color: #CD5C5C;
-  border-color: black;
-}
-
-.btn-agr,
-.btn-agr:hover,
-.btn-agr:active {
-  color: black;
-  background-color: #90EE90;
-  border-color: black;
-}
-*/
-
-/* tamaño de los mapas */
+/* Mapas (Tamaño y borde) */
 #map {
     width: 95%;
     height: 400px;

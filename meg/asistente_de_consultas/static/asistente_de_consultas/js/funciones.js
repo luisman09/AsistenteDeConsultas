@@ -30,7 +30,6 @@ function aMayusculas(obj,id){
     document.getElementById(id).value = obj;
 }
 
-
 // Funcion que despliega los componentes multiselect.
 function aplicarMultiselect(elemento) {
     $(elemento).multiselect({

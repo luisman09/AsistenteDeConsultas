@@ -183,7 +183,6 @@ def agregarCondiciones(attos_where):
         elif tipo == "multiple": # Select Multiple: estrato, estado civil, ipp, operadora, etc.
                                  # Tambien aplica para el Caso Particular: Centros Especificos.
             disj_or = ""
-            print elem[1]
             for e in elem[1][1:]:
                 if e:
                     if disj_or == "":
@@ -350,8 +349,8 @@ def crearConsulta(attos_select, attos_where, agrupado, orden, limite):
             order_by_items = " ORDER BY " + elem_agr_ord + " DESC" 
         elif ("'2'" in orden):
             order_by_items = " ORDER BY " + elem_agr_ord
-        print orden
-        print order_by_items
+        #print orden
+        #print order_by_items
     if limite[0]:
         limit = " LIMIT " + limite[0];
     # Se crea la consulta completa.
@@ -686,7 +685,7 @@ def consultas_queries(request):
         query = request.POST.get('query')
         consulta_final = query
         resultados = ejecutarConsulta(consulta_final, True, usuario)
-        print resultados_consulta
+        #print resultados_consulta
         attos_select = resultados[0]
         resultados_consulta = resultados[1]
 
