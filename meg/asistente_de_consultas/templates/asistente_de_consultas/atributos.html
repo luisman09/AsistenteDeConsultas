@@ -522,6 +522,9 @@
             </div>
             </br>
 
+
+
+
             <!--Manejo de scripts que permiten las funcionalidades javascript, jquery y ajax.-->
             <script>
 
@@ -530,17 +533,21 @@
 
                 // Se ejecuta cuando se elige una consulta simple.
                 // Muestra las partes necesarias para crear una consulta simple.
-                $('#consulta-simple').on('click', function() {
+                $('#consulta-simple').on('click', activarSimple);
+
+                function activarSimple() {
                     $('#consulta-simple').hide();
                     $('#consulta-agrupados').hide();
                     $('div#parte_1-simple').show();
                     $('div#parte_3-simple').show();
                     activarPartes();
-                });
+                }
 
                 // Se ejecuta cuando se elige una consulta con agrupados.
                 // Muestra las partes necesarias para crear una consulta con agrupados.
-                $('#consulta-agrupados').on('click', function() {
+                $('#consulta-agrupados').on('click', activarAgrupado);
+
+                function activarAgrupado() {
                     $('#consulta-agrupados').hide();
                     $('#consulta-simple').hide();
                     $('div#parte_1-agrupados').show();
@@ -548,7 +555,7 @@
                     aplicarMultiselect('#agrupados');
                     tipo_consulta = 1;
                     activarPartes();
-                });
+                }
 
                 // Muestra las otras opciones (condiciones, orden y limites,) para cualquier tipo
                 // de consulta y permite que todas las listas de la clase lista tomen la forma del 
@@ -664,25 +671,25 @@
                 // excluyente (si se selecciona uno, no se puede seleccionar otro) hay casos particulares.
                 function manipularOpcion() {
                     var op = $('#conds').val();
-                    var msj = false;
+                    manipular(op[0]);
+                }
+
+                function manipular(op) {
                     for (var i = 0; i < op.length; i++) {
-                        $('div#'+op[i]).attr('hidden', false);
-                        if (op[i] == 'ubicacion') {
-                            console.log("ubicacion")
+                        $('div#'+op).attr('hidden', false);
+                        if (op == 'ubicacion') {
                             $('select#edos').on('change', obtenerPrimerosMunicipios);
                             $('select#muns').on('change', obtenerPrimerasParroquias);
                             $('select#parrs').on('change', obtenerPrimerosCentros);
                             $('select#conds option:eq(1)').attr('disabled', true);
                             $('select#conds option:eq(2)').attr('disabled', true);
                         }
-                        if (op[i] == 'ubicacion-circs') {
-                            console.log("ubicacion-circs")
+                        if (op == 'ubicacion-circs') {
                             $('select#edos-circs').on('change', obtenerPrimerosCircuitos);
                             $('select#conds option:first').attr('disabled', true);
                             $('select#conds option:eq(2)').attr('disabled', true);
                         }
-                        if (op[i] == 'centro-esp') {
-                            console.log("centro-esp")
+                        if (op == 'centro-esp') {
                             $('#validar-centro-id').on('click', {id_elem: "centro-id"}, validarPrimerCentro);
                             $('select#conds option:first').attr('disabled', true);
                             $('select#conds option:eq(1)').attr('disabled', true);
@@ -697,7 +704,6 @@
                 // (si se selecciona uno, no se puede seleccionar otro) hay casos particulares.
                 function eliminarOpcion(){
                     var x = $(this).attr("name");
-                    console.log(x)
                     var div_container;
                     if ($(this).attr("name") == 'eliminar-ubicacion' || 
                         $(this).attr("name") == 'eliminar-ubicacion-circs' || 
@@ -726,6 +732,43 @@
                     $('select#conds').multiselect('refresh');
                 }
 
+window.onload = function() {
+
+    if (window.history.state) {
+        console.log("vengo de back (state)");
+
+        var tip_cons = history.state.tip_cons;
+
+        if (tip_cons == 0) {
+            activarSimple();
+            mostrarOpcionNull();
+        } else {
+            activarAgrupado();
+        }
+        $('select#conds :selected').each(function(i, selected){ 
+            op = $(selected).attr('id'); 
+            manipular(op);
+        });
+
+
+        var ubi1 = history.state.ubi1;
+        console.log(ubi1);
+        obtenerMunicipios(ubi1[0], 'muns', 'parrs', 'ctros', ubi1[1]);
+        obtenerParroquias(ubi1[1], 'parrs', 'ctros', ubi1[2]);
+        obtenerCentros(ubi1[2], 'ctros', ubi1[3]);
+
+
+
+    } else {
+        console.log("empezando (no state)");
+    }
+    return true;
+
+}
+
+
+
+
                 // Se ejecuta cuando se cree tener todos los parametros para realizar la consulta.
                 // Verifica si la consulta sera factible, y en dado caso procedera a ejecutarla,
                 // o, si no es factible, mandara una alerta con algun mensaje de error. 
@@ -733,7 +776,17 @@
                     //opcionesDeshabilitadas();
                     if (tipo_consulta == 0) {
                         var check = $('.seleccionados').is(':checked');
+                        // aquiiiiiiiiiiiiiiiiiiiiiiiiii
+                        //var check = true;
                         if (check) {
+
+
+var x = 0;
+var ubi1 = [$('select#edos').val(), $('select#muns').val(), $('select#parrs').val(), $('select#ctros').val()]
+
+history.replaceState({tip_cons: x, ubi1: ubi1}, '', '');
+
+
                             $('select#conds option:selected').attr('disabled', false);
                             $('#atributos-form').submit();
                         } else {
@@ -742,6 +795,10 @@
                     } else {
                         var op = $('select#agrupados').val();
                         if (op != "") {
+
+var x = 1;
+history.replaceState({tip_cons: x}, '', '');
+
                             $('select#conds option:selected').attr('disabled', false);
                             $('#atributos-form').submit();
                         } else {
@@ -952,16 +1009,26 @@
                     obtenerCentros(parr,'ctros');
                 }
 
-                // Obtiene todos los Municipios de un Estado especifico.
-                function obtenerMunicipios(edo,id_muns,id_parrs,id_ctros){
+                function obtenerMunicipios(edo,id_muns,id_parrs,id_ctros,mun){
                     $.ajax({
                         data: {'edo': edo},
                         url: "{% url 'asistente_de_consultas:busqueda_ajax' %}",
                         type: 'get',
                         success: function(data){
-                            var options = '<option value="" selected> Municipio </option>'
-                            for (var i = 0; i < data.length; i++) {
-                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                            if (mun) {
+                                var options = '<option value=""> Municipio </option>'
+                                for (var i = 0; i < data.length; i++) {
+                                    if (data[i].pk != mun) {
+                                        options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                                    } else {
+                                        options += '<option value="' + data[i].pk + '" selected>' + data[i].fields['nombre'] + '</option>';
+                                    }
+                                }
+                            } else {
+                                var options = '<option value="" selected> Municipio </option>'
+                                for (var i = 0; i < data.length; i++) {
+                                    options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                                }
                             }
                             var options2 = '<option value="" selected> Parroquia </option>'
                             var options3 = ''
@@ -979,15 +1046,26 @@
                 }
 
                 // Obtiene todas las Parroquias de un Municipio especifico.
-                function obtenerParroquias(mun,id_parrs,id_ctros){
+                function obtenerParroquias(mun,id_parrs,id_ctros,parr){
                     $.ajax({
                         data: {'mun': mun},
                         url: "{% url 'asistente_de_consultas:busqueda_ajax2' %}",
                         type: 'get',
                         success: function(data){
-                            var options = '<option value="" selected> Parroquia </option>'
-                            for (var i = 0; i < data.length; i++) {
-                                options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
+                            if (parr) {
+                                var options = '<option value=""> Parroquia </option>'
+                                for (var i = 0; i < data.length; i++) {
+                                    if (data[i].pk != parr) {
+                                        options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>'; 
+                                    } else {
+                                        options += '<option value="' + data[i].pk + '" selected>' + data[i].fields['nombre'] + '</option>';
+                                    }
+                                }
+                            } else {
+                                var options = '<option value="" selected> Parroquia </option>'
+                                for (var i = 0; i < data.length; i++) {
+                                    options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
+                                }
                             }
                             var options2 = ''
                             $('select#'+id_parrs).html(options);
@@ -1001,15 +1079,26 @@
                 }
 
                 // Obtiene todas los Centros de una Parroquia especifica.
-                function obtenerCentros(parr,id_ctros){
+                function obtenerCentros(parr,id_ctros,ctros){
                     $.ajax({
                         data: {'parr': parr},
                         url: "{% url 'asistente_de_consultas:busqueda_ajax3' %}",
                         type: 'get',
                         success: function(data){
-                            var options = ''
-                            for (var i = 0; i < data.length; i++) {
-                                options += '<option value="' + data[i].pk + '">' + data[i].pk + '</option>';
+                            if (ctros) {
+                                var options = ''
+                                for (var i = 0; i < data.length; i++) {
+                                    if (ctros.includes(String(data[i].pk))) {
+                                        options += '<option value="' + data[i].pk + '" selected>' + data[i].fields['nombre'] + '</option>'; 
+                                    } else {
+                                        options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
+                                    }
+                                }
+                            } else {
+                                var options = ''
+                                for (var i = 0; i < data.length; i++) {
+                                    options += '<option value="' + data[i].pk + '">' + data[i].fields['nombre'] + '</option>';
+                                }
                             }
                             $('select#'+id_ctros).html(options);
                             aplicarMultiselect('select#'+id_ctros);

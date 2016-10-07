@@ -582,6 +582,18 @@ class AtributosView(generic.ListView):
         context['orden_agrupados'] = lista_orden_agrupados
         return context
 
+    #def get(self, request, *arg, **kwargs):
+
+
+    #    t = request.GET.get('q')
+
+        #if t:
+        #    print "hola si " + t
+        #else:
+        #    print "no"
+        #return super(AtributosView, self).get(request)
+        #return render_to_response('asistente_de_consultas/atributos.html', context_instance=RequestContext(request))
+
 
 # La funcion consultas tiene dos funciones en particular:
 # 1- recibir todos los request introducidos por el usuario a traves del formulario,
@@ -635,6 +647,8 @@ def consultas(request):
                 else:
                     c = consulta_final.partition('WHERE')
                     consulta_final = c[0] + c[1] + ' ' + no_null + ' AND' + c[2]
+        # AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII QUITAR
+        consulta_final = "select * from estado";
         resultados_consulta = ejecutarConsulta(consulta_final, False, usuario)
         # Si hay un agrupado se agrega a los atributos a mostrar
         if agrupado[0]:

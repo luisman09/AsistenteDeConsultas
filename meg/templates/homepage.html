@@ -23,17 +23,17 @@
             </br>
             <p> Indica la opción que quieras realizar: </p>
             </br>
-            <a class="limpiarGlobales" href="{% url "asistente_de_consultas:atributos" %}">
-                <input class="btn btn-primary" type="button" value="Realizar consulta a través del asistente"/>
+            <a href="{% url "asistente_de_consultas:atributos" %}">
+                <input class="btn btn-primary" id="adc" type="button" value="Realizar consulta a través del asistente"/>
             </a>
-            <a class="limpiarGlobales" href="{% url "asistente_de_consultas:queries" %}">
+            <a href="{% url "asistente_de_consultas:queries" %}">
                 <input class="btn btn-primary" type="button" value="Realizar consulta directa en SQL"/>
             </a>
             </br></br>
-            <a class="limpiarGlobales" href="{% url "asistente_de_consultas:muestras" %}">
+            <a href="{% url "asistente_de_consultas:muestras" %}">
                 <input class="btn btn-primary" type="button" value="Utilizar el generador de muestras"/>
             </a>
-            <a class="limpiarGlobales" href="{% url "asistente_de_consultas:cargas" %}">
+            <a href="{% url "asistente_de_consultas:cargas" %}">
                 <input class="btn btn-primary" type="button" value="Cruzar cédulas a partir de un archivo"/>
             </a>
             </br></br>
@@ -47,10 +47,16 @@
             {% endif %}
 
             </br>
+
+            <script>
+            
+            </script>
+
         </div>
     {% else %}
         <!-- Si el usuario no esta logeado, se redirige automaticamente a la pagina de login -->
         <META http-equiv="refresh" content="0;{% url "login" %}">
     {% endif %}
+
 
 {% endblock %}
